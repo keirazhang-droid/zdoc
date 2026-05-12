@@ -1371,13 +1371,21 @@ app.post('/chat', async c => {
           });
 
           if (routeResult.outcome === 'clarification') {
+            logEvent(session.id, userId, 'routing', routeResult.agent, {
+              requestId,
+              outcome: routeResult.outcome,
+              reasoningSummary: summarizeForDebugLog(routeResult.reasoning, 'reasoning'),
+              clarificationSummary: summarizeForDebugLog(routeResult.clarification_question, 'clarification'),
+              messageSummary: summarizeForDebugLog(rawQuery, 'message'),
+            }, userMeta, source);
             sendAndRecord('delta', JSON.stringify({text: routeResult.clarification_question}));
             sendAndRecord('done', JSON.stringify({stop_reason: 'clarification'}));
             debug('chat.response.completed', {
               status: 'clarification',
+              outcome: routeResult.outcome,
+              reasoningSummary: summarizeForDebugLog(routeResult.reasoning, 'reasoning'),
               totalDurationMs: Date.now() - tChatStart,
             });
-            recordLlmSuccess();
             resolveOwnedInflight(replayableEvents(recordedEvents));
             return;
           }

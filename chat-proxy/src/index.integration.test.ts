@@ -99,10 +99,11 @@ vi.mock('./admin.js', async () => {
 import {app, clearResponseCache} from './index.js';
 import {streamText} from 'ai';
 import {checkGuard} from './guard.js';
-import {llmHealth} from './health.js';
+import * as healthModule from './health.js';
+const {llmHealth} = healthModule;
 import {logEvent} from './logger.js';
 import {recordFeedback} from './feedback.js';
-import {routeIntent} from './router.js';
+import {routeIntent, type RouteOutcome} from './router.js';
 import {clearPolicyCache, loadTopicPolicies} from './policy/catalog.js';
 
 function parseSSE(text: string): Array<{event: string; data: any}> {
@@ -250,12 +251,14 @@ describe('HTTP Endpoints', () => {
   });
 
   it('POST /chat clarification route emits clarification SSE and short-circuits downstream pipeline', async () => {
-    vi.mocked(routeIntent).mockResolvedValue({
+    const clarificationRoute = {
       outcome: 'clarification',
       agent: 'general',
       clarification_question: 'Could you clarify whether you need setup or pricing help?',
       reasoning: 'ambiguous intent',
-    } as any);
+    } satisfies RouteOutcome;
+    vi.mocked(routeIntent).mockResolvedValue(clarificationRoute);
+    const recordLlmSuccessSpy = vi.spyOn(healthModule, 'recordLlmSuccess');
 
     const res = await app.request('/chat', {
       method: 'POST',
@@ -268,7 +271,10 @@ describe('HTTP Endpoints', () => {
     expect(events.find(e => e.event === 'delta')?.data?.text).toBe('Could you clarify whether you need setup or pricing help?');
     expect(events.find(e => e.event === 'done')?.data?.stop_reason).toBe('clarification');
     expect(events.some(e => e.event === 'agent')).toBe(false);
+    expect(events.some(e => e.event === 'status' && e.data?.phase === 'retrieving')).toBe(false);
+    expect(events.some(e => e.event === 'status' && e.data?.phase === 'generating')).toBe(false);
     expect(vi.mocked(streamText)).not.toHaveBeenCalled();
+    expect(recordLlmSuccessSpy).not.toHaveBeenCalled();
   });
 
   it('POST /chat router failure fallback emits clarification outcome shape', async () => {
@@ -285,6 +291,8 @@ describe('HTTP Endpoints', () => {
     expect(events.find(e => e.event === 'delta')?.data?.text).toContain('Could you share a bit more detail');
     expect(events.find(e => e.event === 'done')?.data?.stop_reason).toBe('clarification');
     expect(events.some(e => e.event === 'agent')).toBe(false);
+    expect(events.some(e => e.event === 'status' && e.data?.phase === 'retrieving')).toBe(false);
+    expect(events.some(e => e.event === 'status' && e.data?.phase === 'generating')).toBe(false);
     expect(vi.mocked(streamText)).not.toHaveBeenCalled();
   });
 
