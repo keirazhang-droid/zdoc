@@ -26,11 +26,16 @@ import {generateObject, generateText} from 'ai';
 const mockGenerateObject = vi.mocked(generateObject);
 const mockGenerateText = vi.mocked(generateText);
 
-const routed = (agent: 'general' | 'schema' | 'resources' | 'product' | 'code', topic: string, reasoning: string, intent_id: string | null = null) => ({
+const routed = (
+  agent: 'general' | 'schema' | 'resources' | 'product' | 'code',
+  topicOrTopics: string | string[],
+  reasoning: string,
+  intent_id?: string | null,
+) => ({
   outcome: 'routed' as const,
   agent,
-  topics: [topic],
-  intent_id,
+  topics: Array.isArray(topicOrTopics) ? topicOrTopics : [topicOrTopics],
+  ...(intent_id !== undefined ? {intent_id} : {}),
   reasoning,
 });
 
@@ -66,35 +71,35 @@ describe('routeIntent', () => {
     expect(result.reasoning).toBe('test');
   });
 
-  it('enforces routed contract with exactly one topic and nullable intent_id', async () => {
+  it('enforces routed contract with 1-2 topics and optional nullable intent_id', async () => {
     mockGenerateObject.mockResolvedValueOnce({
-      object: routed('schema', 'schema-design', 'single topic', null),
+      object: routed('schema', ['schema-design', 'indexes'], 'multi topic', null),
     } as any);
 
     const result = await routeIntent('design my collection', [], 'sess-contract');
 
     expect(result.outcome).toBe('routed');
     if (result.outcome === 'routed') {
-      expect(result.topics).toHaveLength(1);
+      expect(result.topics).toHaveLength(2);
+      expect(result.topics).toEqual(['schema-design', 'indexes']);
       expect(result.intent_id).toBeNull();
     }
   });
 
-  it('returns clarification outcome when classifier returns ambiguous multiple topics', async () => {
+  it('returns routed outcome when classifier returns two topics', async () => {
     mockGenerateObject.mockResolvedValueOnce({
       object: {
         agent: 'product',
         topics: ['pricing', 'resources'],
-        reasoning: 'ambiguous',
+        reasoning: 'dual topic',
       },
     } as any);
 
     const result = await routeIntent('compare plans', [], 'sess-ambiguous');
 
-    expect(result.outcome).toBe('clarification');
-    if (result.outcome === 'clarification') {
-      expect(result).not.toHaveProperty('topics');
-      expect(result.clarification_question.length).toBeGreaterThan(0);
+    expect(result.outcome).toBe('routed');
+    if (result.outcome === 'routed') {
+      expect(result.topics).toEqual(['pricing', 'resources']);
     }
   });
 
@@ -210,14 +215,14 @@ describe('routeIntent', () => {
     expect(callArgs.prompt).toContain('zilliz-cli:');
   });
 
-  it('normalizes invalid intent_id to null for policy topic', async () => {
+  it('keeps routed intent_id when provided by the router', async () => {
     mockGenerateObject.mockResolvedValueOnce({
       object: {
         outcome: 'routed',
         agent: 'general',
         topics: ['zilliz-cli'],
         intent_id: 'not-a-real-policy-intent',
-        reasoning: 'zcli intent guessed incorrectly',
+        reasoning: 'zcli intent guessed',
       },
     } as any);
 
@@ -226,18 +231,18 @@ describe('routeIntent', () => {
     expect(result.outcome).toBe('routed');
     if (result.outcome === 'routed') {
       expect(result.topics).toEqual(['zilliz-cli']);
-      expect(result.intent_id).toBeNull();
+      expect(result.intent_id).toBe('not-a-real-policy-intent');
     }
   });
 
-  it('normalizes non-null intent_id to null for non-policy topic', async () => {
+  it('keeps non-null intent_id for non-policy topic', async () => {
     mockGenerateObject.mockResolvedValueOnce({
       object: {
         outcome: 'routed',
         agent: 'schema',
         topics: ['indexes'],
-        intent_id: 'zcli_get_started_in_minutes',
-        reasoning: 'incorrectly attached policy intent id',
+        intent_id: 'some-intent-id',
+        reasoning: 'intent id provided by router',
       },
     } as any);
 
@@ -246,25 +251,21 @@ describe('routeIntent', () => {
     expect(result.outcome).toBe('routed');
     if (result.outcome === 'routed') {
       expect(result.topics).toEqual(['indexes']);
-      expect(result.intent_id).toBeNull();
+      expect(result.intent_id).toBe('some-intent-id');
     }
   });
 
-  it('includes policy intent-id guidance in router prompt', async () => {
+  it('treats routed intent_id as optional in router output', async () => {
     mockGenerateObject.mockResolvedValueOnce({
-      object: routed('product', 'on-demand-search', 'on-demand policy guidance check', 'ods_limitations'),
+      object: routed('product', 'on-demand-search', 'intent id omitted'),
     } as any);
 
-    await routeIntent('What are on-demand search limitations?', [], 'sess-policy-guidance-prompt');
+    const result = await routeIntent('What are on-demand search limitations?', [], 'sess-policy-guidance-prompt');
 
-    const callArgs = mockGenerateObject.mock.calls[0][0] as any;
-    expect(callArgs.prompt).toContain('Policy intent_id guidance');
-    expect(callArgs.prompt).toContain('zilliz-cli intent_id allowed values');
-    expect(callArgs.prompt).toContain('zcli_get_started_in_minutes');
-    expect(callArgs.prompt).toContain('on-demand-search intent_id allowed values');
-    expect(callArgs.prompt).toContain('ods_limitations');
-    expect(callArgs.prompt).toContain('external-data-lake-search intent_id allowed values');
-    expect(callArgs.prompt).toContain('external_data_lake_search_supported_formats');
+    expect(result.outcome).toBe('routed');
+    if (result.outcome === 'routed') {
+      expect(result.intent_id).toBeUndefined();
+    }
   });
 
   it('accepts indexes topic from the router and describes it in prompt', async () => {

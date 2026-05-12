@@ -32,8 +32,8 @@ const routeSchema = z.discriminatedUnion('outcome', [
   z.object({
     outcome: z.literal('routed'),
     agent: z.enum(['general', 'schema', 'resources', 'product', 'code']),
-    topics: z.tuple([z.enum(TOPIC_ENUM)]).describe('Exactly one relevant topic'),
-    intent_id: z.string().nullable(),
+    topics: z.array(z.enum(TOPIC_ENUM)).min(1).max(2).describe('One or two relevant topics'),
+    intent_id: z.string().nullable().optional(),
     reasoning: z.string(),
   }),
   z.object({
@@ -51,16 +51,16 @@ export type RouteOutcome = z.infer<typeof routeSchema>;
 // ---------------------------------------------------------------------------
 
 const routeTool = tool({
-  description: 'Classify the user query as either a routed outcome with one topic or a clarification outcome.',
+  description: 'Classify the user query as either a routed outcome with one or two topics, or a clarification outcome.',
   inputSchema: z.discriminatedUnion('outcome', [
     z.object({
       outcome: z.literal('routed'),
       agent: z.enum(['general', 'schema', 'resources', 'product', 'code'])
         .describe('The agent that best matches the user intent'),
-      topics: z.tuple([z.enum(TOPIC_ENUM)])
-        .describe('Exactly one relevant topic'),
-      intent_id: z.string().nullable()
-        .describe('Intent identifier when available, otherwise null'),
+      topics: z.array(z.enum(TOPIC_ENUM)).min(1).max(2)
+        .describe('One or two relevant topics'),
+      intent_id: z.string().nullable().optional()
+        .describe('Intent identifier when available'),
       reasoning: z.string()
         .describe('Brief explanation of why this routed outcome was chosen'),
     }),
@@ -108,7 +108,7 @@ Agents:
 `;
 
 const TOPIC_DESCRIPTIONS = `
-Topics (select exactly 1 for routed outcomes):
+Topics (select 1-2 for routed outcomes):
 - schema-design: Collection schema, field types, BM25 setup, limits
 - indexes: Vector and scalar indexing strategy, index support/limits, index lifecycle constraints
 - search: Vector search, filtered search, BM25 full text search, hybrid search, RRF
@@ -161,35 +161,6 @@ Input: "What is Zilliz Cloud?"
 Output: {"outcome": "clarification", "agent": "general", "clarification_question": "Could you share what you want to know about Zilliz Cloud (pricing, setup, features, or comparisons)?", "reasoning": "The request is broad and needs clarification to route precisely."}
 `;
 
-const POLICY_TOPIC_INTENT_IDS: Record<string, readonly string[]> = {
-  'zilliz-cli': [
-    'zcli_get_started_in_minutes',
-    'zcli_agent_skill_setup',
-    'zcli_usage_patterns',
-    'zcli_roadmap_feedback',
-  ],
-  'on-demand-search': [
-    'ods_fit_infrequent_batch',
-    'ods_cost_vs_serving_cluster',
-    'ods_cost_vs_serverless',
-    'ods_limitations',
-  ],
-  'external-data-lake-search': [
-    'external_data_lake_search_best_fit_use_cases',
-    'external_data_lake_search_how_it_works',
-    'external_data_lake_search_supported_formats',
-    'external_data_lake_search_sync_updates',
-  ],
-};
-
-const POLICY_INTENT_GUIDANCE = `
-Policy intent_id guidance:
-- For non-policy topics, intent_id MUST be null.
-- For policy topics below, intent_id MUST be one of the allowed values or null.
-- zilliz-cli intent_id allowed values: zcli_get_started_in_minutes, zcli_agent_skill_setup, zcli_usage_patterns, zcli_roadmap_feedback
-- on-demand-search intent_id allowed values: ods_fit_infrequent_batch, ods_cost_vs_serving_cluster, ods_cost_vs_serverless, ods_limitations
-- external-data-lake-search intent_id allowed values: external_data_lake_search_best_fit_use_cases, external_data_lake_search_how_it_works, external_data_lake_search_supported_formats, external_data_lake_search_sync_updates
-`;
 
 function buildRouterPrompt(
   latestMessage: string,
@@ -207,7 +178,6 @@ function buildRouterPrompt(
 
 ${AGENT_DESCRIPTIONS}
 ${TOPIC_DESCRIPTIONS}
-${POLICY_INTENT_GUIDANCE}
 ${FEW_SHOT_EXAMPLES}
 ${stickyAgent ? `\nCurrent agent: ${stickyAgent}. Stay with this agent unless the topic has clearly changed.\n` : ''}
 Recent conversation:
@@ -215,7 +185,7 @@ ${contextMessages}
 
 Latest user message: ${latestMessage}
 ${weakModelHint}
-Route to the most appropriate agent. For confident routing, return outcome "routed" with exactly one topic and nullable intent_id. If ambiguous, return outcome "clarification" with a clarification_question and no topics. Output ONLY valid JSON with one exact shape:
+Route to the most appropriate agent. For confident routing, return outcome "routed" with 1-2 topics. intent_id is optional and may be omitted or null. If ambiguous, return outcome "clarification" with a clarification_question and no topics. Output ONLY valid JSON with one exact shape:
 {"outcome":"routed","agent":"...","topics":["..."],"intent_id":null,"reasoning":"..."}
 OR
 {"outcome":"clarification","agent":"...","clarification_question":"...","reasoning":"..."}`;
@@ -315,7 +285,7 @@ Agents:
 - product: Product comparison (Serverless vs Dedicated vs BYOC), feature availability, migration
 - code: Explicit requests for SDK code, API calls, runnable examples, syntax, implementation details, or troubleshooting code errors. For schema design questions (collections, fields, indexes, partition keys, BM25), route to schema even if phrased as "how do I". Do not route conceptual product, reranking, tuning, tradeoff, limitation, cost, latency, or "when should I use..." questions to code unless the user explicitly asks for code.
 
-Topics (select exactly 1 for routed outcomes):
+Topics (select 1-2 for routed outcomes):
 - schema-design: Collection schema, field types, BM25 setup, limits
 - indexes: Vector and scalar indexing strategy, index support/limits, index lifecycle constraints
 - search: Vector search, filtered search, BM25 full text search, hybrid search, RRF
@@ -340,7 +310,7 @@ ${contextMessages}
 
 Latest user message: ${latestMessage}
 
-Route to the most appropriate agent. If confident, return routed with exactly one topic; if ambiguous, return clarification with a clarification question.`,
+Route to the most appropriate agent. If confident, return routed with 1-2 topics; if ambiguous, return clarification with a clarification question.`,
     });
 
     const normalized = normalizeRouteOutcome(result.object);
@@ -522,21 +492,19 @@ function makeClarificationOutcome(agent: AgentType, clarificationQuestion: strin
   };
 }
 
-function normalizeIntentIdForTopic(topic: TopicName, intentId: unknown): string | null {
-  if (typeof intentId !== 'string') return null;
-  const allowedIntentIds = POLICY_TOPIC_INTENT_IDS[topic];
-  if (!allowedIntentIds) return null;
-  return allowedIntentIds.includes(intentId) ? intentId : null;
+function normalizeIntentId(intentId: unknown): string | null | undefined {
+  if (intentId === undefined) return undefined;
+  if (intentId === null) return null;
+  return typeof intentId === 'string' ? intentId : null;
 }
 
 function normalizeRouteOutcome(value: unknown): RouteOutcome | null {
   const parsed = routeSchema.safeParse(value);
   if (parsed.success) {
     if (parsed.data.outcome === 'routed') {
-      const [topic] = parsed.data.topics;
       return {
         ...parsed.data,
-        intent_id: normalizeIntentIdForTopic(topic, parsed.data.intent_id),
+        intent_id: normalizeIntentId(parsed.data.intent_id),
       };
     }
     return parsed.data;
@@ -549,12 +517,12 @@ function normalizeRouteOutcome(value: unknown): RouteOutcome | null {
   if (!isValidAgent(agent)) return null;
 
   const topics = Array.isArray(obj.topics) ? obj.topics.filter(isValidTopic) : [];
-  if (topics.length === 1) {
+  if (topics.length >= 1 && topics.length <= 2) {
     return {
       outcome: 'routed',
       agent,
-      topics: [topics[0]],
-      intent_id: normalizeIntentIdForTopic(topics[0], obj.intent_id),
+      topics,
+      intent_id: normalizeIntentId(obj.intent_id),
       reasoning,
     };
   }
