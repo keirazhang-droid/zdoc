@@ -210,6 +210,63 @@ describe('routeIntent', () => {
     expect(callArgs.prompt).toContain('zilliz-cli:');
   });
 
+  it('normalizes invalid intent_id to null for policy topic', async () => {
+    mockGenerateObject.mockResolvedValueOnce({
+      object: {
+        outcome: 'routed',
+        agent: 'general',
+        topics: ['zilliz-cli'],
+        intent_id: 'not-a-real-policy-intent',
+        reasoning: 'zcli intent guessed incorrectly',
+      },
+    } as any);
+
+    const result = await routeIntent('How do I set up zilliz cli?', [], 'sess-policy-invalid-intent');
+
+    expect(result.outcome).toBe('routed');
+    if (result.outcome === 'routed') {
+      expect(result.topics).toEqual(['zilliz-cli']);
+      expect(result.intent_id).toBeNull();
+    }
+  });
+
+  it('normalizes non-null intent_id to null for non-policy topic', async () => {
+    mockGenerateObject.mockResolvedValueOnce({
+      object: {
+        outcome: 'routed',
+        agent: 'schema',
+        topics: ['indexes'],
+        intent_id: 'zcli_get_started_in_minutes',
+        reasoning: 'incorrectly attached policy intent id',
+      },
+    } as any);
+
+    const result = await routeIntent('What index type should I use for vectors?', [], 'sess-non-policy-intent');
+
+    expect(result.outcome).toBe('routed');
+    if (result.outcome === 'routed') {
+      expect(result.topics).toEqual(['indexes']);
+      expect(result.intent_id).toBeNull();
+    }
+  });
+
+  it('includes policy intent-id guidance in router prompt', async () => {
+    mockGenerateObject.mockResolvedValueOnce({
+      object: routed('product', 'on-demand-search', 'on-demand policy guidance check', 'ods_limitations'),
+    } as any);
+
+    await routeIntent('What are on-demand search limitations?', [], 'sess-policy-guidance-prompt');
+
+    const callArgs = mockGenerateObject.mock.calls[0][0] as any;
+    expect(callArgs.prompt).toContain('Policy intent_id guidance');
+    expect(callArgs.prompt).toContain('zilliz-cli intent_id allowed values');
+    expect(callArgs.prompt).toContain('zcli_get_started_in_minutes');
+    expect(callArgs.prompt).toContain('on-demand-search intent_id allowed values');
+    expect(callArgs.prompt).toContain('ods_limitations');
+    expect(callArgs.prompt).toContain('external-data-lake-search intent_id allowed values');
+    expect(callArgs.prompt).toContain('external_data_lake_search_supported_formats');
+  });
+
   it('accepts indexes topic from the router and describes it in prompt', async () => {
     mockGenerateObject.mockResolvedValueOnce({
       object: {

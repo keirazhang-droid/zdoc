@@ -161,6 +161,36 @@ Input: "What is Zilliz Cloud?"
 Output: {"outcome": "clarification", "agent": "general", "clarification_question": "Could you share what you want to know about Zilliz Cloud (pricing, setup, features, or comparisons)?", "reasoning": "The request is broad and needs clarification to route precisely."}
 `;
 
+const POLICY_TOPIC_INTENT_IDS: Record<string, readonly string[]> = {
+  'zilliz-cli': [
+    'zcli_get_started_in_minutes',
+    'zcli_agent_skill_setup',
+    'zcli_usage_patterns',
+    'zcli_roadmap_feedback',
+  ],
+  'on-demand-search': [
+    'ods_fit_infrequent_batch',
+    'ods_cost_vs_serving_cluster',
+    'ods_cost_vs_serverless',
+    'ods_limitations',
+  ],
+  'external-data-lake-search': [
+    'external_data_lake_search_best_fit_use_cases',
+    'external_data_lake_search_how_it_works',
+    'external_data_lake_search_supported_formats',
+    'external_data_lake_search_sync_updates',
+  ],
+};
+
+const POLICY_INTENT_GUIDANCE = `
+Policy intent_id guidance:
+- For non-policy topics, intent_id MUST be null.
+- For policy topics below, intent_id MUST be one of the allowed values or null.
+- zilliz-cli intent_id allowed values: zcli_get_started_in_minutes, zcli_agent_skill_setup, zcli_usage_patterns, zcli_roadmap_feedback
+- on-demand-search intent_id allowed values: ods_fit_infrequent_batch, ods_cost_vs_serving_cluster, ods_cost_vs_serverless, ods_limitations
+- external-data-lake-search intent_id allowed values: external_data_lake_search_best_fit_use_cases, external_data_lake_search_how_it_works, external_data_lake_search_supported_formats, external_data_lake_search_sync_updates
+`;
+
 function buildRouterPrompt(
   latestMessage: string,
   recentMessages: ChatMessage[],
@@ -177,6 +207,7 @@ function buildRouterPrompt(
 
 ${AGENT_DESCRIPTIONS}
 ${TOPIC_DESCRIPTIONS}
+${POLICY_INTENT_GUIDANCE}
 ${FEW_SHOT_EXAMPLES}
 ${stickyAgent ? `\nCurrent agent: ${stickyAgent}. Stay with this agent unless the topic has clearly changed.\n` : ''}
 Recent conversation:
@@ -491,9 +522,25 @@ function makeClarificationOutcome(agent: AgentType, clarificationQuestion: strin
   };
 }
 
+function normalizeIntentIdForTopic(topic: TopicName, intentId: unknown): string | null {
+  if (typeof intentId !== 'string') return null;
+  const allowedIntentIds = POLICY_TOPIC_INTENT_IDS[topic];
+  if (!allowedIntentIds) return null;
+  return allowedIntentIds.includes(intentId) ? intentId : null;
+}
+
 function normalizeRouteOutcome(value: unknown): RouteOutcome | null {
   const parsed = routeSchema.safeParse(value);
-  if (parsed.success) return parsed.data;
+  if (parsed.success) {
+    if (parsed.data.outcome === 'routed') {
+      const [topic] = parsed.data.topics;
+      return {
+        ...parsed.data,
+        intent_id: normalizeIntentIdForTopic(topic, parsed.data.intent_id),
+      };
+    }
+    return parsed.data;
+  }
 
   if (!value || typeof value !== 'object') return null;
   const obj = value as Record<string, unknown>;
@@ -507,7 +554,7 @@ function normalizeRouteOutcome(value: unknown): RouteOutcome | null {
       outcome: 'routed',
       agent,
       topics: [topics[0]],
-      intent_id: typeof obj.intent_id === 'string' ? obj.intent_id : null,
+      intent_id: normalizeIntentIdForTopic(topics[0], obj.intent_id),
       reasoning,
     };
   }
