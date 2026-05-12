@@ -39,7 +39,6 @@ import {handlePostAction} from './post-action-handler.js';
 import type {ResolvedModel} from './runtime-config.js';
 import {bedrockAiSdkMaxRetries} from './bedrock-guard.js';
 import {createDeferred, LruTtlCache, normalizeQuery, stableHash} from './cache.js';
-import {resolvePolicyIntent} from './policy/intent.js';
 import {getPolicyByIntent} from './policy/catalog.js';
 import {validatePolicyResponse} from './policy/validator.js';
 import {buildPolicyFallback} from './policy/fallback.js';
@@ -1448,15 +1447,13 @@ app.post('/chat', async c => {
 
           // Inject topic-specific prompts (max 2 to stay within context limits)
           const topics = routeResult.topics || [];
+          const routedTopic = topics[0];
           const policyRegistration = getPolicyModeRegistration();
-          const matchedPolicyTopic = policyRegistration.enabled
-            ? topics.find(topic => policyRegistration.topics.has(topic))
+          const matchedPolicyTopic = policyRegistration.enabled && routedTopic && policyRegistration.topics.has(routedTopic)
+            ? routedTopic
             : undefined;
-          const policyIntentId = matchedPolicyTopic
-            ? resolvePolicyIntent(ragQuery, topics)
-            : null;
-          const matchedPolicy = matchedPolicyTopic && policyIntentId
-            ? getPolicyByIntent(matchedPolicyTopic, policyIntentId)
+          const matchedPolicy = routeResult.outcome === 'routed' && matchedPolicyTopic && routeResult.intent_id
+            ? getPolicyByIntent(matchedPolicyTopic, routeResult.intent_id)
             : null;
 
           for (const topic of topics.slice(0, 2)) {
