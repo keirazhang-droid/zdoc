@@ -10,7 +10,7 @@ import {searchDocs, getIndexStatus, getTitleByUrl, type SearchResult} from './ra
 import {isDemotedSource} from './demotion.js';
 import {groundAtomically} from './grounding-agent.js';
 import {computeGrounding} from './grounding.js';
-import {routeIntent} from './router.js';
+import {routeIntent, type RouteOutcome} from './router.js';
 import {getAgent} from './agents/index.js';
 import {getToolsForAgent, type ToolName} from './tools/index.js';
 import {logDebugFlow, logEvent, saveConversation, summarizeForDebugLog, updateUserProfile} from './logger.js';
@@ -1293,9 +1293,12 @@ app.post('/chat', async c => {
           })
           : Promise.resolve(null);
 
-        const routePromise = routeIntent(ragQuery, body.messages, session.id, requestId).catch(() =>
-          ({agent: 'general' as const, topics: [] as string[], reasoning: 'Router fallback'}),
-        );
+        const routePromise: Promise<RouteOutcome> = routeIntent(ragQuery, body.messages, session.id, requestId).catch(() => ({
+          outcome: 'clarification',
+          agent: 'general',
+          clarification_question: 'Could you share a bit more detail so I can route your request?',
+          reasoning: 'Router fallback',
+        }));
 
         // Check semantic cache for similar queries across sessions. Keep this
         // best-effort so cache lookup never blocks routing/model generation.
@@ -1362,9 +1365,22 @@ app.post('/chat', async c => {
           debug('chat.router.completed', {
             durationMs: tRoute,
             agent: routeResult.agent,
-            topicCount: routeResult.topics?.length ?? 0,
+            topicCount: routeResult.outcome === 'routed' ? routeResult.topics.length : 0,
             reasoning: routeResult.reasoning,
+            outcome: routeResult.outcome,
           });
+
+          if (routeResult.outcome === 'clarification') {
+            sendAndRecord('delta', JSON.stringify({text: routeResult.clarification_question}));
+            sendAndRecord('done', JSON.stringify({stop_reason: 'clarification'}));
+            debug('chat.response.completed', {
+              status: 'clarification',
+              totalDurationMs: Date.now() - tChatStart,
+            });
+            recordLlmSuccess();
+            resolveOwnedInflight(replayableEvents(recordedEvents));
+            return;
+          }
 
           sendAndRecord('status', JSON.stringify({phase: 'retrieving'}));
           const agentConfig = getAgent(routeResult.agent as any);

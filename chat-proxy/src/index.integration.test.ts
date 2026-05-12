@@ -34,7 +34,7 @@ vi.mock('./rag.js', () => ({
   getTitleByUrl: vi.fn().mockResolvedValue(null),
 }));
 vi.mock('./router.js', () => ({
-  routeIntent: vi.fn().mockResolvedValue({agent: 'general', reasoning: 'test'}),
+  routeIntent: vi.fn().mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['search'], intent_id: null, reasoning: 'test'}),
 }));
 vi.mock('./policy/registration.js', () => ({
   getPolicyModeRegistration: getPolicyModeRegistrationMock,
@@ -129,6 +129,7 @@ describe('HTTP Endpoints', () => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
     getPolicyModeRegistrationMock.mockReturnValue({enabled: true, topics: new Set(['zilliz-cli'])});
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['search'], intent_id: null, reasoning: 'test'} as any);
     vi.mocked(checkGuard).mockReturnValue({allowed: true});
     vi.mocked(streamText).mockReturnValue({
       fullStream: (async function* () {
@@ -248,6 +249,45 @@ describe('HTTP Endpoints', () => {
     expect(events.some(e => e.event === 'done')).toBe(true);
   });
 
+  it('POST /chat clarification route emits clarification SSE and short-circuits downstream pipeline', async () => {
+    vi.mocked(routeIntent).mockResolvedValue({
+      outcome: 'clarification',
+      agent: 'general',
+      clarification_question: 'Could you clarify whether you need setup or pricing help?',
+      reasoning: 'ambiguous intent',
+    } as any);
+
+    const res = await app.request('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'x-forwarded-for': '192.168.1.230'},
+      body: JSON.stringify({messages: [{role: 'user', content: 'help me with zilliz'}]}),
+    });
+
+    expect(res.status).toBe(200);
+    const events = parseSSE(await res.text());
+    expect(events.find(e => e.event === 'delta')?.data?.text).toBe('Could you clarify whether you need setup or pricing help?');
+    expect(events.find(e => e.event === 'done')?.data?.stop_reason).toBe('clarification');
+    expect(events.some(e => e.event === 'agent')).toBe(false);
+    expect(vi.mocked(streamText)).not.toHaveBeenCalled();
+  });
+
+  it('POST /chat router failure fallback emits clarification outcome shape', async () => {
+    vi.mocked(routeIntent).mockRejectedValue(new Error('router failed'));
+
+    const res = await app.request('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'x-forwarded-for': '192.168.1.231'},
+      body: JSON.stringify({messages: [{role: 'user', content: 'help me with zilliz'}]}),
+    });
+
+    expect(res.status).toBe(200);
+    const events = parseSSE(await res.text());
+    expect(events.find(e => e.event === 'delta')?.data?.text).toContain('Could you share a bit more detail');
+    expect(events.find(e => e.event === 'done')?.data?.stop_reason).toBe('clarification');
+    expect(events.some(e => e.event === 'agent')).toBe(false);
+    expect(vi.mocked(streamText)).not.toHaveBeenCalled();
+  });
+
   it('POST /chat propagates provided request ID in header and session SSE event', async () => {
     const res = await app.request('/chat', {
       method: 'POST',
@@ -281,7 +321,7 @@ describe('HTTP Endpoints', () => {
   });
 
   it('summarizes router reasoning in persisted routing events', async () => {
-    vi.mocked(routeIntent).mockResolvedValue({agent: 'general', topics: [], reasoning: 'secret raw prompt from router'} as any);
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['search'], intent_id: null, reasoning: 'secret raw prompt from router'} as any);
 
     const res = await app.request('/chat', {
       method: 'POST',
@@ -475,7 +515,7 @@ describe('HTTP Endpoints', () => {
 
   it('injects mode-b policy payload into final synthesis when enabled and intent matches', async () => {
     loadTopicPolicies('zilliz-cli');
-    vi.mocked(routeIntent).mockResolvedValue({agent: 'general', topics: ['zilliz-cli'], reasoning: 'policy test'} as any);
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy test'} as any);
 
     vi.mocked(streamText)
       .mockReturnValueOnce({
@@ -505,7 +545,7 @@ describe('HTTP Endpoints', () => {
 
   it('retries policy once and uses compliant retry text without fallback', async () => {
     loadTopicPolicies('zilliz-cli');
-    vi.mocked(routeIntent).mockResolvedValue({agent: 'general', topics: ['zilliz-cli'], reasoning: 'policy retry success'} as any);
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy retry success'} as any);
 
     vi.mocked(streamText)
       .mockReturnValueOnce({
@@ -559,7 +599,7 @@ describe('HTTP Endpoints', () => {
 
   it('retries once on policy violation then falls back deterministically on retry stream error', async () => {
     loadTopicPolicies('zilliz-cli');
-    vi.mocked(routeIntent).mockResolvedValue({agent: 'general', topics: ['zilliz-cli'], reasoning: 'policy retry'} as any);
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy retry'} as any);
 
     vi.mocked(streamText)
       .mockReturnValueOnce({
@@ -611,7 +651,7 @@ describe('HTTP Endpoints', () => {
 
   it('does not apply mode-b policy when policy registration is disabled', async () => {
     getPolicyModeRegistrationMock.mockReturnValue({enabled: false, topics: new Set(['zilliz-cli'])});
-    vi.mocked(routeIntent).mockResolvedValue({agent: 'general', topics: ['zilliz-cli'], reasoning: 'policy-disabled'} as any);
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy-disabled'} as any);
 
     vi.mocked(streamText)
       .mockReturnValueOnce({
@@ -641,7 +681,7 @@ describe('HTTP Endpoints', () => {
   });
 
   it('does not apply mode-b policy when policy topic is not matched', async () => {
-    vi.mocked(routeIntent).mockResolvedValue({agent: 'general', topics: ['indexes'], reasoning: 'non-policy'} as any);
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['indexes'], intent_id: null, reasoning: 'non-policy'} as any);
 
     vi.mocked(streamText)
       .mockReturnValueOnce({
