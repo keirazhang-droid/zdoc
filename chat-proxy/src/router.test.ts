@@ -26,6 +26,14 @@ import {generateObject, generateText} from 'ai';
 const mockGenerateObject = vi.mocked(generateObject);
 const mockGenerateText = vi.mocked(generateText);
 
+const routed = (agent: 'general' | 'schema' | 'resources' | 'product' | 'code', topic: string, reasoning: string, intent_id: string | null = null) => ({
+  outcome: 'routed' as const,
+  agent,
+  topics: [topic],
+  intent_id,
+  reasoning,
+});
+
 describe('routeIntent', () => {
   beforeEach(() => {
     mockGenerateObject.mockReset();
@@ -35,7 +43,7 @@ describe('routeIntent', () => {
 
   it('passes request ID into router telemetry metadata', async () => {
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'schema', reasoning: 'test'},
+      object: routed('schema', 'schema-design', 'test'),
     } as any);
 
     await routeIntent('design my collection', [], 'sess-1', 'request-1');
@@ -50,7 +58,7 @@ describe('routeIntent', () => {
 
   it('routes to correct agent based on LLM response', async () => {
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'schema', reasoning: 'test'},
+      object: routed('schema', 'schema-design', 'test'),
     } as any);
 
     const result = await routeIntent('design my collection', [], 'sess-1');
@@ -58,23 +66,73 @@ describe('routeIntent', () => {
     expect(result.reasoning).toBe('test');
   });
 
+  it('enforces routed contract with exactly one topic and nullable intent_id', async () => {
+    mockGenerateObject.mockResolvedValueOnce({
+      object: routed('schema', 'schema-design', 'single topic', null),
+    } as any);
+
+    const result = await routeIntent('design my collection', [], 'sess-contract');
+
+    expect(result.outcome).toBe('routed');
+    if (result.outcome === 'routed') {
+      expect(result.topics).toHaveLength(1);
+      expect(result.intent_id).toBeNull();
+    }
+  });
+
+  it('returns clarification outcome when classifier returns ambiguous multiple topics', async () => {
+    mockGenerateObject.mockResolvedValueOnce({
+      object: {
+        agent: 'product',
+        topics: ['pricing', 'resources'],
+        reasoning: 'ambiguous',
+      },
+    } as any);
+
+    const result = await routeIntent('compare plans', [], 'sess-ambiguous');
+
+    expect(result.outcome).toBe('clarification');
+    if (result.outcome === 'clarification') {
+      expect(result).not.toHaveProperty('topics');
+      expect(result.clarification_question.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('returns clarification outcome when classifier returns no topics', async () => {
+    mockGenerateObject.mockResolvedValueOnce({
+      object: {agent: 'general', topics: [], reasoning: 'too broad'},
+    } as any);
+
+    const result = await routeIntent('What is Zilliz Cloud?', [], 'sess-no-topic');
+
+    expect(result.outcome).toBe('clarification');
+    if (result.outcome === 'clarification') {
+      expect(result).not.toHaveProperty('topics');
+      expect(result.clarification_question.length).toBeGreaterThan(0);
+    }
+  });
+
   it('accepts security and compliance topics from the router', async () => {
     mockGenerateObject.mockResolvedValueOnce({
       object: {
+        outcome: 'routed',
         agent: 'general',
-        topics: ['security', 'compliance-and-privacy'],
+        topics: ['security'],
+        intent_id: null,
         reasoning: 'security and compliance question',
       },
     } as any);
 
     const result = await routeIntent('Do you support SOC 2 and Private Link?', [], 'sess-security-topic');
 
-    expect(result.topics).toEqual(['security', 'compliance-and-privacy']);
+    expect(result.outcome).toBe('routed');
+    expect(result.topics).toEqual(['security']);
+    expect(result.intent_id).toBeNull();
   });
 
   it('describes security and compliance topics in the router prompt', async () => {
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'general', topics: [], reasoning: 'ok'},
+      object: routed('general', 'search', 'ok'),
     } as any);
 
     await routeIntent('Can you help with a HIPAA vendor review?', [], 'sess-security-prompt');
@@ -186,7 +244,7 @@ describe('routeIntent', () => {
   it('does not log raw query text on route cache hit and includes request ID', async () => {
     const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'general', topics: [], reasoning: 'ok'},
+      object: routed('general', 'search', 'ok'),
     } as any);
 
     await routeIntent('My email is alice@example.com', [], undefined, 'request-1');
@@ -200,12 +258,12 @@ describe('routeIntent', () => {
 
   it('includes sticky agent in prompt for same session', async () => {
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'resources', reasoning: 'first call'},
+      object: routed('resources', 'resources', 'first call'),
     } as any);
     await routeIntent('how many CUs', [], 'sess-sticky');
 
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'resources', reasoning: 'second call'},
+      object: routed('resources', 'resources', 'second call'),
     } as any);
     await routeIntent('what about storage', [], 'sess-sticky');
 
@@ -240,7 +298,7 @@ describe('routeIntent', () => {
   it('falls back to sticky agent when error occurs', async () => {
     // First call succeeds and sets sticky route to 'code'
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'code', reasoning: 'ok'},
+      object: routed('code', 'search', 'ok'),
     } as any);
     await routeIntent('generate code', [], 'sess-sticky-err');
 
@@ -252,7 +310,7 @@ describe('routeIntent', () => {
 
   it('clearSessionRoute resets sticky so error falls back to general', async () => {
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'product', reasoning: 'ok'},
+      object: routed('product', 'pricing', 'ok'),
     } as any);
     await routeIntent('compare tiers', [], 'sess-clear');
 
@@ -267,7 +325,7 @@ describe('routeIntent', () => {
   it('follow-up fast-path uses raw last message, not enriched query', async () => {
     // First call sets sticky route to 'code'
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'code', reasoning: 'ok'},
+      object: routed('code', 'search', 'ok'),
     } as any);
     await routeIntent('generate code', [], 'sess-followup');
 
@@ -289,7 +347,7 @@ describe('routeIntent', () => {
 
   it('only sends last 4 messages as context', async () => {
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'general', reasoning: 'ok'},
+      object: routed('general', 'search', 'ok'),
     } as any);
 
     const messages = Array.from({length: 8}, (_, i) => ({
@@ -313,7 +371,7 @@ describe('routeIntent', () => {
     mockGenerateText.mockResolvedValueOnce({
       toolCalls: [{
         toolName: 'route',
-        input: {agent: 'schema', topics: ['schema-design'], reasoning: 'tool fallback'},
+        input: {outcome: 'routed', agent: 'schema', topics: ['schema-design'], intent_id: null, reasoning: 'tool fallback'},
       }],
     } as any);
 
@@ -331,7 +389,7 @@ describe('routeIntent', () => {
     mockGenerateText.mockResolvedValueOnce({
       toolCalls: [{
         toolName: 'route',
-        input: {agent: 'code', topics: [], reasoning: 'corrected via tool'},
+        input: {outcome: 'routed', agent: 'code', topics: ['search'], intent_id: null, reasoning: 'corrected via tool'},
       }],
     } as any);
 
@@ -343,7 +401,7 @@ describe('routeIntent', () => {
   it('falls back to sticky agent when both routing attempts fail', async () => {
     // First call sets sticky route
     mockGenerateObject.mockResolvedValueOnce({
-      object: {agent: 'product', reasoning: 'ok'},
+      object: routed('product', 'pricing', 'ok'),
     } as any);
     await routeIntent('compare tiers', [], 'sess-both-fail');
 

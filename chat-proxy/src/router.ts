@@ -28,26 +28,52 @@ const TOPIC_ENUM = [
 
 export type TopicName = (typeof TOPIC_ENUM)[number];
 
-const routeSchema = z.object({
-  agent: z.enum(['general', 'schema', 'resources', 'product', 'code']),
-  topics: z.array(z.enum(TOPIC_ENUM)).describe('Relevant topic areas (1-2 max)'),
-  reasoning: z.string(),
-});
+const routeSchema = z.discriminatedUnion('outcome', [
+  z.object({
+    outcome: z.literal('routed'),
+    agent: z.enum(['general', 'schema', 'resources', 'product', 'code']),
+    topics: z.tuple([z.enum(TOPIC_ENUM)]).describe('Exactly one relevant topic'),
+    intent_id: z.string().nullable(),
+    reasoning: z.string(),
+  }),
+  z.object({
+    outcome: z.literal('clarification'),
+    agent: z.enum(['general', 'schema', 'resources', 'product', 'code']),
+    clarification_question: z.string(),
+    reasoning: z.string(),
+  }),
+]);
+
+export type RouteOutcome = z.infer<typeof routeSchema>;
 
 // ---------------------------------------------------------------------------
 // Route tool for fallback tool-based routing
 // ---------------------------------------------------------------------------
 
 const routeTool = tool({
-  description: 'Route the user query to the best specialized agent and identify relevant topics.',
-  inputSchema: z.object({
-    agent: z.enum(['general', 'schema', 'resources', 'product', 'code'])
-      .describe('The agent that best matches the user intent'),
-    topics: z.array(z.enum(TOPIC_ENUM)).max(2)
-      .describe('Relevant topic areas (1-2 max)'),
-    reasoning: z.string()
-      .describe('Brief explanation of why this agent was chosen'),
-  }),
+  description: 'Classify the user query as either a routed outcome with one topic or a clarification outcome.',
+  inputSchema: z.discriminatedUnion('outcome', [
+    z.object({
+      outcome: z.literal('routed'),
+      agent: z.enum(['general', 'schema', 'resources', 'product', 'code'])
+        .describe('The agent that best matches the user intent'),
+      topics: z.tuple([z.enum(TOPIC_ENUM)])
+        .describe('Exactly one relevant topic'),
+      intent_id: z.string().nullable()
+        .describe('Intent identifier when available, otherwise null'),
+      reasoning: z.string()
+        .describe('Brief explanation of why this routed outcome was chosen'),
+    }),
+    z.object({
+      outcome: z.literal('clarification'),
+      agent: z.enum(['general', 'schema', 'resources', 'product', 'code'])
+        .describe('The agent to handle the clarification'),
+      clarification_question: z.string()
+        .describe('Question to ask when intent or topic is ambiguous'),
+      reasoning: z.string()
+        .describe('Brief explanation of why clarification is needed'),
+    }),
+  ]),
 });
 
 // ---------------------------------------------------------------------------
@@ -82,7 +108,7 @@ Agents:
 `;
 
 const TOPIC_DESCRIPTIONS = `
-Topics (select 1-2 most relevant):
+Topics (select exactly 1 for routed outcomes):
 - schema-design: Collection schema, field types, BM25 setup, limits
 - indexes: Vector and scalar indexing strategy, index support/limits, index lifecycle constraints
 - search: Vector search, filtered search, BM25 full text search, hybrid search, RRF
@@ -105,46 +131,34 @@ Topics (select 1-2 most relevant):
 const FEW_SHOT_EXAMPLES = `
 Examples:
 Input: "How do I create a collection with auto-id?"
-Output: {"agent": "schema", "topics": ["schema-design"], "reasoning": "The user is asking about collection creation and field configuration, which is schema design."}
+Output: {"outcome": "routed", "agent": "schema", "topics": ["schema-design"], "intent_id": null, "reasoning": "The user is asking about collection creation and field configuration, which is schema design."}
 
 Input: "What cluster size do I need for 10M vectors?"
-Output: {"agent": "resources", "topics": ["resources"], "reasoning": "The user is asking about capacity planning and CU estimation."}
+Output: {"outcome": "routed", "agent": "resources", "topics": ["resources"], "intent_id": null, "reasoning": "The user is asking about capacity planning and CU estimation."}
 
 Input: "Compare Serverless and Dedicated"
-Output: {"agent": "product", "topics": ["resources", "pricing"], "reasoning": "The user wants a product comparison and likely cares about pricing implications."}
+Output: {"outcome": "routed", "agent": "product", "topics": ["pricing"], "intent_id": null, "reasoning": "The user wants a product comparison and likely cares about pricing implications."}
 
 Input: "Show me Python code for vector search"
-Output: {"agent": "code", "topics": ["search"], "reasoning": "The user explicitly asks for code example in Python."}
+Output: {"outcome": "routed", "agent": "code", "topics": ["search"], "intent_id": null, "reasoning": "The user explicitly asks for code example in Python."}
 
 Input: "How do I set up a partition key?"
-Output: {"agent": "schema", "topics": ["schema-design"], "reasoning": "Partition keys are a schema design concern, not a code/SDK question."}
-
-Input: "How do I enable BM25 full-text search?"
-Output: {"agent": "schema", "topics": ["schema-design"], "reasoning": "BM25 setup is part of collection schema and index configuration."}
+Output: {"outcome": "routed", "agent": "schema", "topics": ["schema-design"], "intent_id": null, "reasoning": "Partition keys are a schema design concern, not a code/SDK question."}
 
 Input: "What index type does Zilliz Cloud support for vector and scalar fields?"
-Output: {"agent": "schema", "topics": ["indexes"], "reasoning": "The user is asking specifically about index type support and indexing constraints."}
+Output: {"outcome": "routed", "agent": "schema", "topics": ["indexes"], "intent_id": null, "reasoning": "The user is asking specifically about index type support and indexing constraints."}
 
 Input: "When should I use Cohere Reranker instead of Boost Reranker?"
-Output: {"agent": "product", "topics": ["reranking", "integrations"], "reasoning": "The user is asking for reranker selection and tradeoffs, not SDK code."}
+Output: {"outcome": "routed", "agent": "product", "topics": ["reranking"], "intent_id": null, "reasoning": "The user is asking for reranker selection and tradeoffs, not SDK code."}
 
 Input: "What weights should I use for Weighted Reranker in production?"
-Output: {"agent": "general", "topics": ["reranking"], "reasoning": "The user is asking for conceptual tuning guidance, not an implementation example."}
-
-Input: "Should I use on-demand search or serverless for bursty 20TB queries?"
-Output: {"agent": "product", "topics": ["on-demand-search", "resources"], "reasoning": "The user is choosing architecture and sizing tradeoffs for large bursty workloads."}
+Output: {"outcome": "routed", "agent": "general", "topics": ["reranking"], "intent_id": null, "reasoning": "The user is asking for conceptual tuning guidance, not an implementation example."}
 
 Input: "How do I search Parquet data in my bucket without importing it?"
-Output: {"agent": "product", "topics": ["external-data-lake-search", "on-demand-search"], "reasoning": "The user is asking about zero-copy external lake search and the On-Demand compute model commonly used with it."}
-
-Input: "How do I backfill a new JSON field for historical rows without re-importing everything?"
-Output: {"agent": "schema", "topics": ["backfill-and-schema-iteration"], "reasoning": "The user is asking about schema iteration and historical field backfill workflow."}
-
-Input: "How do I login and set context with zilliz CLI?"
-Output: {"agent": "general", "topics": ["zilliz-cli"], "reasoning": "The user asks for Zilliz CLI operational guidance and commands."}
+Output: {"outcome": "routed", "agent": "product", "topics": ["external-data-lake-search"], "intent_id": null, "reasoning": "The user is asking about zero-copy external lake search."}
 
 Input: "What is Zilliz Cloud?"
-Output: {"agent": "general", "topics": [], "reasoning": "General product overview question."}
+Output: {"outcome": "clarification", "agent": "general", "clarification_question": "Could you share what you want to know about Zilliz Cloud (pricing, setup, features, or comparisons)?", "reasoning": "The request is broad and needs clarification to route precisely."}
 `;
 
 function buildRouterPrompt(
@@ -170,8 +184,10 @@ ${contextMessages}
 
 Latest user message: ${latestMessage}
 ${weakModelHint}
-Route to the most appropriate agent and select relevant topics. Output ONLY valid JSON with this exact shape:
-{"agent": "...", "topics": ["..."], "reasoning": "..."}`;
+Route to the most appropriate agent. For confident routing, return outcome "routed" with exactly one topic and nullable intent_id. If ambiguous, return outcome "clarification" with a clarification_question and no topics. Output ONLY valid JSON with one exact shape:
+{"outcome":"routed","agent":"...","topics":["..."],"intent_id":null,"reasoning":"..."}
+OR
+{"outcome":"clarification","agent":"...","clarification_question":"...","reasoning":"..."}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -193,7 +209,7 @@ setInterval(() => {
 // Cross-session route cache (short TTL)
 // ---------------------------------------------------------------------------
 
-const routeCache = new Map<string, {agent: AgentType; topics: TopicName[]; reasoning: string; timestamp: number}>();
+const routeCache = new Map<string, {route: RouteOutcome; timestamp: number}>();
 const ROUTE_CACHE_TTL_MS = parseInt(process.env.ROUTE_CACHE_TTL_MS || '', 10) || 30 * 60 * 1000;
 const ROUTE_CACHE_MAX = parseInt(process.env.ROUTE_CACHE_MAX || '', 10) || 5000;
 
@@ -202,7 +218,7 @@ function getRouteCacheKey(query: string, stickyAgent?: AgentType): string {
   return stickyAgent ? `${stickyAgent}:${normalized}` : normalized;
 }
 
-function getCachedRoute(query: string, stickyAgent?: AgentType): {agent: AgentType; topics: TopicName[]; reasoning: string} | null {
+function getCachedRoute(query: string, stickyAgent?: AgentType): RouteOutcome | null {
   const key = getRouteCacheKey(query, stickyAgent);
   const entry = routeCache.get(key);
   if (!entry) return null;
@@ -210,15 +226,20 @@ function getCachedRoute(query: string, stickyAgent?: AgentType): {agent: AgentTy
     routeCache.delete(key);
     return null;
   }
-  return {agent: entry.agent, topics: entry.topics, reasoning: entry.reasoning};
+  const normalized = normalizeRouteOutcome(entry.route);
+  if (!normalized) {
+    routeCache.delete(key);
+    return null;
+  }
+  return normalized;
 }
 
-function setCachedRoute(query: string, agent: AgentType, topics: TopicName[], reasoning: string, stickyAgent?: AgentType): void {
+function setCachedRoute(query: string, route: RouteOutcome, stickyAgent?: AgentType): void {
   if (routeCache.size >= ROUTE_CACHE_MAX) {
     const oldest = routeCache.keys().next().value!;
     routeCache.delete(oldest);
   }
-  routeCache.set(getRouteCacheKey(query, stickyAgent), {agent, topics, reasoning, timestamp: Date.now()});
+  routeCache.set(getRouteCacheKey(query, stickyAgent), {route, timestamp: Date.now()});
 }
 
 // ---------------------------------------------------------------------------
@@ -240,7 +261,7 @@ async function routeIntentLegacy(
   recentMessages: ChatMessage[],
   sessionId?: string,
   requestId?: string,
-): Promise<{agent: AgentType; topics: TopicName[]; reasoning: string}> {
+): Promise<RouteOutcome> {
   const stickyAgent = sessionId ? sessionRoutes.get(sessionId) : undefined;
 
   try {
@@ -263,7 +284,7 @@ Agents:
 - product: Product comparison (Serverless vs Dedicated vs BYOC), feature availability, migration
 - code: Explicit requests for SDK code, API calls, runnable examples, syntax, implementation details, or troubleshooting code errors. For schema design questions (collections, fields, indexes, partition keys, BM25), route to schema even if phrased as "how do I". Do not route conceptual product, reranking, tuning, tradeoff, limitation, cost, latency, or "when should I use..." questions to code unless the user explicitly asks for code.
 
-Topics (select 1-2 most relevant):
+Topics (select exactly 1 for routed outcomes):
 - schema-design: Collection schema, field types, BM25 setup, limits
 - indexes: Vector and scalar indexing strategy, index support/limits, index lifecycle constraints
 - search: Vector search, filtered search, BM25 full text search, hybrid search, RRF
@@ -288,10 +309,10 @@ ${contextMessages}
 
 Latest user message: ${latestMessage}
 
-Route to the most appropriate agent and select relevant topics.`,
+Route to the most appropriate agent. If confident, return routed with exactly one topic; if ambiguous, return clarification with a clarification question.`,
     });
 
-    const agentType = result.object.agent;
+    const normalized = normalizeRouteOutcome(result.object);
 
     try {
       const u = result.usage;
@@ -308,15 +329,18 @@ Route to the most appropriate agent and select relevant topics.`,
       }
     } catch { /* fire-and-forget */ }
 
-    if (sessionId) {
-      sessionRoutes.set(sessionId, agentType);
+    if (normalized) {
+      if (sessionId) {
+        sessionRoutes.set(sessionId, normalized.agent);
+      }
+      return normalized;
     }
 
-    return {agent: agentType, topics: result.object.topics || [], reasoning: result.object.reasoning};
+    return makeClarificationOutcome(stickyAgent || 'general', 'Could you clarify what you need help with so I can route this correctly?', 'Legacy router returned ambiguous or invalid classification');
   } catch (err) {
     console.error('[Router] Classification error', JSON.stringify({requestId, error: summarizeForDebugLog(err instanceof Error ? err.message : String(err), 'error')}));
     const fallback = stickyAgent || 'general';
-    return {agent: fallback, topics: [], reasoning: 'Fallback due to classification error'};
+    return makeClarificationOutcome(fallback, 'Could you share a bit more detail so I can route your request?', 'Fallback due to classification error');
   }
 }
 
@@ -329,7 +353,7 @@ async function routeIntentV2(
   recentMessages: ChatMessage[],
   sessionId?: string,
   requestId?: string,
-): Promise<{agent: AgentType; topics: TopicName[]; reasoning: string}> {
+): Promise<RouteOutcome> {
   const stickyAgent = sessionId ? sessionRoutes.get(sessionId) : undefined;
 
   // Fast-path 1: obvious follow-ups stay with the sticky agent
@@ -337,7 +361,7 @@ async function routeIntentV2(
   const rawLatestMessage = recentMessages[recentMessages.length - 1]?.content || '';
   if (stickyAgent && isObviousFollowUp(rawLatestMessage)) {
     console.log('[Router] Follow-up fast-path', JSON.stringify({requestId, agent: stickyAgent}));
-    return {agent: stickyAgent, topics: [], reasoning: 'Follow-up fast-path'};
+    return makeClarificationOutcome(stickyAgent, 'Could you clarify what you want to do next?', 'Follow-up fast-path');
   }
 
   // Fast-path 2: cross-session route cache
@@ -374,19 +398,14 @@ async function routeIntentV2(
       prompt,
     });
 
-    const agentType = result.object.agent;
-    if (isValidAgent(agentType)) {
+    const normalized = normalizeRouteOutcome(result.object);
+    if (normalized) {
       await persistRouterUsage(result.usage, resolvedModel.model, sessionId);
-      if (sessionId) sessionRoutes.set(sessionId, agentType);
-      const topics = (result.object.topics || []).filter(isValidTopic);
-      setCachedRoute(latestMessage, agentType, topics, result.object.reasoning, stickyAgent);
-      return {
-        agent: agentType,
-        topics,
-        reasoning: result.object.reasoning,
-      };
+      if (sessionId) sessionRoutes.set(sessionId, normalized.agent);
+      setCachedRoute(latestMessage, normalized, stickyAgent);
+      return normalized;
     }
-    console.warn('[Router] generateObject returned invalid agent', JSON.stringify({requestId, agent: agentType}));
+    console.warn('[Router] generateObject returned ambiguous/invalid route', JSON.stringify({requestId}));
   } catch (err) {
     console.warn('[Router] generateObject failed', JSON.stringify({requestId, error: summarizeForDebugLog(err instanceof Error ? err.message : String(err), 'error')}));
   }
@@ -408,18 +427,12 @@ async function routeIntentV2(
 
     const toolCall = result.toolCalls.find(tc => tc.toolName === 'route');
     if (toolCall) {
-      const input = toolCall.input as Record<string, unknown>;
-      const agentType = String(input.agent || '');
-      if (isValidAgent(agentType)) {
+      const normalized = normalizeRouteOutcome(toolCall.input as Record<string, unknown>);
+      if (normalized) {
         await persistRouterUsage(result.usage, resolvedModel.model, sessionId);
-        if (sessionId) sessionRoutes.set(sessionId, agentType);
-        const topics = ((input.topics || []) as string[]).filter(isValidTopic);
-        setCachedRoute(latestMessage, agentType, topics, String(input.reasoning || ''), stickyAgent);
-        return {
-          agent: agentType,
-          topics,
-          reasoning: String(input.reasoning || ''),
-        };
+        if (sessionId) sessionRoutes.set(sessionId, normalized.agent);
+        setCachedRoute(latestMessage, normalized, stickyAgent);
+        return normalized;
       }
     }
     console.warn('[Router] Tool-based routing returned no valid route tool call', JSON.stringify({requestId}));
@@ -438,20 +451,16 @@ async function routeIntentV2(
       temperature: 0,
       abortSignal: AbortSignal.timeout(30000),
       experimental_telemetry: makeTelemetry('router-v2-text', {providerFamily, sessionId, requestId}),
-      prompt: `${prompt}\n\nCRITICAL: Output ONLY a JSON object. No markdown, no explanations, no <think> tags. Example:\n{"agent": "schema", "topics": ["schema-design"], "reasoning": "User is asking about collection schema design."}`,
+      prompt: `${prompt}\n\nCRITICAL: Output ONLY a JSON object. No markdown, no explanations, no <think> tags. Example:\n{"outcome":"routed","agent":"schema","topics":["schema-design"],"intent_id":null,"reasoning":"User is asking about collection schema design."}`,
     });
 
     const parsed = extractRouterJson(result.text);
-    if (parsed && isValidAgent(parsed.agent)) {
+    const normalized = parsed ? normalizeRouteOutcome(parsed) : null;
+    if (normalized) {
       await persistRouterUsage(result.usage, resolvedModel.model, sessionId);
-      if (sessionId) sessionRoutes.set(sessionId, parsed.agent);
-      const topics = (parsed.topics || []).filter(isValidTopic);
-      setCachedRoute(latestMessage, parsed.agent, topics, parsed.reasoning || '', stickyAgent);
-      return {
-        agent: parsed.agent,
-        topics,
-        reasoning: parsed.reasoning || '',
-      };
+      if (sessionId) sessionRoutes.set(sessionId, normalized.agent);
+      setCachedRoute(latestMessage, normalized, stickyAgent);
+      return normalized;
     }
     console.warn('[Router] Plain text fallback returned no valid JSON', JSON.stringify({requestId}));
   } catch (err) {
@@ -462,7 +471,7 @@ async function routeIntentV2(
   console.log('[Router] All routing attempts failed; falling back to sticky/general.', JSON.stringify({requestId}));
   const fallback = stickyAgent || 'general';
   if (sessionId) sessionRoutes.set(sessionId, fallback);
-  return {agent: fallback, topics: [], reasoning: 'Fallback after all routing attempts failed'};
+  return makeClarificationOutcome(fallback, 'Could you clarify your goal so I can route this to the right specialist?', 'Fallback after all routing attempts failed');
 }
 
 // ---------------------------------------------------------------------------
@@ -473,11 +482,48 @@ function isValidAgent(agent: unknown): agent is AgentType {
   return typeof agent === 'string' && ['general', 'schema', 'resources', 'product', 'code'].includes(agent);
 }
 
+function makeClarificationOutcome(agent: AgentType, clarificationQuestion: string, reasoning: string): RouteOutcome {
+  return {
+    outcome: 'clarification',
+    agent,
+    clarification_question: clarificationQuestion,
+    reasoning,
+  };
+}
+
+function normalizeRouteOutcome(value: unknown): RouteOutcome | null {
+  const parsed = routeSchema.safeParse(value);
+  if (parsed.success) return parsed.data;
+
+  if (!value || typeof value !== 'object') return null;
+  const obj = value as Record<string, unknown>;
+  const agent = obj.agent;
+  const reasoning = typeof obj.reasoning === 'string' ? obj.reasoning : '';
+  if (!isValidAgent(agent)) return null;
+
+  const topics = Array.isArray(obj.topics) ? obj.topics.filter(isValidTopic) : [];
+  if (topics.length === 1) {
+    return {
+      outcome: 'routed',
+      agent,
+      topics: [topics[0]],
+      intent_id: typeof obj.intent_id === 'string' ? obj.intent_id : null,
+      reasoning,
+    };
+  }
+
+  const clarificationQuestion = typeof obj.clarification_question === 'string'
+    ? obj.clarification_question
+    : 'Could you clarify what you need help with so I can route this correctly?';
+
+  return makeClarificationOutcome(agent, clarificationQuestion, reasoning || 'Ambiguous or invalid routing result');
+}
+
 /**
  * Extract router JSON from LLM response text, handling markdown fences
  * and extra text that reasoning models often add.
  */
-function extractRouterJson(text: string): {agent: string; topics: string[]; reasoning: string} | null {
+function extractRouterJson(text: string): Record<string, unknown> | null {
   // Strip reasoning tags (DeepSeek <think>, etc.) before parsing
   const cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
@@ -547,7 +593,7 @@ export async function routeIntent(
   recentMessages: ChatMessage[],
   sessionId?: string,
   requestId?: string,
-): Promise<{agent: AgentType; topics: TopicName[]; reasoning: string}> {
+): Promise<RouteOutcome> {
   if (ROUTER_V2_ENABLED) {
     return routeIntentV2(latestMessage, recentMessages, sessionId, requestId);
   }
