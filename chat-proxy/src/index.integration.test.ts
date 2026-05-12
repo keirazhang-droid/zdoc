@@ -347,7 +347,7 @@ describe('HTTP Endpoints', () => {
     expect(JSON.stringify(data)).not.toContain('secret raw prompt');
   });
 
-  it('uses only one routed topic for routing logs and profile updates', async () => {
+  it('preserves routed topic list for routing logs and profile updates', async () => {
     vi.mocked(routeIntent).mockResolvedValue({
       outcome: 'routed',
       agent: 'general',
@@ -368,10 +368,10 @@ describe('HTTP Endpoints', () => {
     const routingCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'routing');
     expect(routingCall).toBeTruthy();
     const routingData = routingCall![4] as Record<string, unknown>;
-    expect(routingData.topics).toEqual(['search']);
+    expect(routingData.topics).toEqual(['search', 'pricing']);
 
     expect(updateUserProfile).toHaveBeenCalledWith('anonymous', expect.objectContaining({
-      topicsDiscussed: ['search'],
+      topicsDiscussed: ['search', 'pricing'],
     }));
   });
 
@@ -549,9 +549,9 @@ describe('HTTP Endpoints', () => {
     expect(llmHealth.lastError).toBe('Internal server error; requestId=error-request-1');
   });
 
-  it('injects mode-b policy payload when router returns routed topic + intent_id', async () => {
+  it('injects mode-b policy payload when secondary resolver matches routed policy topic', async () => {
     loadTopicPolicies('zilliz-cli');
-    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: 'zcli_get_started_in_minutes', reasoning: 'policy test'} as any);
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy test'} as any);
 
     vi.mocked(streamText)
       .mockReturnValueOnce({
@@ -569,7 +569,7 @@ describe('HTTP Endpoints', () => {
     const res = await app.request('/chat', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({messages: [{role: 'user', content: 'this wording does not rely on any trigger phrase'}]}),
+      body: JSON.stringify({messages: [{role: 'user', content: 'Can you help me get started with the Zilliz CLI in minutes?'}]}),
     });
 
     expect(res.status).toBe(200);
@@ -579,7 +579,37 @@ describe('HTTP Endpoints', () => {
     expect(String(synthesisCall.system || '')).toContain('zcli_get_started_in_minutes');
   });
 
-  it('does not inject mode-b policy payload when router intent_id is null', async () => {
+  it('injects usage-pattern policy payload for "What are others building with the Zilliz CLI?" via resolver', async () => {
+    loadTopicPolicies('zilliz-cli');
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy usage patterns'} as any);
+
+    vi.mocked(streamText)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'tool-call', toolName: 'searchDocs', input: {query: 'zilliz cli examples'}};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'text-delta', text: 'regular final answer'};
+        })(),
+      } as any);
+
+    const res = await app.request('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({messages: [{role: 'user', content: 'What are others building with the Zilliz CLI?'}]}),
+    });
+
+    expect(res.status).toBe(200);
+    await res.text();
+    const synthesisCall = vi.mocked(streamText).mock.calls[1]?.[0] as any;
+    expect(String(synthesisCall.system || '')).toContain('## Mode B Policy Payload');
+    expect(String(synthesisCall.system || '')).toContain('zcli_usage_patterns');
+  });
+
+  it('does not inject mode-b policy payload when resolver does not match any policy intent', async () => {
     loadTopicPolicies('zilliz-cli');
     vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy no intent'} as any);
 
@@ -612,7 +642,7 @@ describe('HTTP Endpoints', () => {
 
   it('retries policy once and uses compliant retry text without fallback', async () => {
     loadTopicPolicies('zilliz-cli');
-    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: 'zcli_get_started_in_minutes', reasoning: 'policy retry success'} as any);
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy retry success'} as any);
 
     vi.mocked(streamText)
       .mockReturnValueOnce({
@@ -666,7 +696,7 @@ describe('HTTP Endpoints', () => {
 
   it('retries once on policy violation then falls back deterministically on retry stream error', async () => {
     loadTopicPolicies('zilliz-cli');
-    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: 'zcli_get_started_in_minutes', reasoning: 'policy retry'} as any);
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy retry'} as any);
 
     vi.mocked(streamText)
       .mockReturnValueOnce({
@@ -690,7 +720,7 @@ describe('HTTP Endpoints', () => {
 
     const res = await app.request('/chat', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-retry-1'},
+      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-retry-1', 'x-forwarded-for': '192.168.1.251'},
       body: JSON.stringify({messages: [{role: 'user', content: 'get started with zilliz cli in minutes'}]}),
     });
 
@@ -771,8 +801,8 @@ describe('HTTP Endpoints', () => {
 
     expect(res.status).toBe(200);
     await res.text();
-    const synthesisCall = vi.mocked(streamText).mock.calls[1]?.[0] as any;
-    expect(String(synthesisCall.system || '')).not.toContain('## Mode B Policy Payload');
+    const synthesisCall = vi.mocked(streamText).mock.calls.at(-1)?.[0] as any;
+    expect(String(synthesisCall?.system || '')).not.toContain('## Mode B Policy Payload');
     const policyLogCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'policy');
     expect(policyLogCall).toBeUndefined();
   });
