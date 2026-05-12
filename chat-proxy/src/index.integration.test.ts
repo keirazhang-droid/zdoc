@@ -101,7 +101,7 @@ import {streamText} from 'ai';
 import {checkGuard} from './guard.js';
 import * as healthModule from './health.js';
 const {llmHealth} = healthModule;
-import {logEvent} from './logger.js';
+import {logEvent, updateUserProfile} from './logger.js';
 import {recordFeedback} from './feedback.js';
 import {routeIntent, type RouteOutcome} from './router.js';
 import {clearPolicyCache, loadTopicPolicies} from './policy/catalog.js';
@@ -345,6 +345,34 @@ describe('HTTP Endpoints', () => {
     expect(data.reasoning).toBeUndefined();
     expect(data.reasoningSummary).toEqual({chars: 29, bytes: 29, sha256: expect.stringMatching(/^[a-f0-9]{64}$/)});
     expect(JSON.stringify(data)).not.toContain('secret raw prompt');
+  });
+
+  it('uses only one routed topic for routing logs and profile updates', async () => {
+    vi.mocked(routeIntent).mockResolvedValue({
+      outcome: 'routed',
+      agent: 'general',
+      topics: ['search', 'pricing'],
+      intent_id: null,
+      reasoning: 'single-topic contract check',
+    } as any);
+
+    const res = await app.request('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'single-topic-metadata-1', 'x-forwarded-for': '192.168.1.240'},
+      body: JSON.stringify({messages: [{role: 'user', content: 'How do I create a collection?'}]}),
+    });
+
+    expect(res.status).toBe(200);
+    await res.text();
+
+    const routingCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'routing');
+    expect(routingCall).toBeTruthy();
+    const routingData = routingCall![4] as Record<string, unknown>;
+    expect(routingData.topics).toEqual(['search']);
+
+    expect(updateUserProfile).toHaveBeenCalledWith('anonymous', expect.objectContaining({
+      topicsDiscussed: ['search'],
+    }));
   });
 
   it('passes request ID into streaming final synthesis telemetry metadata', async () => {

@@ -1361,10 +1361,13 @@ app.post('/chat', async c => {
           const tRouteStart = Date.now();
           const routeResult = await routePromise;
           const tRoute = Date.now() - tRouteStart;
+          const routedTopic = routeResult.outcome === 'routed' ? routeResult.topics[0] : undefined;
+          const routedTopics = routedTopic ? [routedTopic] : [];
+
           debug('chat.router.completed', {
             durationMs: tRoute,
             agent: routeResult.agent,
-            topicCount: routeResult.outcome === 'routed' ? routeResult.topics.length : 0,
+            topicCount: routedTopics.length,
             reasoning: routeResult.reasoning,
             outcome: routeResult.outcome,
           });
@@ -1419,7 +1422,7 @@ app.post('/chat', async c => {
           logEvent(session.id, userId, 'routing', routeResult.agent, {
             requestId,
             reasoningSummary: summarizeForDebugLog(routeResult.reasoning, 'reasoning'),
-            topics: routeResult.topics,
+            topics: routedTopics,
             model: activeModel,
             messageSummary: summarizeForDebugLog(rawQuery, 'message'),
           }, userMeta, source);
@@ -1445,9 +1448,8 @@ app.post('/chat', async c => {
           // Build system prompt: base + agent role + topic prompts + RAG context
           let systemPrompt = getBasePrompt() + '\n\n' + agentConfig.systemPrompt;
 
-          // Inject topic-specific prompts (max 2 to stay within context limits)
-          const topics = routeResult.topics || [];
-          const routedTopic = topics[0];
+          // Inject topic-specific prompt for the routed topic
+          const topics = routedTopics;
           const policyRegistration = getPolicyModeRegistration();
           const matchedPolicyTopic = policyRegistration.enabled && routedTopic && policyRegistration.topics.has(routedTopic)
             ? routedTopic
@@ -1456,7 +1458,7 @@ app.post('/chat', async c => {
             ? getPolicyByIntent(matchedPolicyTopic, routeResult.intent_id)
             : null;
 
-          for (const topic of topics.slice(0, 2)) {
+          for (const topic of topics) {
             const topicContent = getTopicPrompt(topic);
             if (topicContent) {
               systemPrompt += `\n\n## Topic Reference: ${topic}\n${topicContent}`;
@@ -1476,7 +1478,7 @@ app.post('/chat', async c => {
           }
           debug('chat.prompt.built', {
             systemPrompt: systemPrompt,
-            topicPromptCount: topics.slice(0, 2).length,
+            topicPromptCount: topics.length,
             pageContextIncluded,
             preHookCount: injections.length,
             toolNames: agentConfig.toolNames,
@@ -2262,7 +2264,7 @@ app.post('/chat', async c => {
           updateUserProfile(userId, {
             requestId,
             agentsUsed: {[agentConfig.type]: 1},
-            topicsDiscussed: routeResult.topics?.slice(0, 2) ?? [],
+            topicsDiscussed: routedTopics,
             pagesVisited: body.pageUrl ? [pagePathForLog(body.pageUrl) || ''] : [],
           });
 
