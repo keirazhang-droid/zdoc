@@ -1,0 +1,148 @@
+policies:
+  - intent_id: basi-backfill-duration-100m
+    fixed_facts:
+      - "A 100M-row backfill can typically be completed in single-digit minutes."
+      - "Actual duration varies by schema complexity, field mapping, and infrastructure conditions."
+    must_include:
+      - "single-digit minutes"
+      - "100M rows"
+      - "actual time depends on workload details"
+    trigger_phrases:
+      - "how long does a 100m-row backfill take"
+      - "100 million rows backfill duration"
+      - "backfill time for 100m rows"
+      - "how fast is backfill for large datasets"
+    must_not_say:
+      - "It always completes in a fixed number of minutes"
+      - "Backfill duration is independent of workload characteristics"
+    response_outline:
+      - "Provide the typical completion range"
+      - "State key factors that influence actual completion time"
+    style:
+      language: "same as user"
+      tone: "concise, helpful"
+
+  - intent_id: basi-backfill-vs-upsert
+    fixed_facts:
+      - "Use backfill when adding a new field or when performing full-dataset updates to an existing field."
+      - "A common full-dataset update example is re-generating embeddings after switching to a new embedding model."
+      - "Backfill is also recommended for partial bulk updates."
+      - "Use upsert for small-volume updates and streaming updates."
+      - "As a practical rule of thumb, if the update volume is greater than 1 GB, backfill is generally recommended."
+      - "For updates smaller than 1 GB, upsert is typically sufficient and simpler to use."
+    must_include:
+      - "new field"
+      - "full-dataset update"
+      - "partial bulk update"
+      - "small or streaming updates"
+      - "1 GB rule of thumb"
+    trigger_phrases:
+      - "when should i use backfill vs upsert"
+      - "backfill or upsert for schema updates"
+      - "which is better for bulk updates backfill or upsert"
+      - "when to choose backfill"
+      - "when to choose upsert"
+    must_not_say:
+      - "Upsert is the preferred option for large full-dataset rewrites"
+      - "Backfill is only for adding new fields and not for updating existing fields"
+      - "There is no practical size-based guidance for choosing between backfill and upsert"
+    response_outline:
+      - "Decision framework by update pattern"
+      - "Typical scenarios for backfill"
+      - "Typical scenarios for upsert"
+      - "1 GB quick rule"
+    style:
+      language: "same as user"
+      tone: "concise, helpful"
+
+  - intent_id: basi-backfill-imapacts
+    fixed_facts:
+      - "Backfill runs as a background batch job and does not require downtime for online serving."
+      - "Online read and write serving remains available during backfill."
+      - "Main impact is temporary batch compute consumption while the job is running."
+      - "Any impact is limited to the backfill execution window."
+      - "Conceptually, this is similar to external data lake search workflows where data preparation and indexing run in separate background stages before query use."
+    must_include:
+      - "no downtime for online serving"
+      - "read/write remains available"
+      - "temporary impact during job window"
+      - "brief mechanism explanation"
+    trigger_phrases:
+      - "will backfill affect online serving"
+      - "does backfill impact read and write traffic"
+      - "backfill impact on production queries"
+      - "backfill online availability"
+      - "backfill effect duration"
+    must_not_say:
+      - "Backfill requires stopping online reads and writes"
+      - "Backfill causes permanent serving degradation"
+      - "There is no compute impact at all during backfill execution"
+    response_outline:
+      - "One-sentence impact summary"
+      - "What is affected and what is not"
+      - "Why: background batch processing mechanism"
+    style:
+      language: "same as user"
+      tone: "concise, helpful"
+
+  - intent_id: basi-backfill-costs
+    fixed_facts:
+      - "Backfill jobs are billed by CU-minute at the batch compute unit price."
+      - "After a backfill job completes, additional storage costs may apply based on the size of newly added data."
+      - "During private preview, billing is not enabled."
+    must_include:
+      - "CU-minute"
+      - "batch compute unit price"
+      - "possible additional storage cost"
+      - "private preview billing not enabled"
+    trigger_phrases:
+      - "does backfill have additional cost"
+      - "how is backfill billed"
+      - "backfill pricing"
+      - "what does backfill cost"
+      - "is backfill free in private preview"
+    must_not_say:
+      - "Backfill has no compute cost model"
+      - "Storage cost can never change after backfill"
+      - "Private preview backfill is already billable"
+    response_outline:
+      - "Compute billing model"
+      - "Post-job storage implications"
+      - "Private preview billing status"
+    style:
+      language: "same as user"
+      tone: "concise, helpful"
+
+  - intent_id: basi-backfill-private-preview
+    fixed_facts:
+      - "Backfill is currently in private preview and access is granted through support review."
+      - "Users should create a support ticket describing use case details."
+      - "The ticket should include number of collections, target regions, field types, field mapping, and data size."
+      - "Users should prepare backfill data in the required input format before execution."
+      - "The team assists with backfill job submission and execution after access review."
+    must_include:
+      - "create a support ticket"
+      - "number of collections"
+      - "regions"
+      - "field types and field mapping"
+      - "data size"
+      - "required input format"
+      - "team-assisted submission and execution"
+    trigger_phrases:
+      - "how do i get access to backfill private preview"
+      - "request backfill feature access"
+      - "enable backfill for my project"
+      - "backfill private preview onboarding"
+      - "how to apply for backfill"
+    must_not_say:
+      - "Backfill private preview can be self-enabled without review"
+      - "No use-case details are needed for access"
+      - "Users do not need to prepare input data format"
+    response_outline:
+      - "Access request channel"
+      - "Required information in the request"
+      - "Preparation prerequisites"
+      - "Post-request support workflow"
+    style:
+      language: "same as user"
+      tone: "concise, helpful"

@@ -1,6 +1,10 @@
 import type {PolicyPayload} from './types.js';
 
 export function buildPolicyFallback(policy: PolicyPayload): string {
+  if (typeof policy.fallback_response === 'string' && policy.fallback_response.trim().length > 0) {
+    return policy.fallback_response;
+  }
+
   const header = 'Here is the safest verified guidance:';
 
   const facts = policy.fixed_facts.map(fact => `- ${fact}`);

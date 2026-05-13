@@ -12,6 +12,8 @@ WORKDIR /app
 COPY --from=build /app/node_modules/ ./node_modules/
 COPY --from=build /app/dist/ ./dist/
 COPY prompts/ ./prompts/
+COPY prompt-hooks.yaml ./prompt-hooks.yaml
+COPY prompt-hooks.yaml /prompt-hooks.yaml
 COPY policies/ ./policies/
 COPY data/ ./data/
 

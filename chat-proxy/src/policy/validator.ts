@@ -20,7 +20,7 @@ function countActionabilitySignals(text: string): number {
 }
 
 export function validatePolicyResponse(
-  _policy: PolicyPayload,
+  policy: PolicyPayload,
   responseText: string,
 ): PolicyValidationResult {
   const violations: PolicyValidationViolation[] = [];
@@ -33,6 +33,39 @@ export function validatePolicyResponse(
       message: 'Response is empty.',
     });
     return {ok: false, violations};
+  }
+
+  for (const fixedFact of policy.fixed_facts) {
+    const normalizedFact = normalize(fixedFact);
+    if (normalizedFact && !normalized.includes(normalizedFact)) {
+      violations.push({
+        type: 'policy_missing_fixed_fact',
+        value: fixedFact,
+        message: 'Response is missing required fixed fact from policy.',
+      });
+    }
+  }
+
+  for (const requiredPhrase of policy.must_include) {
+    const normalizedRequired = normalize(requiredPhrase);
+    if (normalizedRequired && !normalized.includes(normalizedRequired)) {
+      violations.push({
+        type: 'policy_missing_required',
+        value: requiredPhrase,
+        message: 'Response is missing required phrase from policy.',
+      });
+    }
+  }
+
+  for (const forbiddenPhrase of policy.must_not_say) {
+    const normalizedForbidden = normalize(forbiddenPhrase);
+    if (normalizedForbidden && normalized.includes(normalizedForbidden)) {
+      violations.push({
+        type: 'policy_forbidden_phrase',
+        value: forbiddenPhrase,
+        message: 'Response contains forbidden phrase from policy.',
+      });
+    }
   }
 
   if (normalized.length < 80) {

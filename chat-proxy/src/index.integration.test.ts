@@ -105,6 +105,7 @@ import {logEvent, updateUserProfile} from './logger.js';
 import {recordFeedback} from './feedback.js';
 import {routeIntent, type RouteOutcome} from './router.js';
 import {clearPolicyCache, loadTopicPolicies} from './policy/catalog.js';
+import * as policyCatalog from './policy/catalog.js';
 
 function parseSSE(text: string): Array<{event: string; data: any}> {
   const events: Array<{event: string; data: any}> = [];
@@ -659,7 +660,7 @@ describe('HTTP Endpoints', () => {
       } as any)
       .mockReturnValueOnce({
         fullStream: (async function* () {
-          yield {type: 'text-delta', text: 'Installation methods\nHow to install\nOne end-to-end command set\n-h output overview + CLI reference\nFrom login, create cluster, create collection, insert, and query: provide one command set example.\nUse -h commands for quick capability overview\nYou can also continue by reading the documentation'};
+          yield {type: 'text-delta', text: 'Installation methods\nUse zilliz CLI command patterns from official docs.\nHow to install\nzilliz login is the default auth entry point.\nUse zilliz context set to bind cluster/database context for downstream commands.\nOne end-to-end command set\nFrom login, create cluster, create collection, insert, and query: provide one command set example.\n-h output overview + CLI reference\nUse -h commands for quick capability overview\nYou can also continue by reading the documentation'};
         })(),
         totalUsage: Promise.resolve({inputTokens: 3, outputTokens: 3, totalTokens: 6}),
       } as any);
@@ -694,7 +695,62 @@ describe('HTTP Endpoints', () => {
     expect(String(retryCall.messages?.[0]?.content || '')).toContain('Violation list:');
   });
 
-  it('retries once on policy violation then falls back deterministically on retry stream error', async () => {
+  it('retries once on policy violation then falls back to exact fallback_response on retry stream error', async () => {
+    loadTopicPolicies('zilliz-cli');
+    vi.spyOn(policyCatalog, 'getPolicyByIntent').mockReturnValue({
+      intent_id: 'zcli_get_started_in_minutes',
+      fixed_facts: ['Use zilliz CLI command patterns from official docs.'],
+      must_include: ['How to install'],
+      must_not_say: ['Use SDK code instead of zilliz CLI for this CLI setup flow'],
+      fallback_response: 'Exact policy fallback response.',
+      style: {language: 'same as user', tone: 'concise, helpful'},
+    });
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy retry'} as any);
+
+    vi.mocked(streamText)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'tool-call', toolName: 'searchDocs', input: {query: 'collection'}};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'text-delta', text: 'bad first answer'};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'error', error: 'retry stream failed'};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 0, totalTokens: 1}),
+      } as any);
+
+    const res = await app.request('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-retry-fallback-response-1', 'x-forwarded-for': '192.168.1.250'},
+      body: JSON.stringify({messages: [{role: 'user', content: 'get started with zilliz cli in minutes'}]}),
+    });
+
+    expect(res.status).toBe(200);
+    const events = parseSSE(await res.text());
+    const deltaEvents = events.filter(e => e.event === 'delta');
+    const joinedDelta = deltaEvents.map(e => String(e.data.text)).join('');
+    expect(vi.mocked(streamText).mock.calls.length).toBe(3);
+    expect(joinedDelta).toBe('Exact policy fallback response.');
+
+    const policyLogCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'policy');
+    expect(policyLogCall?.[4]).toMatchObject({
+      intentId: 'zcli_get_started_in_minutes',
+      validationPassed: false,
+      retryCount: 1,
+      fallbackUsed: true,
+      requestId: 'policy-retry-fallback-response-1',
+    });
+  });
+
+  it('retries once on policy violation then falls back deterministically on retry stream error when fallback_response is absent', async () => {
     loadTopicPolicies('zilliz-cli');
     vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy retry'} as any);
 
@@ -743,6 +799,58 @@ describe('HTTP Endpoints', () => {
       retryCount: 1,
       fallbackUsed: true,
       requestId: 'policy-retry-1',
+    });
+  });
+
+  it('does not prepend no-response fallback before policy fallback', async () => {
+    loadTopicPolicies('zilliz-cli');
+    vi.spyOn(policyCatalog, 'getPolicyByIntent').mockReturnValue({
+      intent_id: 'zcli_get_started_in_minutes',
+      fixed_facts: ['Use zilliz CLI command patterns from official docs.'],
+      must_include: ['How to install'],
+      must_not_say: [],
+      fallback_response: 'Exact policy fallback response only.',
+      style: {language: 'same as user', tone: 'concise, helpful'},
+    });
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy no-response fallback'} as any);
+
+    vi.mocked(streamText)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'tool-call', toolName: 'searchDocs', input: {query: 'collection'}};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          // no text returned from synthesis
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 0, totalTokens: 1}),
+      } as any)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'error', error: 'retry stream failed'};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 0, totalTokens: 1}),
+      } as any);
+
+    const res = await app.request('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-no-response-fallback-1', 'x-forwarded-for': '192.168.1.252'},
+      body: JSON.stringify({messages: [{role: 'user', content: 'get started with zilliz cli in minutes'}]}),
+    });
+
+    expect(res.status).toBe(200);
+    const events = parseSSE(await res.text());
+    const joinedDelta = events.filter(e => e.event === 'delta').map(e => String(e.data.text)).join('');
+
+    expect(joinedDelta).toBe('Exact policy fallback response only.');
+    expect(joinedDelta).not.toContain("I found relevant documentation for your question");
+
+    const policyLogCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'policy');
+    expect(policyLogCall?.[4]).toMatchObject({
+      fallbackUsed: true,
+      requestId: 'policy-no-response-fallback-1',
     });
   });
 

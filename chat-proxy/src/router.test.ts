@@ -215,6 +215,41 @@ describe('routeIntent', () => {
     expect(callArgs.prompt).toContain('zilliz-cli:');
   });
 
+  it('accepts vector-lakebase topic from the router and describes it in prompt', async () => {
+    mockGenerateObject.mockResolvedValueOnce({
+      object: {
+        agent: 'product',
+        topics: ['vector-lakebase'],
+        reasoning: 'vector lakebase question',
+      },
+    } as any);
+
+    const result = await routeIntent('How does vector lakebase work?', [], 'sess-vector-lakebase-topic');
+
+    expect(result.topics).toEqual(['vector-lakebase']);
+
+    const callArgs = mockGenerateObject.mock.calls[0][0] as any;
+    expect(callArgs.prompt).toContain('vector-lakebase:');
+  });
+
+  it('adds zilliz-cli topic when query explicitly mentions Zilliz CLI', async () => {
+    mockGenerateObject.mockResolvedValueOnce({
+      object: {
+        outcome: 'routed',
+        agent: 'general',
+        topics: ['integrations'],
+        reasoning: 'user asks about integrations and use cases',
+      },
+    } as any);
+
+    const result = await routeIntent('What are others building with the Zilliz CLI?', [], 'sess-zcli-mention');
+
+    expect(result.outcome).toBe('routed');
+    if (result.outcome === 'routed') {
+      expect(result.topics).toEqual(['integrations', 'zilliz-cli']);
+    }
+  });
+
   it('keeps routed intent_id when provided by the router', async () => {
     mockGenerateObject.mockResolvedValueOnce({
       object: {

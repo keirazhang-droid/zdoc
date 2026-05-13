@@ -18,16 +18,16 @@ const policy: PolicyPayload = {
 };
 
 describe('validatePolicyResponse', () => {
-  it('passes actionable structured responses', () => {
+  it('passes actionable structured responses that satisfy strict policy checks', () => {
     const text = [
-      '1. Install the CLI',
+      '1. How to install',
       '```bash',
       'curl -fsSL https://zilliz.com/cli/install.sh | bash',
       '```',
-      '2. Login',
-      '```bash',
-      'zilliz login',
-      '```',
+      '2. Use zilliz login as the default auth entry point.',
+      '3. From login, create cluster, create collection, insert, and query: provide one command set example.',
+      '4. Use -h commands for quick capability overview',
+      '5. You can also continue by reading the documentation',
     ].join('\n');
 
     const result = validatePolicyResponse(policy, text);
@@ -54,17 +54,62 @@ describe('validatePolicyResponse', () => {
     expect(result.violations.some(v => v.type === 'quality_low_actionability')).toBe(true);
   });
 
-  it('does not fail only because policy phrases are paraphrased', () => {
+  it('flags missing fixed facts', () => {
     const text = [
-      '1. Install and verify',
-      '```bash',
-      'curl -fsSL https://zilliz.com/cli/install.sh | bash',
-      'zilliz --version',
-      '```',
-      '2. Authenticate and set context',
+      '1. How to install',
+      '2. From login, create cluster, create collection, insert, and query: provide one command set example.',
+      '3. Use -h commands for quick capability overview',
+      '4. You can also continue by reading the documentation',
+    ].join('\n');
+
+    const result = validatePolicyResponse(policy, text);
+    expect(result.ok).toBe(false);
+    expect(result.violations.some(v => v.type === 'policy_missing_fixed_fact')).toBe(true);
+  });
+
+  it('flags missing required phrases', () => {
+    const text = [
+      '1. How to install',
+      '2. Use zilliz login as the default auth entry point.',
+      '3. Use -h commands for quick capability overview',
+      '4. You can also continue by reading the documentation',
       '```bash',
       'zilliz login',
-      'zilliz context set --cluster-id inxx-xxxxx --database default',
+      '```',
+    ].join('\n');
+
+    const result = validatePolicyResponse(policy, text);
+    expect(result.ok).toBe(false);
+    expect(result.violations.some(v => v.type === 'policy_missing_required')).toBe(true);
+  });
+
+  it('flags forbidden phrases', () => {
+    const text = [
+      '1. How to install',
+      '2. Use zilliz login as the default auth entry point.',
+      '3. From login, create cluster, create collection, insert, and query: provide one command set example.',
+      '4. Use -h commands for quick capability overview',
+      '5. You can also continue by reading the documentation',
+      '6. Use SDK code instead of zilliz CLI for this CLI setup flow',
+      '```bash',
+      'zilliz login',
+      '```',
+    ].join('\n');
+
+    const result = validatePolicyResponse(policy, text);
+    expect(result.ok).toBe(false);
+    expect(result.violations.some(v => v.type === 'policy_forbidden_phrase')).toBe(true);
+  });
+
+  it('matches policy phrases with case-insensitive whitespace-normalized comparison', () => {
+    const text = [
+      '1. HOW TO INSTALL',
+      '2. Use   zilliz login   as the default auth entry point.',
+      '3. From login, create cluster, create collection, insert, and query: provide one command set example.',
+      '4. Use -h commands for quick capability overview',
+      '5. You can also continue by reading the documentation',
+      '```bash',
+      'zilliz login',
       '```',
     ].join('\n');
 

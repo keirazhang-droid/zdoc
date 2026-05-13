@@ -1,5 +1,7 @@
 policies:
   - intent_id: zcli_get_started_in_minutes
+    trigger_phrases:
+      - "Get started with the Zilliz CLI in minutes."
     fixed_facts:
       - "Use zilliz CLI command patterns from official docs."
       - "zilliz login is the default auth entry point."
@@ -22,6 +24,10 @@ policies:
       tone: "concise, helpful"
 
   - intent_id: zcli_agent_skill_setup
+    trigger_phrases:
+      - "Enable your agent to use Zilliz through the official CLI skill."
+      - "official CLI skill"
+      - "agent CLI skill"
     fixed_facts:
       - "CLI skill setup must verify login and context first."
     must_include:
@@ -39,6 +45,8 @@ policies:
       tone: "concise, helpful"
 
   - intent_id: zcli_usage_patterns
+    trigger_phrases:
+      - "What are others building with the Zilliz CLI?"
     fixed_facts:
       - "Usage patterns should be operational and command-oriented."
     must_include:
@@ -58,6 +66,8 @@ policies:
       tone: "concise, helpful"
 
   - intent_id: zcli_roadmap_feedback
+    trigger_phrases:
+      - "Explore the Zilliz CLI roadmap and share your feature requests."
     fixed_facts:
       - "Roadmap and feedback answers must include actionable follow-up."
     must_include:

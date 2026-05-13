@@ -10,11 +10,18 @@ export interface PolicyPayload {
   must_not_say: string[];
   response_outline?: string[];
   trigger_phrases?: string[];
+  fallback_response?: string;
   style: PolicyStyle;
 }
 
 export interface PolicyValidationViolation {
-  type: 'quality_empty' | 'quality_too_short' | 'quality_low_actionability';
+  type:
+    | 'policy_missing_fixed_fact'
+    | 'policy_missing_required'
+    | 'policy_forbidden_phrase'
+    | 'quality_empty'
+    | 'quality_too_short'
+    | 'quality_low_actionability';
   value: string;
   message: string;
 }

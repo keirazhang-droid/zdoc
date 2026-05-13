@@ -23,7 +23,7 @@ const TOPIC_ENUM = [
   'import', 'migration', 'access-control', 'integrations', 'pricing',
   'security', 'compliance-and-privacy', 'reranking', 'on-demand-search',
   'external-data-lake-search',
-  'backfill-and-schema-iteration', 'zilliz-cli',
+  'backfill-and-schema-iteration', 'zilliz-cli', 'vector-lakebase',
 ] as const;
 
 export type TopicName = (typeof TOPIC_ENUM)[number];
@@ -126,6 +126,7 @@ Topics (select 1-2 for routed outcomes):
 - external-data-lake-search: External volumes, External Collections, supported external formats, refresh/indexing flow, and zero-copy lake search
 - backfill-and-schema-iteration: Offline historical field backfill, schema iteration, Parquet input preparation, mode selection (coalesce/overwrite/replace), and online impact
 - zilliz-cli: Zilliz CLI install/login/context setup, cloud-management commands, data-operation commands, and CLI troubleshooting
+- vector-lakebase: Vector Lakebase architecture, lakehouse/vector integration patterns, and setup or usage guidance
 `;
 
 const FEW_SHOT_EXAMPLES = `
@@ -302,6 +303,7 @@ Topics (select 1-2 for routed outcomes):
 - on-demand-search: On-demand search architecture, external collections, refresh/indexing flow, session-attached compute, on-demand vs serverless tradeoffs
 - backfill-and-schema-iteration: Offline historical field backfill, schema iteration, Parquet input preparation, mode selection (coalesce/overwrite/replace), and online impact
 - zilliz-cli: Zilliz CLI install/login/context setup, cloud-management commands, data-operation commands, and CLI troubleshooting
+- vector-lakebase: Vector Lakebase architecture, lakehouse/vector integration patterns, and setup or usage guidance
 
 ${stickyAgent ? `Current agent: ${stickyAgent}. Stay with this agent unless the topic has clearly changed.` : ''}
 
@@ -331,10 +333,11 @@ Route to the most appropriate agent. If confident, return routed with 1-2 topics
     } catch { /* fire-and-forget */ }
 
     if (normalized) {
+      const guarded = enforceQueryTopicGuards(normalized, latestMessage);
       if (sessionId) {
-        sessionRoutes.set(sessionId, normalized.agent);
+        sessionRoutes.set(sessionId, guarded.agent);
       }
-      return normalized;
+      return guarded;
     }
 
     return makeClarificationOutcome(stickyAgent || 'general', 'Could you clarify what you need help with so I can route this correctly?', 'Legacy router returned ambiguous or invalid classification');
@@ -370,8 +373,9 @@ async function routeIntentV2(
   if (cached) {
     console.log('[Router] Cache hit', JSON.stringify({requestId, query: summarizeForDebugLog(latestMessage, 'query')}));
     incCounter('chat_proxy_cache_hits_total', {type: 'route'});
-    if (sessionId) sessionRoutes.set(sessionId, cached.agent);
-    return cached;
+    const guarded = enforceQueryTopicGuards(cached, latestMessage);
+    if (sessionId) sessionRoutes.set(sessionId, guarded.agent);
+    return guarded;
   }
   incCounter('chat_proxy_cache_misses_total', {type: 'route'});
 
@@ -401,10 +405,11 @@ async function routeIntentV2(
 
     const normalized = normalizeRouteOutcome(result.object);
     if (normalized) {
+      const guarded = enforceQueryTopicGuards(normalized, latestMessage);
       await persistRouterUsage(result.usage, resolvedModel.model, sessionId);
-      if (sessionId) sessionRoutes.set(sessionId, normalized.agent);
-      setCachedRoute(latestMessage, normalized, stickyAgent);
-      return normalized;
+      if (sessionId) sessionRoutes.set(sessionId, guarded.agent);
+      setCachedRoute(latestMessage, guarded, stickyAgent);
+      return guarded;
     }
     console.warn('[Router] generateObject returned ambiguous/invalid route', JSON.stringify({requestId}));
   } catch (err) {
@@ -430,10 +435,11 @@ async function routeIntentV2(
     if (toolCall) {
       const normalized = normalizeRouteOutcome(toolCall.input as Record<string, unknown>);
       if (normalized) {
+        const guarded = enforceQueryTopicGuards(normalized, latestMessage);
         await persistRouterUsage(result.usage, resolvedModel.model, sessionId);
-        if (sessionId) sessionRoutes.set(sessionId, normalized.agent);
-        setCachedRoute(latestMessage, normalized, stickyAgent);
-        return normalized;
+        if (sessionId) sessionRoutes.set(sessionId, guarded.agent);
+        setCachedRoute(latestMessage, guarded, stickyAgent);
+        return guarded;
       }
     }
     console.warn('[Router] Tool-based routing returned no valid route tool call', JSON.stringify({requestId}));
@@ -458,10 +464,11 @@ async function routeIntentV2(
     const parsed = extractRouterJson(result.text);
     const normalized = parsed ? normalizeRouteOutcome(parsed) : null;
     if (normalized) {
+      const guarded = enforceQueryTopicGuards(normalized, latestMessage);
       await persistRouterUsage(result.usage, resolvedModel.model, sessionId);
-      if (sessionId) sessionRoutes.set(sessionId, normalized.agent);
-      setCachedRoute(latestMessage, normalized, stickyAgent);
-      return normalized;
+      if (sessionId) sessionRoutes.set(sessionId, guarded.agent);
+      setCachedRoute(latestMessage, guarded, stickyAgent);
+      return guarded;
     }
     console.warn('[Router] Plain text fallback returned no valid JSON', JSON.stringify({requestId}));
   } catch (err) {
@@ -496,6 +503,26 @@ function normalizeIntentId(intentId: unknown): string | null | undefined {
   if (intentId === undefined) return undefined;
   if (intentId === null) return null;
   return typeof intentId === 'string' ? intentId : null;
+}
+
+const ZILLIZ_CLI_MENTION_RE = /\bzilliz\s*cli\b/i;
+
+function enforceQueryTopicGuards(route: RouteOutcome, latestMessage: string): RouteOutcome {
+  if (route.outcome !== 'routed') return route;
+  if (!ZILLIZ_CLI_MENTION_RE.test(latestMessage)) return route;
+  if (route.topics.includes('zilliz-cli')) return route;
+
+  if (route.topics.length === 1) {
+    return {
+      ...route,
+      topics: [route.topics[0], 'zilliz-cli'],
+    };
+  }
+
+  return {
+    ...route,
+    topics: [route.topics[0], 'zilliz-cli'],
+  };
 }
 
 function normalizeRouteOutcome(value: unknown): RouteOutcome | null {

@@ -27,6 +27,7 @@ function isPolicyPayload(value: unknown): value is PolicyPayload {
     && policy.must_not_say.every(item => typeof item === 'string')
     && (policy.response_outline === undefined || (Array.isArray(policy.response_outline) && policy.response_outline.every(item => typeof item === 'string')))
     && (policy.trigger_phrases === undefined || (Array.isArray(policy.trigger_phrases) && policy.trigger_phrases.every(item => typeof item === 'string')))
+    && (policy.fallback_response === undefined || typeof policy.fallback_response === 'string')
     && !!style
     && typeof style === 'object'
     && typeof (style as Record<string, unknown>).language === 'string'
@@ -41,6 +42,7 @@ function clonePolicy(policy: PolicyPayload): PolicyPayload {
     must_not_say: [...policy.must_not_say],
     response_outline: policy.response_outline ? [...policy.response_outline] : undefined,
     trigger_phrases: policy.trigger_phrases ? [...policy.trigger_phrases] : undefined,
+    fallback_response: policy.fallback_response,
     style: {
       language: policy.style.language,
       tone: policy.style.tone,

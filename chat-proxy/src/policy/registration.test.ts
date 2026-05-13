@@ -14,7 +14,13 @@ describe('policy registration config', () => {
     const {getPolicyModeRegistration} = await importRegistration();
     const config = getPolicyModeRegistration();
     expect(config.enabled).toBe(true);
-    expect([...config.topics]).toEqual(['external-data-lake-search', 'on-demand-search', 'zilliz-cli']);
+    expect([...config.topics]).toEqual([
+      'backfill-and-schema-iteration',
+      'external-data-lake-search',
+      'on-demand-search',
+      'vector-lakebase',
+      'zilliz-cli',
+    ]);
   });
 
   it('returns safe defaults when file is missing', async () => {

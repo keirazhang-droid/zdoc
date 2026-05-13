@@ -8,6 +8,8 @@ RUN npm install
 COPY dist/ ./dist/
 COPY src/admin-dashboard.html ./dist/
 COPY prompts/ ./prompts/
+COPY prompt-hooks.yaml ./prompt-hooks.yaml
+COPY prompt-hooks.yaml /prompt-hooks.yaml
 COPY policies/ ./policies/
 COPY data/ ./data/
 COPY package.json ./

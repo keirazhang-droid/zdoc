@@ -42,6 +42,7 @@ import {createDeferred, LruTtlCache, normalizeQuery, stableHash} from './cache.j
 import {getPolicyByIntent} from './policy/catalog.js';
 import {validatePolicyResponse} from './policy/validator.js';
 import {buildPolicyFallback} from './policy/fallback.js';
+import {resolvePolicyIntent} from './policy/intent.js';
 import {getPolicyModeRegistration} from './policy/registration.js';
 
 // Load topic prompts from disk at startup
@@ -455,47 +456,6 @@ function expandQueryForSearch(query: string, agentType: AgentType, topics: strin
   }
 
   return queries.slice(0, SERVER_RAG_MAX_QUERIES);
-}
-
-type PolicyIntentId =
-  | 'zcli_get_started_in_minutes'
-  | 'zcli_agent_skill_setup'
-  | 'zcli_usage_patterns'
-  | 'zcli_roadmap_feedback'
-  | 'ods_fit_infrequent_batch'
-  | 'ods_cost_vs_serving_cluster'
-  | 'ods_cost_vs_serverless'
-  | 'ods_limitations'
-  | 'external_data_lake_search_best_fit_use_cases'
-  | 'external_data_lake_search_how_it_works'
-  | 'external_data_lake_search_supported_formats'
-  | 'external_data_lake_search_sync_updates';
-
-function resolvePolicyIntent(query: string, topics: string[]): PolicyIntentId | null {
-  const normalized = query.toLowerCase();
-
-  if (topics.includes('zilliz-cli')) {
-    if (/\b(get started|start(ed)? in|quickstart|in minutes|install|login|setup)\b/.test(normalized)) return 'zcli_get_started_in_minutes';
-    if (/\b(agent skill|mcp|plugin|skill setup|configure cli)\b/.test(normalized)) return 'zcli_agent_skill_setup';
-    if (/\b(others building|use cases|usage patterns|what can i build|what are people building)\b/.test(normalized)) return 'zcli_usage_patterns';
-    if (/\b(roadmap|feature request|feedback|missing feature|wishlist)\b/.test(normalized)) return 'zcli_roadmap_feedback';
-  }
-
-  if (topics.includes('on-demand-search')) {
-    if (/\b(infrequent|batch|occasional|spiky workload)\b/.test(normalized)) return 'ods_fit_infrequent_batch';
-    if (/\b(serving cluster|dedicated)\b/.test(normalized)) return 'ods_cost_vs_serving_cluster';
-    if (/\b(serverless)\b/.test(normalized)) return 'ods_cost_vs_serverless';
-    if (/\b(limit|limitation|constraint|not supported|caveat)\b/.test(normalized)) return 'ods_limitations';
-  }
-
-  if (topics.includes('external-data-lake-search')) {
-    if (/\b(best fit|use case|when to use|suitable for)\b/.test(normalized)) return 'external_data_lake_search_best_fit_use_cases';
-    if (/\b(how it works|architecture|flow|pipeline)\b/.test(normalized)) return 'external_data_lake_search_how_it_works';
-    if (/\b(format|parquet|iceberg|delta|supported files?)\b/.test(normalized)) return 'external_data_lake_search_supported_formats';
-    if (/\b(sync|refresh|update|reindex|change detection)\b/.test(normalized)) return 'external_data_lake_search_sync_updates';
-  }
-
-  return null;
 }
 
 function scoreServerRagResult(result: SearchResult, query: string, rank: number): number {
@@ -1568,6 +1528,21 @@ app.post('/chat', async c => {
               }, null, 2)}\n\nAnswer naturally, but preserve all fixed facts exactly. Do not add unsupported claims.`
             : '';
 
+          const buildPolicyConstraintChecklist = () => {
+            if (!matchedPolicy) {
+              return '';
+            }
+
+            const lines = [
+              'Policy compliance checklist (must pass before final answer):',
+              ...matchedPolicy.fixed_facts.map(fact => `- Include fixed fact verbatim: ${fact}`),
+              ...matchedPolicy.must_include.map(item => `- Must include: ${item}`),
+              ...matchedPolicy.must_not_say.map(item => `- Must not say: ${item}`),
+            ];
+
+            return `\n\n${lines.join('\n')}`;
+          };
+
           const buildCollectedContextForSynthesis = () => {
             const contextParts = toolResultSummaries.length > 0
               ? toolResultSummaries
@@ -1593,7 +1568,7 @@ app.post('/chat', async c => {
                 maxRetries: bedrockAiSdkMaxRetries(chatModelResolved.provider),
                 system: `${systemPrompt}${policyBlock}\n\n## Final synthesis mode\nYou are in the final answer phase. Tool use is disabled. You MUST answer the user directly using the provided collected context, current page context, and agent instructions. If the context is weak, still provide the best safe answer and mention what to verify. Be concise by default.`,
                 messages: [
-                  {role: 'user', content: `User question:\n${ragQuery}\n\nCollected context from tools:\n${context}${draft}\n\nWrite the final answer now. Include concise steps and code if relevant. Keep the answer under 700 words unless the user explicitly asks for more detail.`},
+                  {role: 'user', content: `User question:\n${ragQuery}\n\nCollected context from tools:\n${context}${draft}${buildPolicyConstraintChecklist()}\n\nWrite the final answer now. Include concise steps and code if relevant. Keep the answer under 700 words unless the user explicitly asks for more detail.`},
                 ],
                 maxOutputTokens: FINAL_SYNTHESIS_MAX_OUTPUT_TOKENS,
                 temperature: 0.2,
@@ -1943,8 +1918,10 @@ app.post('/chat', async c => {
 
           if (!fullText) {
             fullText = buildNoResponseFallback(ragQuery, toolChunks, toolSources);
-            deltaCount++;
-            sendAndRecord('delta', JSON.stringify({text: fullText}));
+            if (!matchedPolicy) {
+              deltaCount++;
+              sendAndRecord('delta', JSON.stringify({text: fullText}));
+            }
             console.warn('[Fallback] emitted deterministic no-response fallback', JSON.stringify({requestId, toolsCalled: toolsCalled.length, toolChunks: toolChunks.length}));
           }
 
@@ -1972,7 +1949,7 @@ app.post('/chat', async c => {
                   maxRetries: bedrockAiSdkMaxRetries(chatModelResolved.provider),
                   system: `${systemPrompt}${buildPolicyPayloadBlock()}\n\n## Final synthesis mode\nYou are in the final answer phase. Tool use is disabled. You MUST answer the user directly using the provided collected context, current page context, and agent instructions. If the context is weak, still provide the best safe answer and mention what to verify. Be concise by default.`,
                   messages: [
-                    {role: 'user', content: `User question:\n${ragQuery}\n\nCollected context from tools:\n${context}${draft}\n\n${retryPrompt}\n\nWrite the corrected final answer now.`},
+                    {role: 'user', content: `User question:\n${ragQuery}\n\nCollected context from tools:\n${context}${draft}${buildPolicyConstraintChecklist()}\n\n${retryPrompt}\n\nWrite the corrected final answer now.`},
                   ],
                   maxOutputTokens: FINAL_SYNTHESIS_MAX_OUTPUT_TOKENS,
                   temperature: 0.1,

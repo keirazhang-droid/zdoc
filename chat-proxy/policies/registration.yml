@@ -1,6 +1,8 @@
 policyMode:
   enabled: true
   topics:
+    - backfill-and-schema-iteration
     - external-data-lake-search
     - on-demand-search
+    - vector-lakebase
     - zilliz-cli

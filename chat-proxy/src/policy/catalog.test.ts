@@ -34,12 +34,51 @@ describe('policy catalog', () => {
     ]);
   });
 
+  it('loads vector-lakebase policy intents', async () => {
+    const {loadTopicPolicies} = await importCatalog();
+    const policies = loadTopicPolicies('vector-lakebase');
+
+    expect(policies.length).toBe(4);
+    expect(policies.map(p => p.intent_id).sort()).toEqual([
+      'vector_database_vs_vector_lakebase_difference',
+      'vector_lakebase_best_fit_use_cases',
+      'vector_lakebase_definition',
+      'vector_lakebase_only_need_vector_db',
+    ]);
+  });
+
+  it('ensures vector-lakebase fallback responses satisfy must_include', async () => {
+    const {loadTopicPolicies} = await importCatalog();
+    const policies = loadTopicPolicies('vector-lakebase').filter(policy => policy.fallback_response);
+
+    const normalizeForValidator = (text: string) => text.toLowerCase().replace(/\s+/g, ' ').trim();
+
+    for (const policy of policies) {
+      const fallbackResponse = normalizeForValidator(policy.fallback_response!);
+      for (const phrase of policy.must_include) {
+        expect(fallbackResponse).toContain(normalizeForValidator(phrase));
+      }
+    }
+  });
+
   it('loads configured trigger_phrases from policy yaml', async () => {
     const {loadTopicPolicies} = await importCatalog();
     const policies = loadTopicPolicies('on-demand-search');
     const limitations = policies.find(p => p.intent_id === 'ods_limitations');
 
     expect(limitations?.trigger_phrases).toContain('what are the limitations of on-demand search');
+  });
+
+  it('loads optional fallback_response from policy yaml', async () => {
+    vi.doMock('node:fs', () => ({
+      readFileSync: vi.fn(() => `policies:\n  - intent_id: with-fallback\n    fixed_facts: []\n    must_include: []\n    must_not_say: []\n    fallback_response: keep this exact fallback\n    style:\n      language: same as user\n      tone: concise\n`),
+    }));
+
+    const {loadTopicPolicies} = await importCatalog();
+    const policies = loadTopicPolicies('fallback-topic');
+
+    expect(policies).toHaveLength(1);
+    expect(policies[0].fallback_response).toBe('keep this exact fallback');
   });
 
   it('returns null when intent does not exist', async () => {
@@ -98,6 +137,19 @@ describe('policy catalog', () => {
     clearPolicyCache();
     loadTopicPolicies('cached-topic');
     expect(readFileSync).toHaveBeenCalledTimes(2);
+  });
+
+  it('preserves fallback_response across cached clones', async () => {
+    vi.doMock('node:fs', () => ({
+      readFileSync: vi.fn(() => `policies:\n  - intent_id: with-fallback\n    fixed_facts: []\n    must_include: []\n    must_not_say: []\n    fallback_response: fallback from cache\n    style:\n      language: same as user\n      tone: concise\n`),
+    }));
+
+    const {loadTopicPolicies, getPolicyByIntent} = await importCatalog();
+    const policies = loadTopicPolicies('cache-fallback-topic');
+    policies[0].fallback_response = 'mutated fallback';
+
+    expect(loadTopicPolicies('cache-fallback-topic')[0].fallback_response).toBe('fallback from cache');
+    expect(getPolicyByIntent('cache-fallback-topic', 'with-fallback')?.fallback_response).toBe('fallback from cache');
   });
 
   it('does not expose mutable cached policy references', async () => {

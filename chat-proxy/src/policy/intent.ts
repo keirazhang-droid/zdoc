@@ -1,9 +1,11 @@
 import {loadTopicPolicies} from './catalog.js';
 
+const VECTOR_LAKEBASE_DIFFERENCE_PATTERN = /\b(vector\s+database\s+vs\.?\s+vector\s+lakebase|difference\s+between\s+vector\s+database\s+and\s+vector\s+lakebase|what(?:'s|\s+is)\s+the\s+difference)\b/i;
+
 const TOPIC_FALLBACKS: Record<string, Array<{intentId: string; pattern: RegExp}>> = {
   'zilliz-cli': [
-    {intentId: 'zcli_agent_skill_setup', pattern: /\b(agent\s+skill|skill\s+install|install\s+.*skill)\b/i},
-    {intentId: 'zcli_usage_patterns', pattern: /\b(usage\s+patterns?|use\s+cases?|day[-\s]?1|vdbbench|benchmark)\b/i},
+    {intentId: 'zcli_agent_skill_setup', pattern: /\b(agent\s+skill|skill\s+install|install\s+.*skill|official\s+cli\s+skill|agent\b[\s\S]{0,40}\bcli\s+skill)\b/i},
+    {intentId: 'zcli_usage_patterns', pattern: /\b(usage\s+patterns?|use\s+cases?|day[-\s]?1|vdbbench|benchmark|others\s+building|what\s+can\s+i\s+build|what\s+are\s+people\s+building)\b/i},
     {intentId: 'zcli_roadmap_feedback', pattern: /\b(roadmap|feedback|feature\s+request|submit\s+(a\s+)?ticket)\b/i},
     {intentId: 'zcli_get_started_in_minutes', pattern: /\b(zilliz\s*cli|zilliz\s+login|context\s+set|install\s+.*zilliz|get\s+started)\b/i},
   ],
@@ -14,10 +16,23 @@ const TOPIC_FALLBACKS: Record<string, Array<{intentId: string; pattern: RegExp}>
     {intentId: 'ods_fit_infrequent_batch', pattern: /\b(infrequent|batch|idle|tb|pb|discovery\s+workloads?)\b/i},
   ],
   'external-data-lake-search': [
-    {intentId: 'external_data_lake_search_supported_formats', pattern: /\b(formats?|supported|iceberg|lance|parquet|vortex)\b/i},
-    {intentId: 'external_data_lake_search_sync_updates', pattern: /\b(sync|refresh|updates?|incremental)\b/i},
-    {intentId: 'external_data_lake_search_how_it_works', pattern: /\b(how\s+.*works?|workflow|steps?)\b/i},
-    {intentId: 'external_data_lake_search_best_fit_use_cases', pattern: /\b(best\s*fit|ideal|use\s+cases?|who\s+.*best\s+for)\b/i},
+    {intentId: 'edls_supported_formats', pattern: /\b(formats?|supported|iceberg|lance|parquet|vortex)\b/i},
+    {intentId: 'edls_sync_updates', pattern: /\b(sync|refresh|updates?|incremental)\b/i},
+    {intentId: 'edls_how_it_works', pattern: /\b(how\s+.*works?|workflow|steps?)\b/i},
+    {intentId: 'edls_best_fit_use_cases', pattern: /\b(best\s*fit|ideal|use\s+cases?|who\s+.*best\s+for)\b/i},
+  ],
+  'backfill-and-schema-iteration': [
+    {intentId: 'basi-backfill-duration-100m', pattern: /\b(100\s*(million|m)\s*rows?|100m[-\s]?row)\b[\s\S]*\b(backfill)\b[\s\S]*\b(how\s+long|take)\b|\bbackfill\b[\s\S]*\b(100\s*(million|m)\s*rows?)\b/i},
+    {intentId: 'basi-backfill-vs-upsert', pattern: /\b(backfill\s+vs\.?\s+upsert|when\s+to\s+use\s+backfill\s+vs\.?\s+upsert|when\s+to\s+choose\s+backfill|when\s+to\s+choose\s+upsert)\b/i},
+    {intentId: 'basi-backfill-imapacts', pattern: /\b(will\s+backfill\s+affect\s+online\s+read\/?write\s+serving|backfill\s+impact\s+on\s+production\s+queries|backfill\s+online\s+availability|backfill\s+effect\s+duration)\b/i},
+    {intentId: 'basi-backfill-costs', pattern: /\b(does\s+backfill\s+generate\s+additional\s+costs?|how\s+is\s+backfill\s+billed|backfill\s+pricing|what\s+does\s+backfill\s+cost)\b/i},
+    {intentId: 'basi-backfill-private-preview', pattern: /\b(request\s+access\s+to\s+backfill|backfill\s+private\s+preview|how\s+can\s+i\s+request\s+access\s+to\s+the\s+backfill\s+feature\s+currently\s+in\s+private\s+preview)\b/i},
+  ],
+  'vector-lakebase': [
+    {intentId: 'vector_lakebase_only_need_vector_db', pattern: /\b(only\s+need\s+(a\s+)?vector\s+database|just\s+for\s+vector\s+search|good\s+fit\s+for\s+my\s+use\s+case)\b/i},
+    {intentId: 'vector_database_vs_vector_lakebase_difference', pattern: VECTOR_LAKEBASE_DIFFERENCE_PATTERN},
+    {intentId: 'vector_lakebase_best_fit_use_cases', pattern: /\b(best\s*fit\s+use\s+cases?|what\s+are\s+vector\s+lakebase\s+use\s+cases|use\s+cases?\s+for\s+vector\s+lakebase)\b/i},
+    {intentId: 'vector_lakebase_definition', pattern: /\b(what\s+is\s+(a\s+)?vector\s+lakebase|define\s+vector\s+lakebase|vector\s+lakebase\s+definition)\b/i},
   ],
 };
 

@@ -1,5 +1,5 @@
 policies:
-  - intent_id: external_data_lake_search_best_fit_use_cases
+  - intent_id: edls_best_fit_use_cases
     fixed_facts:
       - "External Data Lake Search is best for organizations that already have a mature data lake, S3, and data governance setup."
       - "It is designed for users who do not want to copy, migrate, or re-import data just to enable AI retrieval."
@@ -24,7 +24,7 @@ policies:
       language: "same as user"
       tone: "concise"
 
-  - intent_id: external_data_lake_search_how_it_works
+  - intent_id: edls_how_it_works
     fixed_facts:
       - "Users bring their own bucket and grant Zilliz Cloud read-only access to the object storage bucket that contains the source lake data."
       - "Users then create an external collection in Zilliz Cloud as a zero-copy logical mapping to the existing lake data."
@@ -53,7 +53,7 @@ policies:
       language: "same as user"
       tone: "concise"
 
-  - intent_id: external_data_lake_search_supported_formats
+  - intent_id: edls_supported_formats
     fixed_facts:
       - "External Collection currently supports two data lake table formats: Lance and Iceberg."
       - "It also supports two open data formats: Parquet and Vortex."
@@ -63,6 +63,7 @@ policies:
       - "Parquet"
       - "Vortex"
     trigger_phrases:
+      - "supported external data lake formats"
       - "what formats are supported in external data lake search"
       - "supported formats for external data lake search"
       - "does external data lake search support iceberg"
@@ -77,7 +78,7 @@ policies:
       language: "same as user"
       tone: "concise"
 
-  - intent_id: external_data_lake_search_sync_updates
+  - intent_id: edls_sync_updates
     fixed_facts:
       - "For data lake updates, Zilliz External Collection provides incremental synchronization capabilities. "
       - "Based on the data lake update pattern and query visibility requirements, users can sync data anytime with a refresh call."
@@ -87,6 +88,7 @@ policies:
       - "Users can choose when to sync"
       - "A simple explanation of how refresh works"
     trigger_phrases:
+      - "how to sync source data lake updates to zilliz cloud"
       - "how to sync updates for external data lake search"
       - "does external data lake search auto sync"
       - "when should i call refresh for external collection"

@@ -34,4 +34,14 @@ describe('prompt registration', () => {
     expect(indexesPrompt).toBeTruthy();
     expect(indexesPrompt).toContain('https://docs.zilliz.com/docs/tune-index-build-level');
   });
+
+  it('loads vector-lakebase prompt from chat-proxy/prompts/vector-lakebase.md', async () => {
+    const prompts = await import('./prompts.js');
+
+    prompts.loadPrompts();
+
+    const prompt = prompts.getTopicPrompt('vector-lakebase');
+    expect(prompt).toBeTruthy();
+    expect(prompt).toContain('Vector Lakebase Prompt');
+  });
 });

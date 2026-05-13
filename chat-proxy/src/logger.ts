@@ -38,6 +38,7 @@ const DEBUG_OBJECT_KEY_LIMIT = 25;
 const DEBUG_MAX_DEPTH = 6;
 const SAFE_TOKEN_COUNT_KEYS = new Set(['inputtokens', 'outputtokens', 'totaltokens', 'cachedinputtokens']);
 const CORRELATION_ID_KEYS = new Set(['requestid', 'traceid', 'spanid', 'correlationid']);
+const SAFE_IDENTIFIER_KEYS = new Set(['intentid']);
 const TEXT_LIKE_KEYS = new Set([
   'prompt',
   'systemprompt',
@@ -148,6 +149,7 @@ function isCorrelationIdKey(key?: string): boolean {
 
 function shouldRedactString(value: string, key?: string): boolean {
   if (isCorrelationIdKey(key)) return false;
+  if (key && SAFE_IDENTIFIER_KEYS.has(normalizeDebugKey(key))) return false;
   return SECRET_VALUE_PATTERNS.some(pattern => pattern.test(value));
 }
 

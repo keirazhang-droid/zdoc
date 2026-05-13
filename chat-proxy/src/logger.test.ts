@@ -163,6 +163,18 @@ describe('logger', () => {
     });
   });
 
+  it('keeps long policy intent identifiers visible', () => {
+    const summarized = summarizeForDebugLog({
+      intentId: 'vector_database_vs_vector_lakebase_difference',
+      accessToken: 'a'.repeat(64),
+    });
+
+    expect(summarized).toEqual({
+      intentId: 'vector_database_vs_vector_lakebase_difference',
+      accessToken: '[redacted]',
+    });
+  });
+
   it('summarizes long debug strings without emitting raw text', () => {
     const text = 'How do I create a collection in Zilliz Cloud? '.repeat(8);
 

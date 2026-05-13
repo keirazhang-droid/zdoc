@@ -53,8 +53,8 @@ policies:
       - "2%"
       - "infrequent and batch search workloads"
     trigger_phrases:
-      - "how much cost can on-demand search save compared to always-on serving clusters"
       - "on-demand search cost vs serving cluster"
+      - "how much cost can on-demand search save compared to always-on serving clusters"
       - "on-demand search compared to always-on cluster cost"
       - "is on-demand cheaper than an always-on cluster for batch search"
       - "cost savings with 10 hours active search per month"
