@@ -17,22 +17,39 @@ policies:
       - "Vector Lakebase requires tightly coupled compute and storage"
     fallback_response: |
       A Vector Lakebase is a new, lake-native architecture that combines the low-latency serving capabilities of vector databases with the openness, scalability, and economics of the multi-modal data lake. Vector Lakebases are enabled by a fundamentally new design: separating compute from storage and placing multi-modal data, vectors, attributes, indexes, and metadata directly in low-cost object storage in open formats, while allowing serving, discovery, and analytics workloads to run independently on top.
+      
       A more intuitive way to understand it is by comparing it to both traditional big data infrastructure and vector databases:
+      
       In the big data era, data lakes, database engines, and warehouses became the standard infrastructure stack for large-scale data management, serving, and analytics. Vector Lakebase is the equivalent infrastructure stack for the era of vectors, indexes, and semantic context.
+      
       Traditional vector databases are mainly optimized for online retrieval serving, with compute, storage, and indexes tightly coupled inside a single serving system. While highly effective for dedicated retrieval workloads, this architecture often creates data silos and duplicated pipelines across serving, discovery, and analytics systems. In contrast, a Vector Lakebase allows real-time serving, interactive discovery, and offline analytics workloads to operate directly on the same shared lake-native data foundation, enabling a more unified and scalable architecture for AI applications.
+      
       A Vector Lakebase has the following key features:
-      Storage is separated from compute:
+      
+      **Storage is separated from compute:**
+      
       Multi-modal data, vectors, indexes, and metadata are stored in low-cost object storage, while serving, discovery, and analytics compute run independently. This enables elastic scaling across different AI workloads without keeping expensive infrastructure running idle.
-      Unified serving and analytics on the same data foundation:
+      
+      **Unified serving and analytics on the same data foundation:**
+      
       Real-time serving, interactive discovery, and offline analytics operate directly on the same lake-native data foundation, avoiding unnecessary data copies, fragmented systems, and redundant pipelines.
-      Indexes become reusable lake-native assets:
+      
+      **Indexes become reusable lake-native assets:**
+      
       Indexes are stored and managed on object storage instead of being tightly coupled to a serving engine. The same indexes can support serving, discovery, and analytics workloads together.
-      Elastic and workload-aware compute:
+      
+      **Elastic and workload-aware compute:**
+      
       Different compute layers can independently optimize for low-latency serving, interactive discovery, or offline analytics. Serving workloads can use always-on clusters for consistent low latency, while on-demand compute modes improve efficiency for bursty and exploratory workloads.
-      Open, multi-modal, and semantic-centric by design:
+      
+      **Open, multi-modal, and semantic-centric by design:**
+      
       Structured data, documents, logs, embeddings, metadata, entities, summaries, and feedback signals can coexist and be managed together on the same open lake-native foundation without proprietary lock-in.
-      Built for the full AI data lifecycle:
+      
+      **Built for the full AI data lifecycle:**
+      
       Vector Lakebase supports the full lifecycle of AI data workflows, including ingestion, retrieval, discovery, deduplication, clustering, analytics, evaluation.
+      
       These are the core architectural attributes of a Vector Lakebase — the next evolution of AI data infrastructure for large-scale AI applications and agents.
     response_outline:
       - "Definition"
@@ -60,7 +77,9 @@ policies:
       - "Serving-only usage has extra mandatory complexity"
     fallback_response: |
       Quick answer: YES.
+      
       A simple way to think about it: Vector Database is already part of Vector Lakebase. If you only need vector search and retrieval, you can simply use the serving cluster layer exactly like a regular vector database — with an identical user experience, no extra complexity, and no additional platform costs.
+      
       At the same time, Vector Lakebase gives you a natural upgrade path toward a unified semantic data infrastructure. You can start with a standard vector database workload today, then seamlessly expand into search, analytics, discovery, and broader AI data workflows later — all on the same data foundation, without rebuilding systems or duplicating data.
     response_outline:
       - "Direct answer"
@@ -88,11 +107,19 @@ policies:
       - "Vector Lakebase cannot run pure vector-database workloads"
     fallback_response: |
       Traditional vector databases are primarily designed for online retrieval serving. In most systems, compute, storage, and indexes are tightly coupled inside a single serving architecture. This works well for real-time retrieval, but as AI workloads expand beyond serving into discovery, analytics, and large-scale AI data processing, organizations often encounter duplicated pipelines, fragmented systems, expensive always-on infrastructure, and limited flexibility for operating on the same data across different workloads.
+      
       A Vector Lakebase is a new, lake-native architecture that combines the low-latency serving capabilities of vector databases with the openness, scalability, and economics of the multi-modal data lake. It is enabled by a fundamentally different design: separating compute from storage and placing multi-modal data, vectors, attributes, indexes, and metadata directly in low-cost object storage in open formats, while allowing serving, discovery, and analytics workloads to run independently on top.
+      
       From a product scope perspective, a Vector Database is already part of a Vector Lakebase. If you only need vector search and retrieval, you can simply use the serving cluster layer exactly like a regular vector database — without additional complexity or extra platform costs.
+      
       Here’s a comparison summary:
-      Vector Database: Dedicated retrieval infrastructure; only real-time serving; tightly coupled compute and storage; charged based on always-on serving cluster resources.
-      Vector Lakebase: Unified semantic data platform for multiple AI data workflows; real-time serving + interactive discovery + batch analytics; decoupled compute and storage with shared zero-copy access; storage close to S3 and data IO costs, serving clusters follow vector-database pricing, and on-demand compute is billed by active runtime.
+      
+      |                 | Vector Database | Vector Lakebase |
+      |-----------------|-----------------|-----------------|
+      | Infrastructure Model | Dedicated retrieval infrastructure | Unified semantic data platform for multiple AI data workflows |
+      | Compute Modes | Only real-time serving | • Real-time serving<br/>• Interactive discovery<br/>• Batch analytics |
+      | Compute & Storage Architecture | Tightly coupled inside a vector database cluster | Decoupled compute and storage. Data can be shared across different compute modes with zero-copy access |
+      | Cost Model | Charged based on always-on serving cluster resources | Storage:<br/>• Close to S3 storage and data IO costs.<br/>Compute:<br/>• Serving clusters follow the same pricing model as vector databases.<br/>• On-demand compute is billed by active runtime, often at significantly lower cost than serverless architectures. |
     response_outline:
       - "Traditional vector database model"
       - "Vector Lakebase model"
@@ -117,24 +144,43 @@ policies:
       - "Vector Lakebase is only for one narrow use case"
     fallback_response: |
       Typical application scenarios for Vector Lakebase include, but are not limited to:
-      Real-Time Serving Workloads (Cover the original Vector Database capabilities):
+      
+      **Real-Time Serving Workloads (Cover the original Vector Database capabilities):**
+      
       - Latency-critical agent memory and strategy retrieval.
+      
       - Vertical domain knowledge bases for legal, healthcare, finance, and other specialized industries.
+      
       - Web-scale AI search engines.
+      
       - Ultra-high-throughput recommendation systems.
+      
       - Second-level dynamic hot/cold data scheduling across storage tiers.
+      
       - Differentiated service tiers for both premium enterprise users and large-scale free-user pools.
-      Iterative Discovery Workloads:
+      
+      **Iterative Discovery Workloads:**
+      
       - AI service quality analysis and issue discovery across feedback data, agent-generated notes, logs, and other multi-source data.
+      
       - Efficient exploration of large-scale datasets.
+      
       - Multi-step iterative deep research.
-      Batch Analytics Workloads:
+      
+      **Batch Analytics Workloads:**
+      
       - Ultra-large-scale corpus deduplication and clustering.
+      
       - Adding full-spectrum search capabilities to Spark and Ray for efficient filtering, retrieval, and two-stage coarse-to-rerank query pipelines.
+      
       - Training and fine-tuning dataset preparation.
-      Other Cases:
+      
+      **Other Cases:**
+      
       - Accelerated indexing and retrieval on existing data lake tables such as Lance and Iceberg.
+      
       - Continuously evolving data models with frequent large-scale backfills.
+      
       - Multi-modal semantic wide-table modeling, unifying vectors, metadata, LLM-generated summaries, and structured fields into entity-centric tables with consistent versioning and lineage management.
     response_outline:
       - "Real-time serving"

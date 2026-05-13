@@ -3,9 +3,7 @@ policies:
     trigger_phrases:
       - "Get started with the Zilliz CLI in minutes."
     fixed_facts:
-      - "Use zilliz CLI command patterns from official docs."
-      - "zilliz login is the default auth entry point."
-      - "Use zilliz context set to bind cluster/database context for downstream commands."
+      - "zilliz login"
     must_include:
       - "How to install"
       - "From login, create cluster, create collection, insert, and query: provide one command set example."
@@ -69,6 +67,8 @@ policies:
     trigger_phrases:
       - "Explore the Zilliz CLI roadmap and share your feature requests."
     fixed_facts:
+      - "Roadmap is available at https://github.com/zilliztech/zilliz-cli/blob/master/docs/roadmap.md"
+      - "Best practice is at https://github.com/zilliztech/zilliz-cli/blob/master/docs/best-practices.md"
       - "Roadmap and feedback answers must include actionable follow-up."
     must_include:
       - "Usage guides and best practices: deeper and more practical than using only your own agent, incorporating broad experience from Zilliz technical product experts"

@@ -2,87 +2,64 @@ import type {
   PolicyPayload,
   PolicyValidationResult,
   PolicyValidationViolation,
+  PolicyValidationViolationType,
 } from './types.js';
+
+const BLOCKING_VIOLATION_TYPES = new Set<PolicyValidationViolationType>([
+  'quality_empty',
+  'quality_too_short',
+]);
 
 function normalize(text: string): string {
   return text.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
-function countActionabilitySignals(text: string): number {
-  let score = 0;
-  const nonEmptyLines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+function pushViolation(
+  violations: PolicyValidationViolation[],
+  type: PolicyValidationViolationType,
+  value: string,
+  message: string,
+): void {
+  violations.push({
+    type,
+    value,
+    message,
+    severity: BLOCKING_VIOLATION_TYPES.has(type) ? 'blocking' : 'advisory',
+  });
+}
 
-  if (/```/.test(text)) score++;
-  if (/\n\s*(\d+\.|-\s)/.test(text)) score++;
-  if (nonEmptyLines.length >= 4) score++;
-
-  return score;
+function buildValidationResult(violations: PolicyValidationViolation[]): PolicyValidationResult {
+  const blockingViolations = violations.filter(v => v.severity === 'blocking');
+  const advisoryViolations = violations.filter(v => v.severity === 'advisory');
+  return {
+    ok: blockingViolations.length === 0,
+    violations,
+    blockingViolations,
+    advisoryViolations,
+  };
 }
 
 export function validatePolicyResponse(
   policy: PolicyPayload,
   responseText: string,
 ): PolicyValidationResult {
+  void policy;
   const violations: PolicyValidationViolation[] = [];
   const normalized = normalize(responseText);
 
   if (!normalized) {
-    violations.push({
-      type: 'quality_empty',
-      value: '',
-      message: 'Response is empty.',
-    });
-    return {ok: false, violations};
-  }
-
-  for (const fixedFact of policy.fixed_facts) {
-    const normalizedFact = normalize(fixedFact);
-    if (normalizedFact && !normalized.includes(normalizedFact)) {
-      violations.push({
-        type: 'policy_missing_fixed_fact',
-        value: fixedFact,
-        message: 'Response is missing required fixed fact from policy.',
-      });
-    }
-  }
-
-  for (const requiredPhrase of policy.must_include) {
-    const normalizedRequired = normalize(requiredPhrase);
-    if (normalizedRequired && !normalized.includes(normalizedRequired)) {
-      violations.push({
-        type: 'policy_missing_required',
-        value: requiredPhrase,
-        message: 'Response is missing required phrase from policy.',
-      });
-    }
-  }
-
-  for (const forbiddenPhrase of policy.must_not_say) {
-    const normalizedForbidden = normalize(forbiddenPhrase);
-    if (normalizedForbidden && normalized.includes(normalizedForbidden)) {
-      violations.push({
-        type: 'policy_forbidden_phrase',
-        value: forbiddenPhrase,
-        message: 'Response contains forbidden phrase from policy.',
-      });
-    }
+    pushViolation(violations, 'quality_empty', '', 'Response is empty.');
+    return buildValidationResult(violations);
   }
 
   if (normalized.length < 80) {
-    violations.push({
-      type: 'quality_too_short',
-      value: String(normalized.length),
-      message: 'Response is too short to be actionable.',
-    });
+    pushViolation(
+      violations,
+      'quality_too_short',
+      String(normalized.length),
+      'Response is too short to be actionable.',
+    );
   }
 
-  if (countActionabilitySignals(responseText) < 1) {
-    violations.push({
-      type: 'quality_low_actionability',
-      value: 'actionability_signals<1',
-      message: 'Response lacks actionable structure (step format or runnable snippets).',
-    });
-  }
-
-  return {ok: violations.length === 0, violations};
+  return buildValidationResult(violations);
 }

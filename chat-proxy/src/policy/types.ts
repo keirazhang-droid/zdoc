@@ -14,19 +14,26 @@ export interface PolicyPayload {
   style: PolicyStyle;
 }
 
+export type PolicyValidationViolationType =
+  | 'policy_missing_fixed_fact'
+  | 'policy_missing_required'
+  | 'policy_forbidden_phrase'
+  | 'quality_empty'
+  | 'quality_too_short'
+  | 'quality_low_actionability';
+
+export type PolicyValidationSeverity = 'blocking' | 'advisory';
+
 export interface PolicyValidationViolation {
-  type:
-    | 'policy_missing_fixed_fact'
-    | 'policy_missing_required'
-    | 'policy_forbidden_phrase'
-    | 'quality_empty'
-    | 'quality_too_short'
-    | 'quality_low_actionability';
+  type: PolicyValidationViolationType;
   value: string;
   message: string;
+  severity: PolicyValidationSeverity;
 }
 
 export interface PolicyValidationResult {
   ok: boolean;
   violations: PolicyValidationViolation[];
+  blockingViolations: PolicyValidationViolation[];
+  advisoryViolations: PolicyValidationViolation[];
 }

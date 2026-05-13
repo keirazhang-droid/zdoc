@@ -251,7 +251,7 @@ describe('HTTP Endpoints', () => {
     expect(events.some(e => e.event === 'done')).toBe(true);
   });
 
-  it('POST /chat clarification route emits clarification SSE and short-circuits downstream pipeline', async () => {
+  it('POST /chat clarification route falls back to default agent generation path', async () => {
     const clarificationRoute = {
       outcome: 'clarification',
       agent: 'general',
@@ -269,16 +269,15 @@ describe('HTTP Endpoints', () => {
 
     expect(res.status).toBe(200);
     const events = parseSSE(await res.text());
-    expect(events.find(e => e.event === 'delta')?.data?.text).toBe('Could you clarify whether you need setup or pricing help?');
-    expect(events.find(e => e.event === 'done')?.data?.stop_reason).toBe('clarification');
-    expect(events.some(e => e.event === 'agent')).toBe(false);
-    expect(events.some(e => e.event === 'status' && e.data?.phase === 'retrieving')).toBe(false);
-    expect(events.some(e => e.event === 'status' && e.data?.phase === 'generating')).toBe(false);
-    expect(vi.mocked(streamText)).not.toHaveBeenCalled();
-    expect(recordLlmSuccessSpy).not.toHaveBeenCalled();
+    expect(events.some(e => e.event === 'agent')).toBe(true);
+    expect(events.some(e => e.event === 'status' && e.data?.phase === 'retrieving')).toBe(true);
+    expect(events.some(e => e.event === 'status' && e.data?.phase === 'generating')).toBe(true);
+    expect(events.find(e => e.event === 'done')?.data?.stop_reason).toBe('end_turn');
+    expect(vi.mocked(streamText)).toHaveBeenCalled();
+    expect(recordLlmSuccessSpy).toHaveBeenCalled();
   });
 
-  it('POST /chat router failure fallback emits clarification outcome shape', async () => {
+  it('POST /chat router failure fallback uses default agent generation path', async () => {
     vi.mocked(routeIntent).mockRejectedValue(new Error('router failed'));
 
     const res = await app.request('/chat', {
@@ -289,12 +288,11 @@ describe('HTTP Endpoints', () => {
 
     expect(res.status).toBe(200);
     const events = parseSSE(await res.text());
-    expect(events.find(e => e.event === 'delta')?.data?.text).toContain('Could you share a bit more detail');
-    expect(events.find(e => e.event === 'done')?.data?.stop_reason).toBe('clarification');
-    expect(events.some(e => e.event === 'agent')).toBe(false);
-    expect(events.some(e => e.event === 'status' && e.data?.phase === 'retrieving')).toBe(false);
-    expect(events.some(e => e.event === 'status' && e.data?.phase === 'generating')).toBe(false);
-    expect(vi.mocked(streamText)).not.toHaveBeenCalled();
+    expect(events.some(e => e.event === 'agent')).toBe(true);
+    expect(events.some(e => e.event === 'status' && e.data?.phase === 'retrieving')).toBe(true);
+    expect(events.some(e => e.event === 'status' && e.data?.phase === 'generating')).toBe(true);
+    expect(events.find(e => e.event === 'done')?.data?.stop_reason).toBe('end_turn');
+    expect(vi.mocked(streamText)).toHaveBeenCalled();
   });
 
   it('POST /chat propagates provided request ID in header and session SSE event', async () => {
@@ -641,6 +639,59 @@ describe('HTTP Endpoints', () => {
     expect(policyLogCall).toBeUndefined();
   });
 
+  it('prefers raw follow-up query over enriched ragQuery for policy intent resolution', async () => {
+    loadTopicPolicies('vector-lakebase');
+    getPolicyModeRegistrationMock.mockReturnValue({enabled: true, topics: new Set(['vector-lakebase'])});
+    const getPolicyByIntentSpy = vi.spyOn(policyCatalog, 'getPolicyByIntent');
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['vector-lakebase'], intent_id: null, reasoning: 'policy follow-up'} as any);
+
+    vi.mocked(streamText)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'tool-call', toolName: 'searchDocs', input: {query: 'vector lakebase'}};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'text-delta', text: [
+            'Vector Lakebase is suitable across serving, discovery, and analytics workloads.',
+            'It supports large-scale AI workflows including deduplication, clustering, and dataset preparation.',
+            'real-time serving workloads',
+            'iterative discovery workloads',
+            'batch analytics workloads',
+          ].join('\n')};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any);
+
+    const res = await app.request('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-followup-raw-priority-1', 'x-forwarded-for': '192.168.1.254'},
+      body: JSON.stringify({
+        messages: [
+          {role: 'user', content: 'Vector Database vs. Vector Lakebase: What’s the difference?'},
+          {role: 'assistant', content: 'Previous answer'},
+          {role: 'user', content: 'best-fit use cases for vector lakebase'},
+        ],
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    await res.text();
+
+    expect(getPolicyByIntentSpy.mock.calls.some(([topic, intentId]) => (
+      topic === 'vector-lakebase' && intentId === 'vector_lakebase_best_fit_use_cases'
+    ))).toBe(true);
+
+    const policyLogCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'policy');
+    expect(policyLogCall?.[4]).toMatchObject({
+      topic: 'vector-lakebase',
+      intentId: 'vector_lakebase_best_fit_use_cases',
+      requestId: 'policy-followup-raw-priority-1',
+    });
+  });
+
   it('retries policy once and uses compliant retry text without fallback', async () => {
     loadTopicPolicies('zilliz-cli');
     vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy retry success'} as any);
@@ -688,14 +739,89 @@ describe('HTTP Endpoints', () => {
       retryCount: 1,
       fallbackUsed: false,
       requestId: 'policy-retry-success-1',
+      retryBlockingViolationCount: 0,
+      retryAdvisoryViolationCount: 0,
     });
+    const policyPayload = policyLogCall?.[4] as any;
+    expect(policyPayload.initialBlockingViolationCount).toBeGreaterThan(0);
+    expect(policyPayload.initialAdvisoryViolationCount).toBeGreaterThanOrEqual(0);
+    expect(policyPayload.initialViolationTypes.length).toBeGreaterThan(0);
+    expect(policyPayload.initialValidationMs).toBeGreaterThanOrEqual(0);
+    expect(policyPayload.retrySynthesisMs).toBeGreaterThanOrEqual(0);
+    expect(policyPayload.retryValidationMs).toBeGreaterThanOrEqual(0);
+    expect(policyPayload.streamEmitMs).toBeGreaterThanOrEqual(0);
+    expect(policyPayload.policyProcessingMs).toBeGreaterThanOrEqual(0);
 
     const retryCall = vi.mocked(streamText).mock.calls[2]?.[0] as any;
     expect(String(retryCall.messages?.[0]?.content || '')).toContain('Collected context from tools:');
-    expect(String(retryCall.messages?.[0]?.content || '')).toContain('Violation list:');
+    expect(String(retryCall.messages?.[0]?.content || '')).toContain('Rubric checks:');
+    expect(String(retryCall.messages?.[0]?.content || '')).toContain('[quality_too_short]');
+    expect(String(retryCall.messages?.[0]?.content || '')).toContain('must be non-empty and not too short');
   });
 
-  it('retries once on policy violation then falls back to exact fallback_response on retry stream error', async () => {
+  it('retries on too-short rubric violations', async () => {
+    loadTopicPolicies('zilliz-cli');
+    vi.spyOn(policyCatalog, 'getPolicyByIntent').mockReturnValue({
+      intent_id: 'zcli_get_started_in_minutes',
+      fixed_facts: [],
+      must_include: [],
+      must_not_say: [],
+      style: {language: 'same as user', tone: 'concise, helpful'},
+    });
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy rubric retry'} as any);
+
+    vi.mocked(streamText)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'tool-call', toolName: 'searchDocs', input: {query: 'collection'}};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'text-delta', text: 'short answer'};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'text-delta', text: 'This rewritten response is intentionally long enough to pass rubric validation and remain non-empty.'};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any);
+
+    const res = await app.request('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-rubric-retry-1', 'x-forwarded-for': '192.168.1.253'},
+      body: JSON.stringify({messages: [{role: 'user', content: 'get started with zilliz cli in minutes'}]}),
+    });
+
+    expect(res.status).toBe(200);
+    const events = parseSSE(await res.text());
+    const joinedDelta = events.filter(e => e.event === 'delta').map(e => String(e.data.text)).join('');
+
+    expect(vi.mocked(streamText).mock.calls.length).toBe(3);
+    expect(joinedDelta).toContain('intentionally long enough to pass rubric validation');
+
+    const policyLogCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'policy');
+    expect(policyLogCall?.[4]).toMatchObject({
+      intentId: 'zcli_get_started_in_minutes',
+      validationPassed: true,
+      retryCount: 1,
+      fallbackUsed: false,
+      requestId: 'policy-rubric-retry-1',
+      retryBlockingViolationCount: 0,
+    });
+    const policyPayload = policyLogCall?.[4] as any;
+    expect(policyPayload.initialBlockingViolationCount).toBeGreaterThan(0);
+    expect(policyPayload.initialViolationTypes).toContain('quality_too_short');
+    expect(policyPayload.initialValidationMs).toBeGreaterThanOrEqual(0);
+    expect(policyPayload.retryValidationMs).toBeGreaterThanOrEqual(0);
+    expect(policyPayload.streamEmitMs).toBeGreaterThanOrEqual(0);
+    expect(policyPayload.policyProcessingMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it('uses exact fallback_response directly when policy provides one', async () => {
     loadTopicPolicies('zilliz-cli');
     vi.spyOn(policyCatalog, 'getPolicyByIntent').mockReturnValue({
       intent_id: 'zcli_get_started_in_minutes',
@@ -703,6 +829,61 @@ describe('HTTP Endpoints', () => {
       must_include: ['How to install'],
       must_not_say: ['Use SDK code instead of zilliz CLI for this CLI setup flow'],
       fallback_response: 'Exact policy fallback response.',
+      style: {language: 'same as user', tone: 'concise, helpful'},
+    });
+    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy direct fallback'} as any);
+
+    vi.mocked(streamText)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'tool-call', toolName: 'searchDocs', input: {query: 'collection'}};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any)
+      .mockReturnValueOnce({
+        fullStream: (async function* () {
+          yield {type: 'text-delta', text: 'bad first answer'};
+        })(),
+        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
+      } as any);
+
+    const res = await app.request('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-direct-fallback-response-1', 'x-forwarded-for': '192.168.1.250'},
+      body: JSON.stringify({messages: [{role: 'user', content: 'get started with zilliz cli in minutes'}]}),
+    });
+
+    expect(res.status).toBe(200);
+    const events = parseSSE(await res.text());
+    const joinedDelta = events.filter(e => e.event === 'delta').map(e => String(e.data.text)).join('');
+    expect(vi.mocked(streamText).mock.calls.length).toBe(2);
+    expect(joinedDelta).toBe('Exact policy fallback response.');
+
+    const policyLogCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'policy');
+    expect(policyLogCall?.[4]).toMatchObject({
+      intentId: 'zcli_get_started_in_minutes',
+      validationPassed: true,
+      retryCount: 0,
+      fallbackUsed: true,
+      requestId: 'policy-direct-fallback-response-1',
+      initialBlockingViolationCount: 0,
+      retryBlockingViolationCount: 0,
+    });
+    const policyPayload = policyLogCall?.[4] as any;
+    expect(policyPayload.initialValidationMs).toBe(0);
+    expect(policyPayload.retrySynthesisMs).toBe(0);
+    expect(policyPayload.retryValidationMs).toBe(0);
+    expect(policyPayload.streamEmitMs).toBeGreaterThanOrEqual(0);
+    expect(policyPayload.policyProcessingMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it('retries once on rubric violation then falls back deterministically on retry stream error when fallback_response is absent', async () => {
+    loadTopicPolicies('zilliz-cli');
+    vi.spyOn(policyCatalog, 'getPolicyByIntent').mockReturnValue({
+      intent_id: 'zcli_get_started_in_minutes',
+      fixed_facts: [],
+      must_include: [],
+      must_not_say: [],
       style: {language: 'same as user', tone: 'concise, helpful'},
     });
     vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy retry'} as any);
@@ -729,54 +910,7 @@ describe('HTTP Endpoints', () => {
 
     const res = await app.request('/chat', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-retry-fallback-response-1', 'x-forwarded-for': '192.168.1.250'},
-      body: JSON.stringify({messages: [{role: 'user', content: 'get started with zilliz cli in minutes'}]}),
-    });
-
-    expect(res.status).toBe(200);
-    const events = parseSSE(await res.text());
-    const deltaEvents = events.filter(e => e.event === 'delta');
-    const joinedDelta = deltaEvents.map(e => String(e.data.text)).join('');
-    expect(vi.mocked(streamText).mock.calls.length).toBe(3);
-    expect(joinedDelta).toBe('Exact policy fallback response.');
-
-    const policyLogCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'policy');
-    expect(policyLogCall?.[4]).toMatchObject({
-      intentId: 'zcli_get_started_in_minutes',
-      validationPassed: false,
-      retryCount: 1,
-      fallbackUsed: true,
-      requestId: 'policy-retry-fallback-response-1',
-    });
-  });
-
-  it('retries once on policy violation then falls back deterministically on retry stream error when fallback_response is absent', async () => {
-    loadTopicPolicies('zilliz-cli');
-    vi.mocked(routeIntent).mockResolvedValue({outcome: 'routed', agent: 'general', topics: ['zilliz-cli'], intent_id: null, reasoning: 'policy retry'} as any);
-
-    vi.mocked(streamText)
-      .mockReturnValueOnce({
-        fullStream: (async function* () {
-          yield {type: 'tool-call', toolName: 'searchDocs', input: {query: 'collection'}};
-        })(),
-        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
-      } as any)
-      .mockReturnValueOnce({
-        fullStream: (async function* () {
-          yield {type: 'text-delta', text: 'bad first answer'};
-        })(),
-        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 1, totalTokens: 2}),
-      } as any)
-      .mockReturnValueOnce({
-        fullStream: (async function* () {
-          yield {type: 'error', error: 'retry stream failed'};
-        })(),
-        totalUsage: Promise.resolve({inputTokens: 1, outputTokens: 0, totalTokens: 1}),
-      } as any);
-
-    const res = await app.request('/chat', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-retry-1', 'x-forwarded-for': '192.168.1.251'},
+      headers: {'Content-Type': 'application/json', 'X-Request-ID': 'policy-rubric-retry-fallback-1', 'x-forwarded-for': '192.168.1.251'},
       body: JSON.stringify({messages: [{role: 'user', content: 'get started with zilliz cli in minutes'}]}),
     });
 
@@ -789,7 +923,6 @@ describe('HTTP Endpoints', () => {
     expect(events.find(e => e.event === 'error')).toBeUndefined();
     expect(events.find(e => e.event === 'done')?.data?.stop_reason).toBe('end_turn');
     expect(joinedDelta).toContain('Here is the safest verified guidance:');
-    expect(joinedDelta).toContain('How to install');
 
     const policyLogCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'policy');
     expect(policyLogCall).toBeTruthy();
@@ -798,7 +931,7 @@ describe('HTTP Endpoints', () => {
       validationPassed: false,
       retryCount: 1,
       fallbackUsed: true,
-      requestId: 'policy-retry-1',
+      requestId: 'policy-rubric-retry-fallback-1',
     });
   });
 
@@ -879,8 +1012,8 @@ describe('HTTP Endpoints', () => {
 
     expect(res.status).toBe(200);
     await res.text();
-    const synthesisCall = vi.mocked(streamText).mock.calls[1]?.[0] as any;
-    expect(String(synthesisCall.system || '')).not.toContain('## Mode B Policy Payload');
+    const synthesisCall = vi.mocked(streamText).mock.calls.at(-1)?.[0] as any;
+    expect(String(synthesisCall?.system || '')).not.toContain('## Mode B Policy Payload');
     const policyLogCall = vi.mocked(logEvent).mock.calls.find(call => call[2] === 'policy');
     expect(policyLogCall).toBeUndefined();
   });

@@ -43,6 +43,12 @@ describe('resolvePolicyIntent configured trigger_phrases', () => {
     expect(intent).toBe('vector_lakebase_definition');
   });
 
+  it('matches hyphenated best-fit phrase for vector-lakebase', () => {
+    const intent = resolvePolicyIntent('best-fit use cases for vector lakebase', ['vector-lakebase']);
+
+    expect(intent).toBe('vector_lakebase_best_fit_use_cases');
+  });
+
   it('does not resolve intent from topics that are not selected', () => {
     const query = 'How does external data lake search work?';
     expect(resolvePolicyIntent(query, ['zilliz-cli'])).toBeNull();

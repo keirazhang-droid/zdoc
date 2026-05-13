@@ -61,6 +61,20 @@ describe('policy catalog', () => {
     }
   });
 
+  it('ensures zilliz-cli fallback responses satisfy must_include', async () => {
+    const {loadTopicPolicies} = await importCatalog();
+    const policies = loadTopicPolicies('zilliz-cli').filter(policy => policy.fallback_response);
+
+    const normalizeForValidator = (text: string) => text.toLowerCase().replace(/\s+/g, ' ').trim();
+
+    for (const policy of policies) {
+      const fallbackResponse = normalizeForValidator(policy.fallback_response!);
+      for (const phrase of policy.must_include) {
+        expect(fallbackResponse).toContain(normalizeForValidator(phrase));
+      }
+    }
+  });
+
   it('loads configured trigger_phrases from policy yaml', async () => {
     const {loadTopicPolicies} = await importCatalog();
     const policies = loadTopicPolicies('on-demand-search');

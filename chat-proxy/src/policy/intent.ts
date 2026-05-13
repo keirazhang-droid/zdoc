@@ -31,13 +31,13 @@ const TOPIC_FALLBACKS: Record<string, Array<{intentId: string; pattern: RegExp}>
   'vector-lakebase': [
     {intentId: 'vector_lakebase_only_need_vector_db', pattern: /\b(only\s+need\s+(a\s+)?vector\s+database|just\s+for\s+vector\s+search|good\s+fit\s+for\s+my\s+use\s+case)\b/i},
     {intentId: 'vector_database_vs_vector_lakebase_difference', pattern: VECTOR_LAKEBASE_DIFFERENCE_PATTERN},
-    {intentId: 'vector_lakebase_best_fit_use_cases', pattern: /\b(best\s*fit\s+use\s+cases?|what\s+are\s+vector\s+lakebase\s+use\s+cases|use\s+cases?\s+for\s+vector\s+lakebase)\b/i},
+    {intentId: 'vector_lakebase_best_fit_use_cases', pattern: /\b(best[-\s]*fit\s+use\s+cases?|what\s+are\s+vector\s+lakebase\s+use\s+cases|use\s+cases?\s+for\s+vector\s+lakebase)\b/i},
     {intentId: 'vector_lakebase_definition', pattern: /\b(what\s+is\s+(a\s+)?vector\s+lakebase|define\s+vector\s+lakebase|vector\s+lakebase\s+definition)\b/i},
   ],
 };
 
 function normalizeQuery(query: string): string {
-  return query.trim().toLowerCase().replace(/\s+/g, ' ');
+  return query.trim().toLowerCase().replace(/[-_]+/g, ' ').replace(/\s+/g, ' ');
 }
 
 function resolveByConfiguredPhrases(normalizedQuery: string, topic: string): string | null {

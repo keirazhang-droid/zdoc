@@ -1362,6 +1362,8 @@ app.post('/chat', async c => {
           const tRouteStart = Date.now();
           const routeResult = await routePromise;
           const tRoute = Date.now() - tRouteStart;
+          const routeFallbackApplied = routeResult.outcome === 'clarification';
+          const effectiveAgent = routeResult.agent;
           const routedTopics = routeResult.outcome === 'routed' ? [...routeResult.topics] : [];
 
           debug('chat.router.completed', {
@@ -1370,30 +1372,22 @@ app.post('/chat', async c => {
             topicCount: routedTopics.length,
             reasoning: routeResult.reasoning,
             outcome: routeResult.outcome,
+            routeFallbackApplied,
           });
 
-          if (routeResult.outcome === 'clarification') {
+          if (routeFallbackApplied) {
             logEvent(session.id, userId, 'routing', routeResult.agent, {
               requestId,
               outcome: routeResult.outcome,
               reasoningSummary: summarizeForDebugLog(routeResult.reasoning, 'reasoning'),
               clarificationSummary: summarizeForDebugLog(routeResult.clarification_question, 'clarification'),
               messageSummary: summarizeForDebugLog(rawQuery, 'message'),
+              routeFallbackApplied: true,
             }, userMeta, source);
-            sendAndRecord('delta', JSON.stringify({text: routeResult.clarification_question}));
-            sendAndRecord('done', JSON.stringify({stop_reason: 'clarification'}));
-            debug('chat.response.completed', {
-              status: 'clarification',
-              outcome: routeResult.outcome,
-              reasoningSummary: summarizeForDebugLog(routeResult.reasoning, 'reasoning'),
-              totalDurationMs: Date.now() - tChatStart,
-            });
-            resolveOwnedInflight(replayableEvents(recordedEvents));
-            return;
           }
 
           sendAndRecord('status', JSON.stringify({phase: 'retrieving'}));
-          const agentConfig = getAgent(routeResult.agent as any);
+          const agentConfig = getAgent(effectiveAgent as any);
           currentAgent = agentConfig.type;
           debugAgent = agentConfig.type;
           const agentTools = createCompactToolsForModel(getToolsForAgent(agentConfig.toolNames, {
@@ -1451,12 +1445,15 @@ app.post('/chat', async c => {
           // Inject topic-specific prompt for the routed topic
           const topics = routedTopics;
           const policyRegistration = getPolicyModeRegistration();
-          const matchedPolicyTopic = policyRegistration.enabled
-            ? topics.find(topic => policyRegistration.topics.has(topic))
-            : undefined;
+          const policyTopics = policyRegistration.enabled
+            ? topics.filter(topic => policyRegistration.topics.has(topic))
+            : [];
           const policyIntentId = routeResult.outcome === 'routed'
-            ? resolvePolicyIntent(ragQuery, topics)
+            ? (resolvePolicyIntent(rawQuery, topics) || resolvePolicyIntent(ragQuery, topics))
             : null;
+          const matchedPolicyTopic = policyIntentId
+            ? policyTopics.find(topic => Boolean(getPolicyByIntent(topic, policyIntentId)))
+            : undefined;
           const matchedPolicy = routeResult.outcome === 'routed' && matchedPolicyTopic && policyIntentId
             ? getPolicyByIntent(matchedPolicyTopic, policyIntentId)
             : null;
@@ -1928,64 +1925,100 @@ app.post('/chat', async c => {
           let policyRetryCount = 0;
           let policyValidationPassed = true;
           let policyFallbackUsed = false;
+          let policyInitialBlockingViolationCount = 0;
+          let policyInitialAdvisoryViolationCount = 0;
+          let policyRetryBlockingViolationCount = 0;
+          let policyRetryAdvisoryViolationCount = 0;
+          let policyInitialViolationTypes: string[] = [];
+          let policyRetryViolationTypes: string[] = [];
+          let policyInitialValidationMs = 0;
+          let policyRetrySynthesisMs = 0;
+          let policyRetryValidationMs = 0;
+          let policyStreamEmitMs = 0;
 
           if (matchedPolicy) {
-            const initialValidation = validatePolicyResponse(matchedPolicy, fullText);
-            if (!initialValidation.ok) {
-              policyValidationPassed = false;
-              policyRetryCount = 1;
-              const {context, draft} = buildCollectedContextForSynthesis();
-              const retryPrompt = [
-                'Your previous answer violated policy. Rewrite using the same collected context and draft basis.',
-                'Violation list:',
-                ...initialValidation.violations.map(v => `- ${v.message}`),
-                'Satisfy all policy requirements exactly.',
-              ].join('\n');
+            const policyFlowStartedAt = Date.now();
 
-              let retriedText = '';
-              try {
-                retryResultRef.current = streamText({
-                  model: modelInstance,
-                  maxRetries: bedrockAiSdkMaxRetries(chatModelResolved.provider),
-                  system: `${systemPrompt}${buildPolicyPayloadBlock()}\n\n## Final synthesis mode\nYou are in the final answer phase. Tool use is disabled. You MUST answer the user directly using the provided collected context, current page context, and agent instructions. If the context is weak, still provide the best safe answer and mention what to verify. Be concise by default.`,
-                  messages: [
-                    {role: 'user', content: `User question:\n${ragQuery}\n\nCollected context from tools:\n${context}${draft}${buildPolicyConstraintChecklist()}\n\n${retryPrompt}\n\nWrite the corrected final answer now.`},
-                  ],
-                  maxOutputTokens: FINAL_SYNTHESIS_MAX_OUTPUT_TOKENS,
-                  temperature: 0.1,
-                  abortSignal: AbortSignal.timeout(FINAL_SYNTHESIS_TIMEOUT_MS),
-                  experimental_telemetry: makeTelemetry('chat-final-synthesis-policy-retry', {
-                    agentType: agentConfig.type,
-                    sessionId: session.id,
-                    requestId,
-                    model: activeModel,
-                  }),
-                });
+            if (matchedPolicy.fallback_response?.trim()) {
+              fullText = matchedPolicy.fallback_response.trim();
+              policyFallbackUsed = true;
+            } else {
+              const initialValidationStartedAt = Date.now();
+              const initialValidation = validatePolicyResponse(matchedPolicy, fullText);
+              policyInitialValidationMs = Date.now() - initialValidationStartedAt;
+              policyInitialBlockingViolationCount = initialValidation.blockingViolations.length;
+              policyInitialAdvisoryViolationCount = initialValidation.advisoryViolations.length;
+              policyInitialViolationTypes = initialValidation.violations.map(v => v.type);
 
-                for await (const part of retryResultRef.current.fullStream) {
-                  if (part.type === 'error') {
-                    throw new Error((part as any).error || 'Policy retry stream error');
+              if (!initialValidation.ok) {
+                policyValidationPassed = false;
+                policyRetryCount = 1;
+                const {context, draft} = buildCollectedContextForSynthesis();
+                const retryPrompt = [
+                  'Your previous answer failed rubric checks. Rewrite using the same collected context and draft basis.',
+                  'Rubric checks:',
+                  ...initialValidation.violations.map(v => `- [${v.type}] ${v.message}`),
+                  'The rewritten answer must be non-empty and not too short.',
+                ].join('\n');
+
+                let retriedText = '';
+                const retrySynthesisStartedAt = Date.now();
+                try {
+                  retryResultRef.current = streamText({
+                    model: modelInstance,
+                    maxRetries: bedrockAiSdkMaxRetries(chatModelResolved.provider),
+                    system: `${systemPrompt}${buildPolicyPayloadBlock()}\n\n## Final synthesis mode\nYou are in the final answer phase. Tool use is disabled. You MUST answer the user directly using the provided collected context, current page context, and agent instructions. If the context is weak, still provide the best safe answer and mention what to verify. Be concise by default.`,
+                    messages: [
+                      {role: 'user', content: `User question:\n${ragQuery}\n\nCollected context from tools:\n${context}${draft}${buildPolicyConstraintChecklist()}\n\n${retryPrompt}\n\nWrite the corrected final answer now.`},
+                    ],
+                    maxOutputTokens: FINAL_SYNTHESIS_MAX_OUTPUT_TOKENS,
+                    temperature: 0.1,
+                    abortSignal: AbortSignal.timeout(FINAL_SYNTHESIS_TIMEOUT_MS),
+                    experimental_telemetry: makeTelemetry('chat-final-synthesis-policy-retry', {
+                      agentType: agentConfig.type,
+                      sessionId: session.id,
+                      requestId,
+                      model: activeModel,
+                    }),
+                  });
+
+                  for await (const part of retryResultRef.current.fullStream) {
+                    if (part.type === 'error') {
+                      throw new Error((part as any).error || 'Policy retry stream error');
+                    }
+                    if (part.type === 'text-delta') {
+                      retriedText += part.text;
+                    }
                   }
-                  if (part.type === 'text-delta') {
-                    retriedText += part.text;
-                  }
+                } catch (err) {
+                  console.warn('[PolicyRetry] stream failed, using deterministic fallback', JSON.stringify({requestId, error: summarizeForDebugLog(err instanceof Error ? err.message : String(err), 'error')}));
+                  retriedText = '';
+                } finally {
+                  policyRetrySynthesisMs = Date.now() - retrySynthesisStartedAt;
                 }
-              } catch (err) {
-                console.warn('[PolicyRetry] stream failed, using deterministic fallback', JSON.stringify({requestId, error: summarizeForDebugLog(err instanceof Error ? err.message : String(err), 'error')}));
-                retriedText = '';
-              }
 
-              const retryValidation = retriedText ? validatePolicyResponse(matchedPolicy, retriedText) : {ok: false};
-              if (retryValidation.ok) {
-                fullText = retriedText;
-                policyValidationPassed = true;
-              } else {
-                fullText = buildPolicyFallback(matchedPolicy);
-                policyFallbackUsed = true;
+                const retryValidationStartedAt = Date.now();
+                const retryValidation = retriedText ? validatePolicyResponse(matchedPolicy, retriedText) : null;
+                policyRetryValidationMs = Date.now() - retryValidationStartedAt;
+                policyRetryBlockingViolationCount = retryValidation?.blockingViolations.length ?? 0;
+                policyRetryAdvisoryViolationCount = retryValidation?.advisoryViolations.length ?? 0;
+                policyRetryViolationTypes = retryValidation?.violations.map(v => v.type) ?? [];
+
+                if (retryValidation?.ok) {
+                  fullText = retriedText;
+                  policyValidationPassed = true;
+                } else {
+                  fullText = buildPolicyFallback(matchedPolicy);
+                  policyFallbackUsed = true;
+                }
               }
             }
 
+            const policyStreamEmitStartedAt = Date.now();
             await emitPolicyDeltaStream(fullText);
+            policyStreamEmitMs = Date.now() - policyStreamEmitStartedAt;
+            const policyProcessingMs = Date.now() - policyFlowStartedAt;
+
             logEvent(session.id, userId, 'policy', agentConfig.type, {
               requestId,
               topic: matchedPolicyTopic,
@@ -1993,6 +2026,17 @@ app.post('/chat', async c => {
               validationPassed: policyValidationPassed,
               retryCount: policyRetryCount,
               fallbackUsed: policyFallbackUsed,
+              initialBlockingViolationCount: policyInitialBlockingViolationCount,
+              initialAdvisoryViolationCount: policyInitialAdvisoryViolationCount,
+              retryBlockingViolationCount: policyRetryBlockingViolationCount,
+              retryAdvisoryViolationCount: policyRetryAdvisoryViolationCount,
+              initialViolationTypes: policyInitialViolationTypes,
+              retryViolationTypes: policyRetryViolationTypes,
+              initialValidationMs: policyInitialValidationMs,
+              retrySynthesisMs: policyRetrySynthesisMs,
+              retryValidationMs: policyRetryValidationMs,
+              streamEmitMs: policyStreamEmitMs,
+              policyProcessingMs,
             }, userMeta, source);
             debug('chat.policy.completed', {
               topic: matchedPolicyTopic,
@@ -2000,6 +2044,17 @@ app.post('/chat', async c => {
               validationPassed: policyValidationPassed,
               retryCount: policyRetryCount,
               fallbackUsed: policyFallbackUsed,
+              initialBlockingViolationCount: policyInitialBlockingViolationCount,
+              initialAdvisoryViolationCount: policyInitialAdvisoryViolationCount,
+              retryBlockingViolationCount: policyRetryBlockingViolationCount,
+              retryAdvisoryViolationCount: policyRetryAdvisoryViolationCount,
+              initialViolationTypes: policyInitialViolationTypes,
+              retryViolationTypes: policyRetryViolationTypes,
+              initialValidationMs: policyInitialValidationMs,
+              retrySynthesisMs: policyRetrySynthesisMs,
+              retryValidationMs: policyRetryValidationMs,
+              streamEmitMs: policyStreamEmitMs,
+              policyProcessingMs,
             });
           }
 

@@ -9,113 +9,43 @@ const policy: PolicyPayload = {
   must_include: [
     'How to install',
     'From login, create cluster, create collection, insert, and query: provide one command set example.',
-    'Use -h commands for quick capability overview',
-    'You can also continue by reading the documentation',
   ],
   must_not_say: ['Use SDK code instead of zilliz CLI for this CLI setup flow'],
-  response_outline: ['Installation methods', 'One end-to-end command set', '-h output overview + CLI reference'],
+  response_outline: ['Installation methods', 'One end-to-end command set'],
   style: {language: 'same as user', tone: 'concise, helpful'},
 };
 
 describe('validatePolicyResponse', () => {
-  it('passes actionable structured responses that satisfy strict policy checks', () => {
-    const text = [
-      '1. How to install',
-      '```bash',
-      'curl -fsSL https://zilliz.com/cli/install.sh | bash',
-      '```',
-      '2. Use zilliz login as the default auth entry point.',
-      '3. From login, create cluster, create collection, insert, and query: provide one command set example.',
-      '4. Use -h commands for quick capability overview',
-      '5. You can also continue by reading the documentation',
-    ].join('\n');
+  it('passes sufficiently long non-empty responses', () => {
+    const text = 'This response is intentionally long enough to satisfy rubric checks while remaining policy-agnostic and not relying on any content-specific requirements.';
 
     const result = validatePolicyResponse(policy, text);
     expect(result.ok).toBe(true);
     expect(result.violations).toEqual([]);
+    expect(result.blockingViolations).toEqual([]);
+    expect(result.advisoryViolations).toEqual([]);
   });
 
-  it('fails empty responses', () => {
+  it('fails empty responses as blocking', () => {
     const result = validatePolicyResponse(policy, '   ');
     expect(result.ok).toBe(false);
-    expect(result.violations.some(v => v.type === 'quality_empty')).toBe(true);
+    expect(result.blockingViolations.some(v => v.type === 'quality_empty')).toBe(true);
+    expect(result.advisoryViolations).toEqual([]);
   });
 
-  it('fails responses that are too short', () => {
+  it('fails too-short responses as blocking', () => {
     const result = validatePolicyResponse(policy, 'Use zilliz CLI.');
     expect(result.ok).toBe(false);
-    expect(result.violations.some(v => v.type === 'quality_too_short')).toBe(true);
+    expect(result.blockingViolations.some(v => v.type === 'quality_too_short')).toBe(true);
+    expect(result.advisoryViolations).toEqual([]);
   });
 
-  it('fails responses with low actionability signals', () => {
-    const text = 'This is a long descriptive paragraph about the CLI with no commands and no step-by-step format, repeated to exceed length threshold for validation checks.';
-    const result = validatePolicyResponse(policy, text);
-    expect(result.ok).toBe(false);
-    expect(result.violations.some(v => v.type === 'quality_low_actionability')).toBe(true);
-  });
-
-  it('flags missing fixed facts', () => {
-    const text = [
-      '1. How to install',
-      '2. From login, create cluster, create collection, insert, and query: provide one command set example.',
-      '3. Use -h commands for quick capability overview',
-      '4. You can also continue by reading the documentation',
-    ].join('\n');
-
-    const result = validatePolicyResponse(policy, text);
-    expect(result.ok).toBe(false);
-    expect(result.violations.some(v => v.type === 'policy_missing_fixed_fact')).toBe(true);
-  });
-
-  it('flags missing required phrases', () => {
-    const text = [
-      '1. How to install',
-      '2. Use zilliz login as the default auth entry point.',
-      '3. Use -h commands for quick capability overview',
-      '4. You can also continue by reading the documentation',
-      '```bash',
-      'zilliz login',
-      '```',
-    ].join('\n');
-
-    const result = validatePolicyResponse(policy, text);
-    expect(result.ok).toBe(false);
-    expect(result.violations.some(v => v.type === 'policy_missing_required')).toBe(true);
-  });
-
-  it('flags forbidden phrases', () => {
-    const text = [
-      '1. How to install',
-      '2. Use zilliz login as the default auth entry point.',
-      '3. From login, create cluster, create collection, insert, and query: provide one command set example.',
-      '4. Use -h commands for quick capability overview',
-      '5. You can also continue by reading the documentation',
-      '6. Use SDK code instead of zilliz CLI for this CLI setup flow',
-      '```bash',
-      'zilliz login',
-      '```',
-    ].join('\n');
-
-    const result = validatePolicyResponse(policy, text);
-    expect(result.ok).toBe(false);
-    expect(result.violations.some(v => v.type === 'policy_forbidden_phrase')).toBe(true);
-  });
-
-  it('matches policy phrases with case-insensitive whitespace-normalized comparison', () => {
-    const text = [
-      '1. HOW TO INSTALL',
-      '2. Use   zilliz login   as the default auth entry point.',
-      '3. From login, create cluster, create collection, insert, and query: provide one command set example.',
-      '4. Use -h commands for quick capability overview',
-      '5. You can also continue by reading the documentation',
-      '```bash',
-      'zilliz login',
-      '```',
-    ].join('\n');
+  it('does not perform fixed-fact, required-phrase, or forbidden-phrase content checks', () => {
+    const text = 'This response is intentionally long enough to pass rubric checks while omitting required phrases and even mentioning forbidden wording such as Use SDK code instead of zilliz CLI for this CLI setup flow.';
 
     const result = validatePolicyResponse(policy, text);
     expect(result.ok).toBe(true);
-    expect(result.violations).toEqual([]);
+    expect(result.violations.some(v => v.type.startsWith('policy_'))).toBe(false);
   });
 
   it('builds deterministic fallback with the exact expected output', () => {
@@ -129,8 +59,6 @@ describe('validatePolicyResponse', () => {
       'Required guidance:',
       '- How to install',
       '- From login, create cluster, create collection, insert, and query: provide one command set example.',
-      '- Use -h commands for quick capability overview',
-      '- You can also continue by reading the documentation',
     ].join('\n'));
   });
 
