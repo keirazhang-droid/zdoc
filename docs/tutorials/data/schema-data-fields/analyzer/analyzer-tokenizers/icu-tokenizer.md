@@ -87,6 +87,13 @@ analyzerParams = map[string]any{"tokenizer": "icu"}
 </TabItem>
 </Tabs>
 
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "icu"}
+};
+
+```
+
 The `icu` tokenizer can work in conjunction with one or more filters. For example, the following code defines an analyzer that uses the `icu` tokenizer and [remove punct filter](./remove-punct-filter):
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
@@ -135,6 +142,13 @@ analyzerParams = map[string]any{"tokenizer": "icu", "filter": []string{"removepu
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "icu"},
+    {"filter", {"removepunct"}}
+};
+```
 
 After defining `analyzer_params`, you can apply them to a `VARCHAR` field when defining a collection schema. This allows Zilliz Cloud to process the text in that field using the specified analyzer for efficient tokenization and filtering. For details, refer to [Example use](./analyzer-overview#example-use).
 
@@ -188,6 +202,12 @@ analyzerParams = map[string]any{"tokenizer": "icu"}
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "icu"}
+};
+```
 
 ### Verification using `run_analyzer`\{#verification-using-runanalyzer}
 
@@ -290,6 +310,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "Привет! Как дела?";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Expected output\{#expected-output}
 

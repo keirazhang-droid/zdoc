@@ -5,18 +5,18 @@ sidebar_key: alphanumonly-filter
 sidebar_label: "Alphanumonly"
 beta: FALSE
 notebook: FALSE
-description: "`alphanumonly` フィルターは、非 ASCII 文字を含むトークンを除去し、英数字の項のみを保持します。このフィルターは、特殊文字や記号を除外して基本的な文字と数字のみを処理する必要があるテキストの処理に役立ちます。| BYOC"
+description: "`alphanumonly` フィルターは、非 ASCII 文字を含むトークンを削除し、英数字の用語のみを保持します。このフィルターは、特殊文字や記号を除外し、基本的な文字と数字のみが関連するテキストを処理する場合に便利です。 | BYOC"
 type: origin
 token: BZkiw99tkiDkLXktLhqcJtjKnmb
 sidebar_position: 3
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
-  - built-in filters
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
+  - 組み込みフィルター
   - alphanumonly
 
 ---
@@ -90,15 +90,22 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
-`alphanumonly` フィルターはトークナイザーによって生成された語彙項に対して動作するため、トークナイザーと組み合わせて使用する必要があります。Zilliz Cloud で利用可能なトークナイザーの一覧については、[トークナイザー Reference](./analyzer-tokenizers) を参照してください。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {"alphanumonly"}}
+};
+```
 
-`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud はそのフィールド内のテキストを指定されたアナライザーを使用して処理し、効率的なトークン化とフィルタリングを実現します。詳細については、[Example use](./analyzer-overview#example-use) を参照してください。
+`alphanumonly` フィルターは、トークナイザーによって生成されたトークンに対して動作するため、トークナイザーと組み合わせて使用する必要があります。Zilliz Cloud で利用可能なトークナイザーのリストについては、[トークナイザーリファレンス](./analyzer-tokenizers) を参照してください。
+
+`analyzer_params` を定義した後、コレクションスキーマを定義するときに `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングを実現します。詳細については、[使用例](./analyzer-overview#example-use) を参照してください。
 
 ## 例\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を検証してください。
+アナライザー構成をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
 
-### アナライザー設定\{#analyzer-configuration}
+### アナライザー構成\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -146,6 +153,13 @@ analyzerParams = map[string]any{"tokenizer": "standard", "filter": []any{"alphan
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {"alphanumonly"}}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -248,6 +262,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "Milvus 2.0 @ Scale! #AI #Vector_Databasé";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

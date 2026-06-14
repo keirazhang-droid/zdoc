@@ -100,15 +100,7 @@ filter = 'discount <= 10'
 
 ## Range operators\{#range-operators}
 
-Range operators help filter data based on specific sets or ranges of values.
-
-### Supported Range Operators:\{#supported-range-operators}
-
-- `IN`: Used to match values within a specific set or range.
-
-- `LIKE`: Used to match a pattern (mostly for text fields).
-
-### Example 1: Using `IN` to Match Multiple Values\{#example-1-using-in-to-match-multiple-values}
+Range operators help filter data based on a specific set of values. Zilliz Cloud supports `IN` for set membership checks.
 
 If you want to find all entities where the `color` is either "red", "green", or "blue":
 
@@ -118,45 +110,35 @@ filter = 'color in ["red", "green", "blue"]'
 
 This is useful when you want to check for membership in a list of values.
 
-### Example 2: Using `LIKE` for Pattern Matching\{#example-2-using-like-for-pattern-matching}
+## Pattern matching operators\{#pattern-matching-operators}
 
-The `LIKE` operator is used for pattern matching in string fields. It can match substrings in different positions within the text: as a **prefix**, **infix**, or **suffix**. The `LIKE` operator uses the `%` symbol as a wildcard, which can match any number of characters (including zero).
+Pattern matching operators help filter string values based on wildcard patterns or regular expressions.
 
-<Admonition type="info" icon="📘" title="Notes">
+- `LIKE`: Used to match simple wildcard patterns on string values. For example, `name LIKE "Prod%"` matches values that start with `Prod`.
 
-In most cases, **infix** or **suffix** matching is significantly slower than prefix matching. Use them with caution if performance is critical.
+- `=~`: Used to match a string value with an RE2 regular expression. For example, `code =~ "E[0-9]{4}"` matches values that contain an error code such as `E1001`.
 
-</Admonition>
+- `!~`: Used to exclude string values that match an RE2 regular expression. This is equivalent to `NOT (field =~ "pattern")`.
 
-### Prefix Match (Starts With)\{#prefix-match-starts-with}
-
-To perform a **prefix** match, where the string starts with a given pattern, you can place the pattern at the beginning and use `%` to match any characters following it. For example, to find all products whose `name` starts with "Prod":
+To find entities where `name` starts with `Prod`:
 
 ```python
 filter = 'name LIKE "Prod%"'
 ```
 
-This will match any product whose name starts with "Prod", such as "Product A", "Product B", etc.
-
-### Suffix Match (Ends With)\{#suffix-match-ends-with}
-
-For a **suffix** match, where the string ends with a given pattern, place the `%` symbol at the beginning of the pattern. For example, to find all products whose `name` ends with "XYZ":
+To find entities whose `code` contains an error code such as `E1001`:
 
 ```python
-filter = 'name LIKE "%XYZ"'
+filter = 'code =~ "E[0-9]{4}"'
 ```
 
-This will match any product whose name ends with "XYZ", such as "ProductXYZ", "SampleXYZ", etc.
-
-### Infix Match (Contains)\{#infix-match-contains}
-
-To perform an **infix** match, where the pattern can appear anywhere in the string, you can place the `%` symbol at both the beginning and the end of the pattern. For example, to find all products whose `name` contains the word "Pro":
+To exclude entities whose `message` starts with `DEBUG`:
 
 ```python
-filter = 'name LIKE "%Pro%"'
+filter = 'message !~ "^DEBUG"'
 ```
 
-This will match any product whose name contains the substring "Pro", such as "Product", "ProLine", or "SuperPro".
+For more details about choosing between `LIKE` and regex, supported field types, regex syntax, escaping rules, and performance, refer to [Pattern Matching](./undefined). Zilliz Cloud also allows you to build an `NGRAM` index on `VARCHAR` fields or JSON string paths to accelerate eligible pattern matching filters. For details, refer to [NGRAM](null).
 
 ## Arithmetic Operators\{#arithmetic-operators}
 

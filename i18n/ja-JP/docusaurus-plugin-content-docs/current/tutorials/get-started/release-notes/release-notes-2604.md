@@ -1,19 +1,19 @@
 ---
-title: "2026年4月リリースノート | Cloud"
+title: "2026年4月 リリースノート | Cloud"
 slug: /release-notes-2604
 sidebar_key: release-notes-2604
 sidebar_label: "2026年4月"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud の2026年4月のリリースノートです。"
+description: "2026年4月 リリースノート | Cloud"
 type: origin
 token: N2XtwwchPi79M7kW1UjcnjC4nzc
-sidebar_position: 3
+sidebar_position: 4
 keywords: 
-  - zilliz
+  - Zilliz
   - ベクトルデータベース
-  - cloud
-  - 変更履歴
+  - クラウド
+  - リリースノート
 
 ---
 

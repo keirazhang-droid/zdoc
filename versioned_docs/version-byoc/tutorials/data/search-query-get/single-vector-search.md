@@ -33,7 +33,7 @@ Based on an index file recording the sorted order of vector embeddings, the Appr
 
 <Admonition type="info" icon="📘" title="Notes">
 
-If you dynamically add new fields after the collection has been created, searches that include these fields will return the defined default values or NULL for entities that have not explicitly set values. For details, refer to [Add Fields to an Existing Collection](./add-fields-to-an-existing-collection).
+If you add new fields after the collection has been created, searches that include these fields return the defined default values or `NULL` for entities that have not explicitly set values. For details, refer to [Alter Collection Schema](./add-fields-to-an-existing-collection).
 
 </Admonition>
 
@@ -94,8 +94,7 @@ res = client.search(
     collection_name="quick_setup",
     anns_field="vector",
     data=[query_vector],
-    limit=3,
-    search_params={"metric_type": "IP"}
+    limit=3
 )
 
 for hits in res:
@@ -255,6 +254,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "data": [
@@ -285,6 +285,40 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::vector<float> query_vector = {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("quick_setup")
+                   .WithLimit(3)
+                   .WithAnnsField("vector")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+for (auto& result : response.Results().Results()) {
+    std::cout << "TopK results:" << std::endl;
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
 
 Milvus ranks the search results by their similarity scores to the query vector in descending order. The similarity score is also termed the distance to the query vector, and its value ranges vary with the metric types in use.
 
@@ -506,6 +540,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "data": [
@@ -555,6 +590,33 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<std::vector<float>> query_vectors = {
+    {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592},
+    {0.19886812562848388, 0.06023560599112088, 0.6976963061752597, 0.2614474506242501, 0.838729485096104}
+};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("quick_setup")
+                   .WithLimit(3)
+                   .WithAnnsField("vector")
+                   .WithFloatVector(std::move(query_vectors));
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+for (auto& result : response.Results().Results()) {
+    std::cout << "TopK results:" << std::endl;
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
 ## Primary-Key Search\{#primary-key-search}
 
 Instead of setting query vectors, you can use primary keys if the query vectors already exist in the target collection.
@@ -569,8 +631,7 @@ res = client.search(
     # highlight-start
     ids=[551, 296, 43],
     # highlight-end
-    limit=3,
-    search_params={"metric_type": "IP"}
+    limit=3
 )
 
 for hits in res:
@@ -611,14 +672,12 @@ for hits in res:
 curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/search" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_CLUSTER_TOKEN" \
+  -H "Request-Timeout: 10" \
   -d '{
     "collectionName": "quick_setup",
     "annsField": "vector",
     "ids": [551, 296, 43],
-    "limit": 3,
-    "searchParams": {
-      "metric_type": "IP"
-    }
+    "limit": 3
   }'
 ```
 
@@ -767,6 +826,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "partitionNames": ["partitionA"],
@@ -800,6 +860,31 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<float> query_vector = {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("quick_setup")
+                   .AddPartitionName("partitionA")
+                   .WithLimit(3)
+                   .WithAnnsField("vector")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+for (auto& result : response.Results().Results()) {
+    std::cout << "TopK results:" << std::endl;
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
 ## Use Output Fields\{#use-output-fields}
 
 In a search result, Zilliz Cloud includes the primary field values and similarity distances/scores of the entities that contain the top-K vector embeddings by default. You can include the names of the target fields, including both the vector and scalar fields, in a search request as the output fields to make the search results carry the values from other fields in these entities.
@@ -815,7 +900,6 @@ res = client.search(
     collection_name="quick_setup",
     data=[query_vector],
     limit=3, # The number of results to return
-    search_params={"metric_type": "IP"}，
     # highlight-next-line
     output_fields=["color"]
 )
@@ -946,6 +1030,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "data": [
@@ -981,6 +1066,31 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+std::vector<float> query_vector = {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("quick_setup")
+                   .WithLimit(3)
+                   .WithAnnsField("vector")
+                   .AddOutputField("color")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+for (auto& result : response.Results().Results()) {
+    std::cout << "TopK results:" << std::endl;
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
 
 ## Sort Search Results by Scalar Fields | PRIVATE\{#sort-search-results-by-scalar-fields}
 
@@ -1041,6 +1151,14 @@ res = client.search(
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
+```
+
+</TabItem>
 </Tabs>
 
 You can also sort by multiple scalar fields. Zilliz Cloud applies the fields in the order that you specify. In the following example, Zilliz Cloud sorts results by `price` in ascending order. For entities with the same `price`, Zilliz Cloud then sorts by `rating` in descending order.
@@ -1094,6 +1212,14 @@ res = client.search(
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>
@@ -1151,7 +1277,6 @@ res = client.search(
     data=[query_vector],
     limit=3, # The number of results to return
     search_params={
-        "metric_type": "IP", 
         # highlight-next-line
         "offset": 10 # The records to skip
     }
@@ -1246,6 +1371,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "data": [
@@ -1259,6 +1385,31 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+std::vector<float> query_vector = {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("quick_setup")
+                   .WithLimit(3)
+                   .WithAnnsField("vector")
+                   .WithOffset(10)
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+for (auto& result : response.Results().Results()) {
+    std::cout << "TopK results:" << std::endl;
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
 
 ## Use Level\{#use-level}
 
@@ -1384,6 +1535,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "data": [
@@ -1404,6 +1556,31 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+std::vector<float> query_vector = {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("quick_setup")
+                   .WithLimit(3)
+                   .WithAnnsField("vector")
+                   .AddFloatVector(query_vector)
+                   .AddExtraParam("level", "10");
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+for (auto& result : response.Results().Results()) {
+    std::cout << "TopK results:" << std::endl;
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
 
 ## Get Recall Rate\{#get-recall-rate}
 
@@ -1530,6 +1707,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "data": [
@@ -1552,6 +1730,32 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<float> query_vector = {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("quick_setup")
+                   .WithLimit(3)
+                   .WithAnnsField("vector")
+                   .AddFloatVector(query_vector)
+                   .AddExtraParam("level", "10")
+                   .AddExtraParam("enable_recall_calculation", "true");
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+for (auto& result : response.Results().Results()) {
+    std::cout << "TopK results:" << std::endl;
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
 ## Temporarily set a timezone for a search\{#temporarily-set-a-timezone-for-a-search}
 
 If your collection has a `TIMESTAMPTZ` field, you can temporarily override the database or collection default timezone for a single operation by setting the `timezone` parameter in the search call. This controls how `TIMESTAMPTZ` values are displayed and compared during the operation.
@@ -1569,7 +1773,6 @@ res = client.search(
     anns_field="vector",
     data=[query_vector],
     limit=3,
-    search_params={"metric_type": "IP"},
     # highlight-next-line
     timezone="America/Havana",
 )
@@ -1608,14 +1811,14 @@ res = client.search(
 export QUERY_VECTOR='[0.1, 0.2, 0.3, 0.4]'                                                                                                                                                                                                              
                                                                                                                                                                                                                                                           
 curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/search" \                                                                                                                                                                                     
--H "Content-Type: application/json" \                                                                                                                                                                                                                 
+-H "Content-Type: application/json" \  
+-H "Request-Timeout: 10" \                                                                                                                                                                                                               
 -d '{                                                                                                                                                                                                                                                 
   "collectionName": "quick_setup",                                                                                                                                                                                                                    
   "annsField": "vector",                                                                                                                                                                                                                              
   "data": ['"$QUERY_VECTOR"'],                                                                                                                                                                                                                        
   "limit": 3,                                                                                                                                                                                                                                         
-  "searchParams": {                                                                                                                                                                                                                                   
-    "metric_type": "IP",                                                                                                                                                                                                                              
+  "searchParams": {                                                                                                                                                                                                                                                                                                                                                                                                                                                                
     "timezone": "America/Havana"                                                                                                                                                                                                                      
   }                                                                                                                                                                                                                                                   
 }'
@@ -1623,6 +1826,23 @@ curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/search" \
 
 </TabItem>
 </Tabs>
+
+```c++
+std::vector<float> query_vector = {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("quick_setup")
+                   .WithLimit(3)
+                   .WithAnnsField("vector")
+                   .AddFloatVector(query_vector)
+                   .WithMetricType(milvus::MetricType::IP)
+                   .WithTimezone("America/Havana");
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ## Enhancing ANN Search\{#enhancing-ann-search}
 

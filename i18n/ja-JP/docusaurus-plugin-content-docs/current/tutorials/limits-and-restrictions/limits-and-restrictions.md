@@ -5,14 +5,14 @@ sidebar_key: limits-and-restrictions
 sidebar_label: "制限と制約"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud での操作において知っておくべき制限と制約について学びます。| Cloud"
+description: "Zilliz Cloud での操作における制限と制約について学びます。 | Cloud"
 type: origin
 token: Tve5wxmTHio0LPk50jgcKHe1nWg
-sidebar_position: 18
+sidebar_position: 19
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - milvus
   - 制限
 

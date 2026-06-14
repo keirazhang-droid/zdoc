@@ -5,14 +5,14 @@ sidebar_key: release-notes-010
 sidebar_label: "2023年1月10日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud の大幅なアップデートの一般提供を開始しました。このリリースでは、データプレビュー機能と、コンソール上のコレクションに簡単にインポートできるデモデータセットが追加されています。"
+description: "このたび、Zilliz Cloud の重要なアップデートの一般提供を発表できることを嬉しく思います。本リリースでは、データプレビュー機能と、コンソール上で簡単にコレクションにインポートできるデモデータセットが追加されました。 | Cloud"
 type: origin
 token: UIaAwGay9iJHhlkxx8VcxfZ3nvb
-sidebar_position: 34
+sidebar_position: 35
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

@@ -37,7 +37,7 @@ This page describes how to manually create a fully managed Bring-Your-Own-Cloud 
 
 - Zilliz BYOC is currently available in **General Availability**. For access and implementation details, please contact [Zilliz Cloud sales](https://zilliz.com/contact-sales).
 
-- This guide demonstrates how to create the necessary resources on the AWS console step-by-step. If you prefer to use a Terraform script to provision the infrastructure, see [Terraform Provider](./terraform-provider). 
+- This guide demonstrates how to create the necessary resources on the GCP console step-by-step. If you prefer to use a Terraform script to provision the infrastructure, see [Terraform Provider](./terraform-provider). 
 
 </Admonition>
 
@@ -51,21 +51,21 @@ This page describes how to manually create a fully managed Bring-Your-Own-Cloud 
 
 To deploy BYOC on GCP, Zilliz Cloud needs to assume specific roles to access the Cloud Storage bucket and the GKE cluster within a customer-managed VPC on your behalf. Consequently, Zilliz Cloud needs to gather information about your Cloud Storage bucket, GKE cluster, and VPC, along with the roles necessary for accessing these infrastructure resources.
 
-Within your BYOC organization, click the **Create Project and Deploy Data Plane** button to start the deployment.
+Within your BYOC organization, click the **Create Project** button to start the deployment.
 
-![Cl50bi7eVoxSoHxk4jrcclh6n5O](https://zdoc-images.s3.us-west-2.amazonaws.com/cl50bi7evoxsohxk4jrcclh6n5o.png "Cl50bi7eVoxSoHxk4jrcclh6n5O")
+![LyCiw8o03hUOnebv2CJc0vianpf](https://zdoc-images.s3.us-west-2.amazonaws.com/LyCiw8o03hUOnebv2CJc0vianpf.png)
 
-### Step 1: Create a project\{#step-1-create-a-project}
+### Step 1: Deploy the data plane\{#step-1-deploy-the-data-plane}
 
 In this step, you need to set the Zilliz BYOC project name, determine the cloud providers and regions, and the initial project size of your deployment.
 
-![A8VVbPbJgobXzzxEdumcpxJ4nMg](https://zdoc-images.s3.us-west-2.amazonaws.com/a8vvbpbjgobxzzxedumcpxj4nmg.png "A8VVbPbJgobXzzxEdumcpxJ4nMg")
-
 <Procedures>
 
-1. Set **Zilliz BYOC Project Name**.
+1. Set **Data Plane Name** and **Cloud Region**, and click **Next**.
 
-1. Select **Cloud Provider** and **Cloud Region**.
+    Click **Cancel** to stop deploying the data plane. However, the project created above is still available. You can start deploying a data plane in the project at any time and add multiple data planes to a project. 
+
+    ![SVVZwpbNphBfYGb5IgmckSkan6b](https://zdoc-images.s3.us-west-2.amazonaws.com/SVVZwpbNphBfYGb5IgmckSkan6b.png)
 
 1. Determine whether to enable **GCP Private Service Connect**.
 
@@ -77,7 +77,7 @@ In this step, you need to set the Zilliz BYOC project name, determine the cloud 
 
 1. In **Resource Settings**, you need to
 
-    1. Enable or disable **Auto-scaling** to allow Zilliz Cloud to automatically adjust the number of EC2 instances within a defined range based on your project workloads, ensuring efficient resource use.
+    1. Enable or disable **Auto-scaling** to allow Zilliz Cloud to automatically adjust the number of GCE instances within a defined range based on your project workloads, ensuring efficient resource use.
 
     1. Configure **Initial Project Size**. 
 
@@ -85,11 +85,11 @@ In this step, you need to set the Zilliz BYOC project name, determine the cloud 
 
         If **Auto-scaling** is disabled, simply specify the number of GCE instances required for each project component in the corresponding **Count** field.
 
-        ![CxACbbwtYo2dMNxG33qcMIyinBe](https://zdoc-images.s3.us-west-2.amazonaws.com/cxacbbwtyo2dmnxg33qcmiyinbe.png "CxACbbwtYo2dMNxG33qcMIyinBe")
+        ![Tl4Zbuwi5oT1KdxKVaIcnf05nEr](https://zdoc-images.s3.us-west-2.amazonaws.com/tl4zbuwi5ot1kdxkvaicnf05ner.png "Tl4Zbuwi5oT1KdxKVaIcnf05nEr")
 
         Once **Auto-scaling** is enabled, you need to specify a range for Zilliz Cloud to automatically scale the number of GCE instances based on actual project workloads by setting the corresponding **Min** and **Max** fields.
 
-        ![QzCHbFIFRoyCUex6u8vcoEZMn6f](https://zdoc-images.s3.us-west-2.amazonaws.com/qzchbfifroycuex6u8vcoezmn6f.png "QzCHbFIFRoyCUex6u8vcoEZMn6f")
+        ![Gq0GbQWJxoJf85xg6KJcppLDnZS](https://zdoc-images.s3.us-west-2.amazonaws.com/gq0gbqwjxojf85xg6kjcppldnzs.png "Gq0GbQWJxoJf85xg6KJcppLDnZS")
 
         To facilitate resource settings, there are four predefined project size options. The following table shows the mapping between these project size options and the number of clusters that can be created in the project, as well as the number of entities these clusters can contain.
 
@@ -97,39 +97,60 @@ In this step, you need to set the Zilliz BYOC project name, determine the cloud 
            <tr>
              <th rowspan="2"><p>Size</p></th>
              <th rowspan="2"><p>Maximum Cluster Quantity</p></th>
-             <th colspan="2"><p>Maximum Number of Entities (Million)</p></th>
+             <th colspan="3"><p>Maximum Number of Entities (Million)</p></th>
            </tr>
            <tr>
              <td><p>Performance-optimized CU</p></td>
              <td><p>Capacity-optimized CU</p></td>
+             <td><p>Tiered-storage CU</p></td>
            </tr>
            <tr>
              <td><p>Small</p></td>
              <td><p>3 clusters with 8 to 16 CUs</p></td>
-             <td><p>10 Million - 25 Million</p></td>
-             <td><p>40 Million - 80 Million</p></td>
+             <td><p>20 Million - 40 Million</p></td>
+             <td><p>64 Million - 128 Million</p></td>
+             <td><p>320 Million - 640 Million</p></td>
            </tr>
            <tr>
              <td><p>Medium</p></td>
              <td><p>7 clusters with 16 to 64 CUs</p></td>
-             <td><p>25 Million - 100 Million</p></td>
-             <td><p>80 Million - 350 Million</p></td>
+             <td><p>40 Million - 160 Million</p></td>
+             <td><p>128 Million - 512 Million</p></td>
+             <td><p>640 Million - 2.6 Billion</p></td>
            </tr>
            <tr>
              <td><p>Large</p></td>
              <td><p>12 clusters with 64 to 192 CUs</p></td>
-             <td><p>100 Million - 300 Million</p></td>
-             <td><p>350 Million - 1 Billion</p></td>
+             <td><p>160 Million - 480 Million</p></td>
+             <td><p>512 Million - 1.5 Billion</p></td>
+             <td><p>2.6 Billion - 7.7 Billion</p></td>
            </tr>
            <tr>
              <td><p>X-Large</p></td>
              <td><p>17 clusters with 192 to 576 CUs</p></td>
-             <td><p>300 Million - 900 Million</p></td>
-             <td><p>1 Billion - 3 Billion</p></td>
+             <td><p>480 Million - 1.44 Billion</p></td>
+             <td><p>1.5 Billion -  4.6 Billion</p></td>
+             <td><p>7.7 Billion - 23 Billion</p></td>
            </tr>
         </table>
 
         You can also customize the settings by selecting **Custom** in **Initial Project Size** and adjusting the GCE instance types and counts for all data plane components. If your preferred GCE instance types are not listed, please [contact Zilliz support](https://zilliz.com/contact) for further assistance. 
+
+    1. Determine whether to enable **Tiered Query Node**.
+
+        This option determines whether you can create tiered-storage clusters. Once you select this option, you can set the instance type and count for the tiered query nodes. 
+
+        ![CFISbr4gloeeYoxStjuc7VuanM5](https://zdoc-images.s3.us-west-2.amazonaws.com/cfisbr4gloeeyoxstjuc7vuanm5.png "CFISbr4gloeeYoxStjuc7VuanM5")
+
+        <Admonition type="info" icon="📘" title="Notes">
+
+        - Your choice in **Project Size** does not affect the settings in **Tiered Storage Node**.
+
+        - If **Auto-scaling** is disabled, the sum of the **Default Query Node** count and the **Tiered Query Node** count should be a positive integer.
+
+        - If **Auto-scaling** is enabled, the sum of the **Min** values of both the **Default Query Node** and the **Tiered Query Node** should be a positive integer.
+
+        </Admonition>
 
 1. Click **Next** to set up credentials.
 
@@ -207,7 +228,7 @@ Once you have deployed the project's data plane and created clusters, you can co
 
 Suspending a project halts the data plane and terminates all GCE instances associated with the GKE cluster supporting the project. This action does not impact the suspended Zilliz Cloud clusters within the project, which can be resumed once the data plane is restored.
 
-![YC2YbM9oyo6IcUxDQ5Bc3AzDnPc](https://zdoc-images.s3.us-west-2.amazonaws.com/yc2ybm9oyo6icuxdq5bc3azdnpc.png "YC2YbM9oyo6IcUxDQ5Bc3AzDnPc")
+![Lq7AwLshAh64ZObMKeFcIXBwn5g](https://zdoc-images.s3.us-west-2.amazonaws.com/Lq7AwLshAh64ZObMKeFcIXBwn5g.png)
 
 You can only suspend a running project if there are no clusters in the project or all clusters have already been suspended.
 
@@ -215,17 +236,13 @@ You can only suspend a running project if there are no clusters in the project o
 
 Once the status tag on a project card reads **Suspended**, you cannot manipulate clusters in the project. In such a case, you can click **Resume** to resume the project. Once the status tag turns to **Running** again, you can continue manipulating clusters in the project.
 
-![EQKqbumOxoT1tVxw1ZRcZahXnDd](https://zdoc-images.s3.us-west-2.amazonaws.com/eqkqbumoxot1tvxw1zrczahxndd.png "EQKqbumOxoT1tVxw1ZRcZahXnDd")
-
 ## Technical support access\{#technical-support-access}
 
 To assist you with troubleshooting and maintenance operations, Zilliz Cloud enables technical support to access your project's data plane by default. 
 
-![LxiUbIQCqoJf2Zx7pincPOCnnyf](https://zdoc-images.s3.us-west-2.amazonaws.com/lxiubiqcqojf2zx7pincpocnnyf.png "LxiUbIQCqoJf2Zx7pincPOCnnyf")
+![OHNUwYrFHhEUeIbgOW9coc5hngb](https://zdoc-images.s3.us-west-2.amazonaws.com/OHNUwYrFHhEUeIbgOW9coc5hngb.png)
 
 When you click **Technical Support Access** from the target project's drop-down menu to view the current settings.
-
-![WbyNbPrfioPvmpxTe9ocowainnh](https://zdoc-images.s3.us-west-2.amazonaws.com/wbynbprfiopvmpxte9ocowainnh.png "WbyNbPrfioPvmpxTe9ocowainnh")
 
 You can disable it to meet data governance and security requirements.
 

@@ -1,18 +1,18 @@
 ---
-title: "文字列フィールド | Cloud"
+title: "VarChar フィールド | Cloud"
 slug: /use-string-field
 sidebar_key: use-string-field
-sidebar_label: "文字列"
+sidebar_label: "VarChar"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud クラスターでは、文字列データの保存に `VARCHAR` データ型が使用されます。| Cloud"
+description: "Zilliz Cloud クラスターでは、テキストスカラーデータを `VARCHAR` および `TEXT` フィールドに保存できます。このページでは、名前、タグ、カテゴリ、外部 ID などの短く境界のある文字列メタデータ向けに設計された `VARCHAR` について説明します。 | Cloud"
 type: origin
 token: QBXVwP7oiiuEovkprDnckJlEnoK
 sidebar_position: 6
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - クラウド
+  - cloud
   - コレクション
   - スキーマ
   - 文字列フィールド
@@ -24,33 +24,35 @@ import Admonition from '@theme/Admonition';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# 文字列フィールド
+# VarChar フィールド
 
-Zilliz Cloud クラスターでは、文字列データの保存に `VARCHAR` データ型が使用されます。
+Zilliz Cloud クラスターでは、テキスト形式のスカラーフィールドデータを `VARCHAR` フィールドと `TEXT` フィールドで保存できます。このページでは、名前、タグ、カテゴリ、外部 ID などの短く制限のある文字列メタデータ向けに設計された `VARCHAR` について説明します。
 
-`VARCHAR` フィールドを定義する際、以下の 2 つのパラメータが必須です：
+保存してエンティティとともに返す必要がある長いソーステキスト、ドキュメントの一節、記事の本文、チケット、ログの場合は、代わりに `TEXT` フィールドを使用してください。詳細については、[TEXT フィールド](./undefined) を参照してください。
+
+`VARCHAR` フィールドを定義する際は、次の 2 つのパラメータが必須です。
 
 - `datatype` を `データType.VARCHAR` に設定します。
 
-- `max_length` を指定します。これは `VARCHAR` フィールドが格納できる最大バイト数を定義します。`max_length` の有効範囲は 1 から 65,535 です。
+- `max_length` を指定します。これは、`VARCHAR` フィールドに保存できる最大バイト数を定義します。`max_length` の有効範囲は 1 ～ 65,535 です。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>Zilliz Cloud は <code>VARCHAR</code> フィールドに対して null 値とデフォルト値をサポートしています。これらの機能を有効にするには、<code>nullable</code> を <code>True</code> に設定し、<code>default_value</code> に文字列値を設定します。詳細については、<a href="./nullable-fields">NULL許容 & Default</a> を参照してください。</p>
+Zilliz Cloud は `VARCHAR` フィールドの NULL 値とデフォルト値をサポートしています。これらの機能を有効にするには、`nullable` を `True` に設定し、`default_value` に文字列値を設定します。詳細については、[NULL 許容 & デフォルト](./nullable-fields) を参照してください。
 
 </Admonition>
 
 ## VARCHAR フィールドの追加\{#add-varchar-field}
 
-Zilliz Cloud クラスターで文字列データを保存するには、コレクションスキーマ内で `VARCHAR` フィールドを定義します。以下は、2 つの `VARCHAR` フィールドを含むコレクションスキーマを定義する例です：
+Zilliz Cloud クラスターで短く制限のある文字列メタデータを保存するには、コレクションスキーマで `VARCHAR` フィールドを定義します。以下は、2 つの `VARCHAR` フィールドを持つコレクションスキーマを定義する例です。
 
-- `varchar_field1`: 最大 100 バイトまで保存可能で、null 値を許可し、デフォルト値は `"Unknown"` です。
+- `varchar_field1`: 最大 100 バイトを保存し、NULL 値を許可し、デフォルト値は `"Unknown"` です。
 
-- `varchar_field2`: 最大 200 バイトまで保存可能で、null 値を許可しますが、デフォルト値は設定されていません。
+- `varchar_field2`: 最大 200 バイトを保存し、NULL 値を許可しますが、デフォルト値はありません。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>スキーマ定義時に <code>enable_dynamic_fields=True</code> を設定すると、Zilliz Cloud では事前に定義されていないスカラーフィールドの挿入が可能になります。ただし、これによりクエリや管理の複雑さが増し、パフォーマンスに影響を与える可能性があります。詳細については、<a href="./enable-dynamic-field">Dynamic Field</a> を参照してください。</p>
+スキーマを定義する際に `enable_dynamic_fields=True` を設定すると、事前に定義されていないスカラーフィールドを挿入できるようになります。ただし、これによりクエリと管理の複雑さが増し、パフォーマンスに影響を与える可能性があります。詳細については、[動的フィールド](./enable-dynamic-field) を参照してください。
 
 </Admonition>
 
@@ -265,11 +267,29 @@ export schema="{
 </TabItem>
 </Tabs>
 
-## Set index params\{#set-index-params}
+```c++
+#include "milvus/MilvusClientV2.h"
 
-インデックス作成は、検索およびクエリのパフォーマンス向上に役立ちます。Zilliz Cloud クラスターでは、ベクトルフィールドに対するインデックス作成は必須ですが、スカラーフィールドに対してはオプションです。
+auto client = milvus::MilvusClientV2::Create();
 
-以下の例では、ベクトルフィールド `embedding` とスカラーフィールド `varchar_field1` の両方に、`AUTOINDEX` インデックスタイプを使用してインデックスを作成します。このタイプを使用すると、Milvus はデータタイプに基づいて最も適切なインデックスを自動的に選択します。
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"pk", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR,).WithDimension(3));
+schema->AddField(milvus::FieldSchema("varchar_field1", milvus::DataType::VARCHAR).WithMaxLength(100).WithNullable(true));
+schema->AddField(milvus::FieldSchema("varchar_field2", milvus::DataType::VARCHAR).WithMaxLength(200).WithNullable(true));
+```
+
+## インデックスパラメータの設定\{#set-index-params}
+
+インデックス作成は、検索とクエリのパフォーマンスを向上させるのに役立ちます。Zilliz Cloud クラスターでは、ベクトルフィールドのインデックス作成は必須ですが、スカラーフィールドのインデックス作成はオプションです。
+
+次の例では、ベクトルフィールド `embedding` とスカラーフィールド `varchar_field1` にインデックスを作成し、両方とも `AUTOINDEX` インデックスタイプを使用しています。このタイプでは、Milvus がデータ型に基づいて最適なインデックスを自動的に選択します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -376,6 +396,13 @@ export indexParams='[
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("varchar_field1", "varchar_index", milvus::IndexType::AUTOINDEX),
+    milvus::IndexDesc("embedding", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+```
+
 ## コレクションの作成\{#create-collection}
 
 スキーマとインデックスが定義されたら、文字列フィールドを含むコレクションを作成します。
@@ -440,6 +467,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
@@ -451,11 +479,21 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("my_collection")
+                                        .WithIndexes(std::move(indexes))
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 ## データの挿入\{#insert-data}
 
-コレクションを作成した後、スキーマに一致するエンティティを挿入します。
+コレクションを作成したら、スキーマに一致するエンティティを挿入します。
 
-<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
+<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
 
 ```python
@@ -576,6 +614,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data '{
     "data": [
         {"varchar_field1": "Product A", "varchar_field2": "High quality product", "pk": 1, "embedding": [0.1, 0.2, 0.3]},
@@ -595,11 +634,30 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-## Query with filter expressions\{#query-with-filter-expressions}
+```c++
+milvus::EntityRows data = {{{"varchar_field1", "Product A"}, {"varchar_field2", "High quality product"}, {"pk", 1}, {"embedding", std::vector<float>{0.1, 0.2, 0.3}}},
+                           {{"varchar_field1", "Product B"}, {"pk", 2}, {"embedding", std::vector<float>{0.4, 0.5, 0.6}}},
+                           {{"varchar_field1", nullptr}, {"varchar_field2", nullptr}, {"pk", 3}, {"embedding", std::vector<float>{0.2, 0.3, 0.1}}},
+                           {{"varchar_field1", "Product C"}, {"varchar_field2", nullptr}, {"pk", 4}, {"embedding", std::vector<float>{0.5, 0.7, 0.2}}},
+                           {{"varchar_field1", nullptr}, {"varchar_field2", "Exclusive deal"}, {"pk", 5}, {"embedding", std::vector<float>{0.5, 0.4, 0.8}}},
+                           {{"varchar_field1", "Unknown"}, {"varchar_field2", nullptr}, {"pk", 6}, {"embedding", std::vector<float>{0.8, 0.5, 0.3}}},
+                           {{"varchar_field1", ""}, {"varchar_field2", "Best seller"}, {"pk", 7}, {"embedding", std::vector<float>{0.8, 0.5, 0.3}}}};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+## フィルター式を使用したクエリ\{#query-with-filter-expressions}
 
 エンティティを挿入した後、`query` メソッドを使用して、指定されたフィルター式に一致するエンティティを取得します。
 
-`varchar_field1` が文字列 `"Product A"` に一致するエンティティを取得するには：
+`varchar_field1` が文字列 `"Product A"` に一致するエンティティを取得するには:
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -687,6 +745,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": "varchar_field1 == \"Product A\"",
@@ -698,7 +757,27 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-`varchar_field2` が null であるエンティティを取得するには：
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter(R"(varchar_field1 == "Product A")")
+                       .AddOutputField("varchar_field1")
+                       .AddOutputField("varchar_field2");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = response.Results().OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
+
+`varchar_field2` が null のエンティティを取得するには:
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -787,6 +866,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": "varchar_field2 is null",
@@ -797,7 +877,27 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-`varchar_field1` の値が `"Unknown"` であるエンティティを取得するには、以下の式を使用します。`varchar_field1` のデフォルト値は `"Unknown"` であるため、期待される結果には、`varchar_field1` が明示的に `"Unknown"` に設定されているエンティティ、または `varchar_field1` が null に設定されているエンティティが含まれます。
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("varchar_field2 IS NULL")
+                       .AddOutputField("varchar_field1")
+                       .AddOutputField("varchar_field2");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = response.Results().OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
+
+`varchar_field1` の値が `"Unknown"` であるエンティティを取得するには、以下の式を使用します。`varchar_field1` のデフォルト値は `"Unknown"` であるため、期待される結果には `varchar_field1` が明示的に `"Unknown"` に設定されたエンティティ、または `varchar_field1` が null に設定されたエンティティが含まれます。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -885,6 +985,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": "varchar_field1 == \"Unknown\"",
@@ -895,9 +996,28 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-## フィルター式を用いたベクトル検索\{#vector-search-with-filter-expressions}
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter(R"(varchar_field1 == "Unknown")")
+                       .AddOutputField("varchar_field1")
+                       .AddOutputField("varchar_field2");
 
-基本的なスカラー型フィールドによるフィルタリングに加えて、ベクトル類似性検索とスカラー型フィールドのフィルターを組み合わせることもできます。たとえば、以下のコードはベクトル検索にスカラー型フィールドのフィルターを追加する方法を示しています。
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+milvus::EntityRows output_rows;
+status = response.Results().OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
+
+## フィルター式を使用したベクトル検索\{#vector-search-with-filter-expressions}
+
+基本的なスカラーフィールドフィルタリングに加えて、ベクトル類似性検索とスカラーフィールドフィルターを組み合わせることができます。例えば、次のコードはベクトル検索にスカラーフィールドフィルターを追加する方法を示しています：
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -1007,6 +1127,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "data": [
@@ -1026,3 +1147,29 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<float> query_vector = {0.3, -0.6, 0.1};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("embedding")
+                   .WithFilter(R"(varchar_field2 == "Best seller")")
+                   .WithLimit(5)
+                   .AddExtraParam("nprobe", "10")
+                   .AddOutputField("varchar_field1")
+                   .AddOutputField("varchar_field2")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```

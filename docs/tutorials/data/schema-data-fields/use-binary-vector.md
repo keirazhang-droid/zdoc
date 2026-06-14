@@ -214,6 +214,23 @@ export schema="{
 </TabItem>
 </Tabs>
 
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->SetEnableDynamicField(true);
+schema->AddField(milvus::FieldSchema("pk", milvus::DataType::VARCHAR, "", true, true).WithMaxLength(100));
+schema->AddField(milvus::FieldSchema("binary_vector", milvus::DataType::BINARY_VECTOR).WithDimension(128));
+```
+
 In this example, a vector field named `binary_vector` is added for storing binary vectors. The data type of this field is `BINARY_VECTOR`, with a dimension of 128.
 
 ### Set index params for vector field\{#set-index-params-for-vector-field}
@@ -294,6 +311,12 @@ export indexParams='[
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("binary_vector", "binary_vector_index", milvus::IndexType::AUTOINDEX, milvus::MetricType::HAMMING)
+}
+```
+
 In the example above, an index named `binary_vector_index` is created for the `binary_vector` field, using the `AUTOINDEX` index type. The `metric_type` is set to `HAMMING`, indicating that Hamming distance is used for similarity measurement.
 
 Additionally, Zilliz Cloud supports other similarity metrics for binary vectors. For more information, refer to [Metric Types](./search-metrics-explained).
@@ -365,6 +388,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
@@ -374,6 +398,16 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("my_collection")
+                                        .WithIndexes(std::move(indexes))
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Insert data\{#insert-data}
 
@@ -495,6 +529,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"data\": $data,
     \"collectionName\": \"my_collection\"
@@ -503,6 +538,38 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+std::vector<uint8_t>
+ConvertToBinaryVector(const std::vector<bool>& bools) {
+    size_t num_bytes = (bools.size() + 7) / 8;
+    std::vector<uint8_t> bytes(num_bytes, 0);
+    for (size_t i = 0; i < bools.size(); ++i) {
+        size_t byte_index = i / 8;
+        size_t bit_pos = i % 8;
+
+        if (bools[i]) {
+            bytes[byte_index] |= (1U << bit_pos);
+        }
+    }
+
+    return bytes;
+}
+
+std::vector<bool> vector1 = {true, false, false, true, true, false, true, true, false, true, false, false, true, true, false, true};
+std::vector<bool> vector2 = {false, true, false, true, false, true, false, false, true, true, false, false, true, true, false, true};
+milvus::EntityRows data = {{{"binary_vector", ConvertToBinaryVector(vector1)}},
+                           {{"binary_vector", ConvertToBinaryVector(vector2)}}}};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Perform similarity search\{#perform-similarity-search}
 
@@ -626,6 +693,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"data\": $data,
@@ -638,6 +706,30 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+std::vector<bool> query_vector = {true, false, false, true, true, false, true, true, false, true, false, false, true, true, false, true};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("binary_vector")
+                   .WithLimit(5)
+                   .AddOutputField("pk")
+                   .AddFloatVector(ConvertToBinaryVector(query_vector));
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
 
 For more information on similarity search parameters, refer to [Basic ANN Search](./single-vector-search).
 

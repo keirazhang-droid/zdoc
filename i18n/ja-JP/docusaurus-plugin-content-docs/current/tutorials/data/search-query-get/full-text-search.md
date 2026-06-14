@@ -5,21 +5,21 @@ sidebar_key: full-text-search
 sidebar_label: "全文検索"
 beta: FALSE
 notebook: FALSE
-description: "全文検索は、テキストデータセットから特定の用語やフレーズを含むドキュメントを取得し、関連性に基づいて結果をランク付けする機能です。この機能は、正確な用語を見落とす可能性があるセマンティック検索の限界を克服し、最も正確で文脈に適した結果を提供します。さらに、生のテキスト入力を受け付けて自動的にスパース埋め込みに変換するため、ベクトル埋め込みを手動で生成する必要がなく、ベクトル検索を簡素化します。 | Cloud"
+description: "全文検索は、テキストデータセット内の特定の用語やフレーズを含むドキュメントを取得し、関連性に基づいて結果をランク付けする機能です。この機能は、正確な用語を見落とす可能性があるセマンティック検索の制限を克服し、最も正確で文脈に関連した結果を提供します。さらに、生のテキスト入力を受け入れることでベクトル検索を簡素化し、手動でベクトル埋め込みを生成する必要なく、テキストデータを自動的にスパース埋め込みに変換します。 | Cloud"
 type: origin
 token: RQTRwhOVPiwnwokqr4scAtyfnBf
 sidebar_position: 10
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - data
-  - filter
-  - filtering expressions
-  - filtering
+  - クラウド
+  - コレクション
+  - データ
+  - フィルター
+  - フィルター式
+  - フィルタリング
   - 全文検索
-  - data in data out
+  - データイン・データアウト
 
 ---
 
@@ -29,57 +29,57 @@ import TabItem from '@theme/TabItem';
 
 # 全文検索
 
-全文検索は、テキストデータセット内に特定の語句やフレーズを含むドキュメントを検索し、関連性に基づいて結果をランキングする機能です。この機能はセマンティック検索の限界（正確な語句を見逃す可能性がある点）を克服し、最も正確かつ文脈に沿った結果を提供します。さらに、生テキスト入力をそのまま受け付けることでベクトル検索を簡素化し、ユーザーが手動でベクトル埋め込みを生成することなく、テキストデータを自動的にスパース埋め込みに変換します。
+全文検索は、テキストデータセット内の特定の用語やフレーズを含むドキュメントを取得し、関連性に基づいて結果をランク付けする機能です。この機能は、正確な用語を見落とす可能性のあるセマンティック検索の制限を克服し、最も正確でコンテキストに適した結果を受け取ることを保証します。さらに、生テキスト入力を受け入れ、手動でベクトル埋め込みを生成する必要なく、テキストデータを自動的にスパース埋め込みに変換することで、ベクトル検索を簡素化します。
 
-関連性スコアリングにはBM25アルゴリズムを使用しており、特に検索拡張型生成（RAG）のシナリオにおいて、特定の検索語句と密接に一致するドキュメントを優先するのに役立ちます。
+BM25アルゴリズムを使用した関連性スコアリングにより、この機能は、特定の検索用語に密接に一致するドキュメントを優先する検索拡張生成（RAG）シナリオで特に価値があります。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>全文検索とセマンティックベースの密ベクトル検索を統合することで、検索結果の精度と関連性を向上させることができます。詳細については、<a href="./hybrid-search">ハイブリッド検索</a>を参照してください。</p>
+全文検索をセマンティックベースのデンスベクトル検索と統合することで、検索結果の精度と関連性を向上させることができます。詳細については、[ハイブリッド検索](./hybrid-search) を参照してください。
 
 </Admonition>
 
-Zilliz Cloudでは、全文検索をプログラムから有効化するか、ウェブコンソール経由で有効化できます。このページでは、プログラムによる全文検索の有効化方法に焦点を当てています。ウェブコンソールでの操作の詳細については、[コレクションの管理（コンソール）](./manage-collections-console#full-text-search)を参照してください。
+Zilliz Cloud は、プログラムでまたは Web コンソールを介して全文検索を有効にすることをサポートしています。このページでは、プログラムで全文検索を有効にする方法に焦点を当てています。Web コンソールでの操作の詳細については、[コレクションの管理 (コンソール)](./manage-collections-console#full-text-search) を参照してください。
 
-## BM25の実装\{#bm25-implementation}
+## BM25 実装\{#bm25-implementation}
 
-Zilliz Cloudは、情報検索システムで広く採用されているBM25関連性スコアリングアルゴリズムを活用した全文検索を提供しています。Zilliz Cloudはこのアルゴリズムを検索ワークフローに統合し、正確で関連性順にランキングされたテキスト結果を提供します。
+Zilliz Cloud は、情報検索システムで広く採用されているスコアリング関数である BM25 関連性アルゴリズムを搭載した全文検索を提供し、Zilliz Cloud はそれを検索ワークフローに統合して、正確で関連性に基づいてランク付けされたテキスト結果を提供します。
 
-Zilliz Cloudにおける全文検索は、以下のワークフローに従います。
+Zilliz Cloud での全文検索は、以下のワークフローに従います：
 
-1. **生テキスト入力**: 埋め込みモデルを必要とせず、プレーンテキストでテキストドキュメントを挿入またはクエリを提供します。
+1. **生テキスト入力**: プレーンテキストを使用してテキストドキュメントを挿入するか、クエリを提供します。埋め込みモデルは必要ありません。
 
-1. **テキスト分析**: Zilliz Cloudは[アナライザ](./analyzer-overview)を使用してテキストをインデックスおよび検索可能な意味のある語句に処理します。
+1. **テキスト分析**: Zilliz Cloud は [アナライザー](./analyzer-overview) を使用して、テキストをインデックス化および検索可能な意味のある用語に処理します。
 
-1. **BM25関数処理**: 組み込みの関数がこれらの語句をBM25スコアリングに最適化されたスパースベクトル表現に変換します。
+1. **BM25関数処理**: 組み込み関数がこれらの用語を BM25 スコアリングに最適化されたスパースベクトル表現に変換します。
 
-1. **コレクションストア**: Zilliz Cloudは生成されたスパース埋め込みをコレクションに格納し、高速な検索とランキングを可能にします。
+1. **コレクションストア**: Zilliz Cloud は、結果のスパース埋め込みをコレクションに保存し、高速な検索とランク付けを実現します。
 
-1. **BM25関連性スコアリング**: 検索時にZilliz CloudはBM25関数を適用し、ドキュメントの関連性を計算してクエリ語句に最も一致するランキング付き結果を返します。
+1. **BM25関連性スコアリング**: 検索時に、Zilliz Cloud は BM25 スコアリング関数を適用してドキュメントの関連性を計算し、クエリ条件に最も一致するランク付けされた結果を返します。
 
 ![DfPMwP6ZahhHlLbIN0gcG9d7nQM](https://zdoc-images.s3.us-west-2.amazonaws.com/DfPMwP6ZahhHlLbIN0gcG9d7nQM.png)
 
-全文検索を使用するには、次の主な手順に従います。
+全文検索を使用するには、次の主要な手順に従います：
 
-1. [コレクションの作成](./full-text-search#create-a-collection-for-bm25-full-text-search): 必要なフィールドを設定し、生テキストをスパース埋め込みに変換するBM25関数を定義します。
+1. [コレクションを作成する](./full-text-search#create-a-collection-for-bm25-full-text-search): 必要なフィールドを設定し、生テキストをスパース埋め込みに変換する BM25 関数を定義します。
 
-1. [データの挿入](./full-text-search#insert-text-data): 生テキストドキュメントをコレクションに取り込みます。
+1. [データを挿入する](./full-text-search#insert-text-data): 生テキストドキュメントをコレクションに取り込みます。
 
-1. [検索の実行](./full-text-search#perform-full-text-search): 自然言語のクエリテキストを使用して、BM25関連性に基づいたランキング付き結果を取得します。
+1. [検索を実行する](./full-text-search#perform-full-text-search): 自然言語クエリテキストを使用して、BM25 関連性に基づいてランク付けされた結果を取得します。
 
-## BM25全文検索用のコレクションを作成する\{#create-a-collection-for-bm25-full-text-search}
+## BM25 全文検索用のコレクションを作成する\{#create-a-collection-for-bm25-full-text-search}
 
-BM25による全文検索を有効にするには、必要なフィールドを持つコレクションを準備し、スパースベクトルを生成するBM25関数を定義し、インデックスを設定してからコレクションを作成する必要があります。
+BM25 を利用した全文検索を有効にするには、必要なフィールドを持つコレクションを準備し、スパースベクトルを生成する BM25 関数を定義し、インデックスを設定してからコレクションを作成する必要があります。
 
-### スキーマフィールドの定義\{#define-schema-fields}
+### スキーマフィールドを定義する\{#define-schema-fields}
 
-コレクションスキーマには、少なくとも以下の3つの必須フィールドを含める必要があります。
+コレクションスキーマには、少なくとも次の3つの必須フィールドを含める必要があります：
 
 - **プライマリフィールド**: コレクション内の各エンティティを一意に識別します。
 
-- **テキストフィールド** (`VARCHAR`): 生テキストドキュメントを格納します。Zilliz CloudがBM25関連性ランキングのためにテキストを処理できるように、`enable_analyzer=True` を設定する必要があります。デフォルトでは、Zilliz Cloudはテキスト分析に[`standard`](./standard-analyzer) [アナライザ](./standard-analyzer)を使用します。別のアナライザを設定するには、[アナライザ概要](./analyzer-overview)を参照してください。
+- **文字列フィールド** (`VARCHAR` または `TEXT`): 生テキストドキュメントを保存します。`enable_analyzer=True` を設定して、Zilliz Cloud が BM25 関連性ランキングのためにテキストを処理できるようにする必要があります。デフォルトでは、Zilliz Cloud は [`standard`](./standard-analyzer)[ アナライザー](./standard-analyzer) をテキスト分析に使用します。別のアナライザーを設定するには、[アナライザーの概要](./analyzer-overview) を参照してください。このページの例では `VARCHAR` を使用しています。長いテキストの場合は、入力フィールドを `TEXT` として定義し、`max_length` を省略できます。完全な例については、[テキストフィールド](./hybrid-search) を参照してください。
 
-- **スパースベクトルフィールド** (`SPARSE_FLOAT_VECTOR`): BM25関数によって自動生成されたスパース埋め込みを格納します。
+- **スパースベクトルフィールド** (`SPARSE_FLOAT_VECTOR`): BM25 関数によって自動的に生成されたスパース埋め込みを保存します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -241,6 +241,28 @@ export schema='{
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, true});
+schema->AddField(milvus::FieldSchema("text", milvus::DataType::VARCHAR).WithMaxLength(1000).EnableAnalyzer(true));
+schema->AddField(milvus::FieldSchema("sparse", milvus::DataType::SPARSE_FLOAT_VECTOR));
+
+```
+
+</TabItem>
 </Tabs>
 
 上記の設定において、
@@ -360,6 +382,17 @@ export schema='{
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::FunctionPtr function = std::make_shared<milvus::Function>("text_bm25_emb", milvus::FunctionType::BM25);
+function->AddInputFieldName("text");
+function->AddOutputFieldName("sparse");
+schema->AddFunction(function);
+```
+
+</TabItem>
 </Tabs>
 
 <table>
@@ -369,31 +402,31 @@ export schema='{
    </tr>
    <tr>
      <td><p><code>name</code></p></td>
-     <td><p>関数の名前。この関数は、<code>text</code> フィールドから取得した生テキストを BM25 互換の疎ベクトルに変換し、<code>sparse</code> フィールドに格納します。</p></td>
+     <td><p>関数の名前。この関数は、<code>text</code> フィールドの生テキストをBM25互換の疎ベクトルに変換し、<code>sparse</code> フィールドに保存します。</p></td>
    </tr>
    <tr>
      <td><p><code>input_field_names</code></p></td>
-     <td><p>テキストから疎ベクトルへの変換が必要な <code>VARCHAR</code> フィールドの名前。<code>FunctionType.BM25</code> の場合、このパラメータにはフィールド名を1つだけ指定できます。</p></td>
+     <td><p>テキストから疎ベクトルへの変換が必要な <code>VARCHAR</code> フィールドの名前。<code>FunctionType.BM25</code> の場合、このパラメータは1つのフィールド名のみを受け付けます。</p></td>
    </tr>
    <tr>
      <td><p><code>output_field_names</code></p></td>
-     <td><p>内部で生成された疎ベクトルを格納するフィールドの名前。<code>FunctionType.BM25</code> の場合、このパラメータにはフィールド名を1つだけ指定できます。</p></td>
+     <td><p>内部生成された疎ベクトルが保存されるフィールドの名前。<code>FunctionType.BM25</code> の場合、このパラメータは1つのフィールド名のみを受け付けます。</p></td>
    </tr>
    <tr>
      <td><p><code>function_type</code></p></td>
-     <td><p>使用する関数のタイプ。必ず <code>FunctionType.BM25</code> を指定する必要があります。</p></td>
+     <td><p>使用する関数のタイプ。<code>FunctionType.BM25</code> である必要があります。</p></td>
    </tr>
 </table>
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>複数の <code>VARCHAR</code> フィールドに対して BM25 処理が必要な場合は、各フィールドごとに<strong>1つの BM25 関数を定義</strong>し、それぞれに一意の名前と出力フィールドを設定してください。</p>
+複数の `VARCHAR` フィールドでBM25処理が必要な場合、**フィールドごとに1つのBM25関数**を定義し、それぞれに一意の名前と出力フィールドを設定してください。
 
 </Admonition>
 
 ### インデックスの設定\{#configure-the-index}
 
-必要なフィールドと組み込み関数を使用してスキーマを定義した後、コレクションのインデックスを設定します。このプロセスを簡略化するために、`index_type` として `AUTOINDEX` を使用できます。このオプションにより、Zilliz Cloud がデータ構造に基づいて最も適切なインデックスタイプを自動的に選択・設定します。
+必要なフィールドと組み込み関数を含むスキーマを定義した後、コレクションのインデックスを設定します。このプロセスを簡略化するために、<code>index_type</code> として `AUTOINDEX` を使用します。このオプションにより、Zilliz Cloud はデータの構造に基づいて最適なインデックスタイプを選択し、設定することができます。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -479,6 +512,17 @@ export indexParams='[
             }
         }
     ]'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto index_params = milvus::IndexDesc("sparse", "", milvus::IndxType::SPARSE_INVERTED_INDEX, milvus::MetricType::BM25);
+index_params.AddExtraParam("inverted_index_algo", "DAAT_MAXSCORE");
+index_params.AddExtraParam("bm25_k1", "1.2");
+index_params.AddExtraParam("bm25_b", "0.75");
 ```
 
 </TabItem>
@@ -588,11 +632,26 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
     \"indexParams\": $indexParams
 }"
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("my_collection")
+                                    .WithCollectionSchema(schema))
+                                    .AddIndex(std::move(index_params));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -667,6 +726,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "data": [
         {"text": "information retrieval is a field of study."},
@@ -676,6 +736,27 @@ curl --request POST \
     "collectionName": "my_collection"
 }'
 
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::EntityRows data = {
+    {{"text", "information retrieval is a field of study."}},
+    {{"text", "information retrieval focuses on finding relevant information in large datasets."}},
+    {{"text", "data mining and information retrieval overlap in research."}}
+};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -778,6 +859,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data-raw '{
     "collectionName": "my_collection",
     "data": [
@@ -792,6 +874,25 @@ curl --request POST \
         "params":{}
     }
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto request = milvus::SearchRequest()
+                       .WithCollectionName("my_collection")
+                       .AddEmbeddedText("whats the focus of information retrieval?")
+                       .WithLimit(3)
+                       .WithAnnsField("sparse")
+                       .AddOutputField("text");
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -866,22 +967,22 @@ client.search(
 )
 ```
 
-### 疎ベクトルフィールドを定義する必要があるのはなぜですか？アクセスできないのに\{#why-do-i-need-to-define-a-sparse-vector-field-if-i-cant-access-it}
+### なぜアクセスできないのに疎ベクトルフィールドを定義する必要があるのですか？\{#why-do-i-need-to-define-a-sparse-vector-field-if-i-cant-access-it}
 
-疎ベクトルフィールドは、ユーザーが直接操作しないデータベースのインデックスと同様に、内部的な検索インデックスとして機能します。
+疎ベクトルフィールドは、ユーザーが直接操作しないデータベースのインデックスと同様に、内部検索インデックスとして機能します。
 
 **設計思想**:
 
-- **関心の分離**: ユーザーはテキスト（入力/出力）を扱い、Milvus がベクトル（内部処理）を処理します。
+- 関心の分離: ユーザーはテキストを扱い（入出力）、Milvus はベクトルを処理します（内部処理）
 
-- **パフォーマンス**: 事前に計算された疎ベクトルにより、クエリ時に高速な BM25 ランキングが可能になります。
+- パフォーマンス: 事前計算された疎ベクトルにより、クエリ時の高速な BM25 ランキングが可能になります
 
-- **ユーザーエクスペリエンス**: 複雑なベクトル操作をシンプルなテキストインターフェースの背後に隠蔽します。
+- ユーザーエクスペリエンス: 複雑なベクトル操作をシンプルなテキストインターフェースの背後に抽象化します
 
 **ベクトルへのアクセスが必要な場合**:
 
-- フルテキスト検索ではなく、手動での疎ベクトル操作を使用してください。
+- 全文検索ではなく、手動の疎ベクトル操作を使用してください
 
-- カスタムの疎ベクトルワークフロー用に別のコレクションを作成してください。
+- カスタム疎ベクトルワークフロー用に別のコレクションを作成してください
 
-詳細については、[Sparse Vector](./use-sparse-vector) を参照してください。
+詳細については、[疎ベクトル](./use-sparse-vector) を参照してください。

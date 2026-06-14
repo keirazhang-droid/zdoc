@@ -11,7 +11,7 @@ notebook: FALSE
 description: "Zilliz Cloud allows you to insert entities with flexible, evolving structures through a special feature called the dynamic field. This field is implemented as a hidden JSON field named `$meta`, which automatically stores any fields in your data that are not explicitly defined in the collection schema. | BYOC"
 type: origin
 token: OVxRwZWxNi4pYrkdKxCcOuY2nf1
-sidebar_position: 13
+sidebar_position: 14
 keywords: 
   - zilliz
   - vector database
@@ -283,11 +283,40 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data "{
   \"collectionName\": \"my_collection\",
   \"schema\": $schema
 }"
 
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->SetEnableDynamicField(true);
+schema->AddField({"my_id", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("my_vector", milvus::DataType::FLOAT_VECTOR).WithDimension(5));
+
+status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("my_collection")
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -417,6 +446,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data '{
   "data": [
     {
@@ -435,6 +465,36 @@ curl --request POST \
   ],
   "collectionName": "my_collection"
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+milvus::EntityRows data = {
+    {
+        {"my_id", 1},
+        {"my_vector", std::vector<float>{0.1, 0.2, 0.3, 0.4, 0.5}},
+        {"overview", "Great product"},
+        {"words", 150},
+        {"dynamic_json", {
+                {"varchar", "some text"},
+                {"nested", {"value", 42.5}},
+                {"string_price", "99.99"},
+            }
+        }
+    }
+};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -714,6 +774,33 @@ export nestedIndex='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+milvus::IndexDesc overview_index("overview", "overview_index", milvus::IndexType::AUTOINDEX);
+overview_index.AddExtraParam("json_cast_type", "varchar");
+overview_index.AddExtraParam("json_path", "overview");
+
+milvus::IndexDesc words_index("words", "words_index", milvus::IndexType::AUTOINDEX);
+words_index.AddExtraParam("json_cast_type", "double");
+words_index.AddExtraParam("json_path", "words");
+
+milvus::IndexDesc json_nested_index("dynamic_json", "json_nested_index", milvus::IndexType::AUTOINDEX);
+json_nested_index.AddExtraParam("json_cast_type", "double");
+json_nested_index.AddExtraParam("json_path", "dynamic_json['nested']['value']");
+
+auto status = client->CreateIndex(milvus::CreateIndexRequest()
+                                     .WithCollectionName(collection_name)
+                                     .AddIndex(std::move(overview_index))
+                                     .AddIndex(std::move(words_index))
+                                     .AddIndex(std::move(json_nested_index)));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
 ### Use JSON cast functions for type conversion\{#use-json-cast-functions-for-type-conversion}
@@ -801,6 +888,18 @@ export stringPriceIndex='{
     "json_cast_function": "STRING_TO_DOUBLE"
   }
 }'
+
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+milvus::IndexDesc string_price_index("dynamic_json", "json_string_price_index", milvus::IndexType::AUTOINDEX);
+string_price_index.AddExtraParam("json_cast_type", "double");
+string_price_index.AddExtraParam("json_path", "dynamic_json['string_price']");
+string_price_index.AddExtraParam("json_cast_function", "STRING_TO_DOUBLE");
 
 ```
 
@@ -895,11 +994,28 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/indexes/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data "{
   \"collectionName\": \"my_collection\",
   \"indexParams\": $indexParams
 }"
 
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->CreateIndex(milvus::CreateIndexRequest()
+                                     .WithCollectionName(collection_name)
+                                     .AddIndex(std::move(overview_index))
+                                     .AddIndex(std::move(words_index))
+                                     .AddIndex(std::move(json_nested_index))
+                                     .AddIndex(std::move(string_price_index)));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -963,6 +1079,16 @@ filter := 'dynamic_json["nested"]["value"] < 50'
 export filter='overview == "Great product"'
 export filter='words >= 100'
 export filter='dynamic_json["nested"]["value"] < 50'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+std::string filter = R"(overview == "Great product")";
+std::string filter = R"(words >= 100)";
+std::string filter = R"(dynamic_json["nested"]["value"] < 50)";
 ```
 
 </TabItem>
@@ -1097,6 +1223,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data "{
   \"collectionName\": \"my_collection\",
   \"data\": [
@@ -1107,6 +1234,37 @@ curl --request POST \
   \"limit\": 5,
   \"outputFields\": [\"overview\", \"dynamic_json\"]
 }"
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+std::vector<float> query_vector = {0.1, 0.2, 0.3, 0.4, 0.5};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("my_vector")
+                   .WithLimit(5)
+                   .WithFilter(filter)
+                   .AddOutputField("overview")
+                   .AddOutputField("dynamic_json")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
 ```
 
 </TabItem>
@@ -1151,6 +1309,8 @@ You should define a field explicitly in the schema instead of using a dynamic fi
 - **You need full control over field behavior**: Explicit fields support schema-level constraints, validations, and clearer typing, which can be useful for managing data integrity and consistency.
 
 - **You want to avoid indexing inconsistencies**: Data in dynamic field keys is more prone to inconsistency in type or structure. Using a fixed schema helps ensure data quality, especially if you plan to use indexing or casting.
+
+If you decide that a dynamic field key should become an explicit scalar field in an existing collection, refer to [Alter Collection Schema](./add-fields-to-an-existing-collection). Existing collection-level dynamic field settings are managed through collection properties; for details, refer to [Modify Collection](./modify-collections).
 
 ### Can I create multiple indexes on the same dynamic field key with different data types?\{#can-i-create-multiple-indexes-on-the-same-dynamic-field-key-with-different-data-types}
 

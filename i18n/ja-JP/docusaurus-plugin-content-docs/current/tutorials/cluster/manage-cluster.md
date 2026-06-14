@@ -2,10 +2,10 @@
 title: "クラスターの管理 | Cloud"
 slug: /manage-cluster
 sidebar_key: manage-cluster
-sidebar_label: "クラスターの管理"
+sidebar_label: "クラスターを管理"
 beta: FALSE
 notebook: FALSE
-description: "このガイドでは、Zilliz Cloud コンソールを最大限に活用して目標を達成できるよう、クラスターのライフサイクルについて説明します。| Cloud"
+description: "このガイドでは、Zilliz Cloud コンソールを最大限に活用して目標を達成できるよう、クラスターのライフサイクルについて説明します。 | Cloud"
 type: origin
 token: PharwAysCiBzvgkuqqecmNzunQf
 sidebar_position: 3
@@ -80,7 +80,7 @@ curl --request POST \
 
 上記のコマンドでは、
 
-- `{API_KEY}`: API リクエストの認証に使用される資格情報。この値を独自のものに置き換えてください。
+- `{API_KEY}`: API リクエストの認証に使用される資格情報。値を自分のものに置き換えてください。
 
 - `{CLUSTER_ID}`: 一時停止する Dedicated クラスターの ID。
 
@@ -90,25 +90,25 @@ curl --request POST \
 
 </Tabs>
 
-一時停止操作が成功すると、ジョブレコードが生成されます。[ジョブ](./job-center) ページで進捗状況を確認できます。
+一時停止操作が成功すると、ジョブレコードが生成されます。[ジョブ](./job-center) ページで進捗を確認できます。
 
-### Resume\{#resume}
+### 再開\{#resume}
 
-Free クラスターは、7 日間非アクティブ状態が続くと自動的に一時停止され、いつでも再開できます。
+**Free クラスター** は **7 日間連続で非アクティブ** になると自動的に一時停止されますが、いつでも再開できます。非アクティブとは、クラスターに対する Web コンソールでの操作や API 操作（検索、クエリ、挿入、削除、SDK、RESTful API、gRPC リクエストなど）がない状態を指します。クラスターとのやり取りがあると、7 日間のタイマーがリセットされ、アクティブな状態が維持されます。
 
-Serverless クラスターは、一時停止および再開操作をサポートしていません。
+**Serverless クラスター** は、一時停止および再開操作をサポートしていません。
 
-一時停止された Dedicated クラスターも、必要に応じて手動で再開できます。
+**一時停止された Dedicated クラスター** も、必要に応じて手動で再開できます。
 
-なお、再開中はクラスターに対して他の操作を実行できません。
+再開中は、クラスターに対して他の操作を実行できないことに注意してください。
 
-クラスターは、Web コンソールまたはプログラム経由で再開できます。
+クラスターは、Web コンソールまたはプログラムで再開できます。
 
 <Tabs groupId="cluster" defaultValue="Cloud Console" values={[{"label":"Cloud Console","value":"Cloud Console"},{"label":"cURL","value":"Bash"}]}>
 
 <TabItem value="Cloud Console">
 
-対象のクラスターの**クラスターの詳細**ページに移動し、以下の手順に従ってクラスターを再開してください。
+ターゲットクラスターの **クラスターの詳細** ページに移動し、以下の指示に従ってクラスターを再開してください。
 
 <Supademo id="cm9tr2hze0t1j11m7ijth1pr5" title=""  />
 
@@ -116,9 +116,9 @@ Serverless クラスターは、一時停止および再開操作をサポート
 
 <TabItem value="Bash">
 
-リクエストは以下の例のようになり、`{API_KEY}` は認証に使用する API キーです。
+リクエストは次の例のようになります。`{API_KEY}` は認証に使用する API キーです。
 
-以下の `POST` リクエストはリクエストボディを受け取り、クラスターを再開します。
+次の `POST` リクエストはリクエストボディを受け取り、クラスターを再開します。
 
 ```bash
 curl --request POST \
@@ -136,11 +136,11 @@ curl --request POST \
 # }     
 ```
 
-上記のコマンドにおいて、
+上記のコマンドでは、
 
-- `{API_KEY}`: API リクエストの認証に使用される資格情報。この値を独自のものに置き換えてください。
+- `{API_KEY}`: API リクエストの認証に使用される認証情報です。値はご自身のものに置き換えてください。
 
-- `{CLUSTER_ID}`: 再開対象のクラスターの ID。
+- `{CLUSTER_ID}`: 再開するクラスターの ID です。
 
 詳細については、[クラスターの再開](/reference/restful/resume-cluster-v2) を参照してください。
 
@@ -148,11 +148,11 @@ curl --request POST \
 
 </Tabs>
 
-再開操作が成功すると、ジョブ記録が生成されます。進行状況は [ジョブ](./job-center) ページで確認できます。
+再開操作が成功すると、ジョブレコードが生成されます。進捗状況は [ジョブ](./job-center) ページで確認できます。
 
 ### デプロイメントオプションのアップグレード\{#upgrade-deployment-option}
 
-一部の機能は専用クラスターでのみ利用可能です。これらの機能を使用するには、クラスターのデプロイメントオプションをアップグレードすることをお勧めします。
+一部の機能は Dedicated クラスターにのみ限定されています。これらの機能を使用するには、クラスターのデプロイメントオプションをアップグレードすることをお勧めします。
 
 <table>
    <tr>
@@ -161,19 +161,19 @@ curl --request POST \
    </tr>
    <tr>
      <td><p>Free から Serverless へ</p></td>
-     <td><p>Free クラスターが Serverless デプロイメントオプションにアップグレードされます。一度アップグレードされると、ダウングレードすることはできません。</p></td>
+     <td><p>Free クラスターが Serverless デプロイメントオプションにアップグレードされます。クラスターがアップグレードされると、ダウングレードすることはできません。</p></td>
    </tr>
    <tr>
      <td><p>Free から Dedicated へ</p></td>
-     <td><p>新しい専用クラスターが作成され、既存の Free クラスターからのデータが自動的に移行されます。Free クラスターはそのまま残ります。</p><p>アプリケーションコード内のクラスターエンドポイントを更新することを忘れないでください。</p></td>
+     <td><p>新しい Dedicated クラスターが作成され、既存の Free クラスターからデータが自動的に移行されます。Free クラスターはそのまま残ります。</p><p>アプリケーションコード内のクラスターエンドポイントを更新することを忘れないでください。</p></td>
    </tr>
    <tr>
      <td><p>Serverless から Dedicated へ</p></td>
-     <td><p>新しい専用クラスターが作成され、既存の Serverless クラスターからのデータが自動的に移行されます。Serverless クラスターはそのまま残ります。</p><p>アプリケーションコード内のクラスターエンドポイントを更新することを忘れないでください。</p></td>
+     <td><p>新しい Dedicated クラスターが作成され、既存の Serverless クラスターからデータが自動的に移行されます。Serverless クラスターはそのまま残ります。</p><p>アプリケーションコード内のクラスターエンドポイントを更新することを忘れないでください。</p></td>
    </tr>
 </table>
 
-以下のデモでは、Free から Dedicated へのアップグレードを例として、クラスターのデプロイメントオプションをアップグレードする方法を示しています。
+次のデモでは、Free から Dedicated へのアップグレードを例に、クラスターのデプロイメントオプションをアップグレードする方法を説明します。
 
 <Supademo id="cmfnfgviq0il71d3n2up3lci1?utm_source=link" title=""  />
 
@@ -185,19 +185,19 @@ curl --request POST \
 
 ### グローバルクラスターへの変換\{#convert-to-a-global-cluster}
 
-既存の専用クラスターを [グローバルクラスター](./global-cluster-explained) に変換する必要がある場合は、以下の手順に従ってください。
+既存の Dedicated クラスターを [グローバルクラスター](./global-cluster-explained) に変換する必要がある場合は、以下の手順に従ってください。
 
 <Supademo id="cmm5p53sh3hogdtfhemesjhv0" title=""  />
 
 ### 削除\{#drop}
 
-クラスターが不要になった場合、それを削除できます。クラスターは Web コンソールまたはプログラム経由で削除できます。
+クラスターが不要になった場合は、削除することができます。クラスターは Web コンソールまたはプログラムで削除できます。
 
 <Tabs groupId="cluster" defaultValue="Cloud Console" values={[{"label":"Cloud Console","value":"Cloud Console"},{"label":"cURL","value":"Bash"}]}>
 
 <TabItem value="Cloud Console">
 
-対象クラスターの **クラスターの詳細** ページに移動し、以下の指示に従ってクラスターを削除してください。
+対象クラスターの **クラスターの詳細** ページに移動し、以下の手順に従ってクラスターを削除してください。
 
 <Supademo id="cm9trwi5n0txr11m7otr902sk" title=""  />
 
@@ -205,9 +205,9 @@ curl --request POST \
 
 <TabItem value="Bash">
 
-リクエストは以下の例のようになり、`{API_KEY}` は認証に使用する API キーです。
+リクエストは以下の例のようになります。ここで `{API_KEY}` は認証に使用する API キーです。
 
-以下の `DELETE` リクエストはリクエストボディを受け取り、クラスターを削除します。
+次の `DELETE` リクエストはリクエストボディを受け取り、クラスターを削除します。
 
 ```bash
 curl --request POST \
@@ -225,29 +225,29 @@ curl --request POST \
 # }     
 ```
 
-上記のコマンドにおいて、
+上記のコマンドでは、
 
-- `{API_KEY}`: API リクエストの認証に使用される資格情報。この値を独自のものに置き換えてください。
+- `{API_KEY}`: APIリクエストの認証に使用される認証情報です。値を独自のものに置き換えてください。
 
-- `{CLUSTER_ID}`: 削除する Dedicated クラスターの ID。
+- `{CLUSTER_ID}`: 削除するDedicatedクラスタのIDです。
 
-詳細については、[クラスターの削除](/reference/restful/drop-cluster-v2) を参照してください。
+詳細については、[クラスタの削除](/reference/restful/drop-cluster-v2) を参照してください。
 
 </TabItem>
 
 </Tabs>
 
-## オンデマンドクラスターの管理 ｜PUBLIC\{#manage-on-demand-cluster-public}
+## オンデマンドクラスタの管理 ｜PUBLIC\{#manage-on-demand-cluster-public}
 
-オンデマンドクラスターに対して以下の操作を実行できます。
+オンデマンドクラスタに対して以下の操作を実行できます。
 
 ### 削除\{#drop}
 
-- **RESTful API 経由**
+- **RESTful API経由**
 
     ```bash
     curl --request DELETE \
-         --url "https://${BASE_URL}/v2/clusters/onDemandClusters/in07-7d6ac8697204a6a" \
+         --url "https://${BASE_URL}/v2/clusters/onDemandClusters/inxx-xxxxxxxxxxxxxxx" \
          --header "Authorization: Bearer ${API_KEY}" \
          --header "Accept: application/json"
     ```

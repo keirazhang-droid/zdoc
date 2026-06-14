@@ -1,20 +1,20 @@
 ---
-title: "リソースプランニング | Cloud"
+title: "リソース計画 | Cloud"
 slug: /resource-planning
 sidebar_key: resource-planning
-sidebar_label: "リソースプランニング"
+sidebar_label: "リソース計画"
 beta: FALSE
 notebook: FALSE
-description: "データを Zilliz Cloud に移行する前のリソースプランニングに関するトピックです。| Cloud"
+description: "Zilliz Cloudにデータを移行する前のリソース計画に関するトピック。 | Cloud"
 type: origin
 token: NM2OwCcfVijX8DkNsIxcdajEnr7
-sidebar_position: 13
+sidebar_position: 14
 keywords: 
   - zilliz
   - ベクトルデータベース
   - クラウド
   - リソース
-  - プランニング
+  - 計画
 
 ---
 

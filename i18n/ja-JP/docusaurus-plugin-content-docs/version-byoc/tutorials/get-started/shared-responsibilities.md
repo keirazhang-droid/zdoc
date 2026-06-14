@@ -1,20 +1,20 @@
 ---
-title: "責任の共有 | BYOC"
+title: "共有責任 | BYOC"
 slug: /shared-responsibilities
 sidebar_key: shared-responsibilities
-sidebar_label: "責任の共有"
+sidebar_label: "共有責任"
 beta: CONTACT SALES
 notebook: FALSE
-description: "このページでは、クラウド管理、アップグレード、セキュリティ、アクセス制御、サービスの可用性、技術サポートに関連するタスクの分担を明確にし、安全かつ効率的な運用環境を維持しながら円滑な連携を実現するために、Zilliz Cloud と BYOC ユーザーのそれぞれの責任について説明します。| BYOC"
+description: "このページでは、Zilliz Cloud と BYOC ユーザーの責任を概説し、クラウド管理、アップグレード、セキュリティ、アクセス制御、サービスの可用性、テクニカルサポートに関するタスクの分担を明確にすることで、スムーズな連携を確保し、安全で効率的な運用環境を維持します。 | BYOC"
 type: origin
 token: QqtGwq7lSimnHJk6IuXcM9synWg
-sidebar_position: 15
+sidebar_position: 16
 keywords: 
-  - zilliz
-  - byoc
-  - milvus
+  - Zilliz
+  - BYOC
+  - Milvus
   - ベクトルデータベース
-  - 責任の共有
+  - 共有責任
 
 ---
 

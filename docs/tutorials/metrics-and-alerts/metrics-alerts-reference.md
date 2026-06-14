@@ -110,15 +110,15 @@ In this section, **Availability** refers to the project plan & deployment option
    </tr>
    <tr>
      <td><p>Query CU Computation (%)</p></td>
-     <td><p>A measure of the utilized computational power relative to the total computational capacity of the CU.</p></td>
+     <td><p>Measures how heavily query execution is using CPU resources. It is calculated from QueryNode CPU usage relative to its CPU limit.</p></td>
      <td><p>Dedicated / BYOC</p></td>
-     <td><blockquote>  <p>60%: Recommended to <a href="./manage-replica">scale out replica </a></p></blockquote></td>
+     <td><p>A sustained high value means query execution is CPU-bound. Zilliz Cloud may <a href="./manage-replica">scale out replicas</a> to increase parallel query processing capacity.</p></td>
    </tr>
    <tr>
-     <td><p>Query CU Capacity %</p></td>
-     <td><p>A measure of the used capacity relative to the total capacity of the CU.</p></td>
+     <td><p>Query CU Capacity (%)</p></td>
+     <td><p>Measures how close the current Query CU is to its capacity limit. It uses the higher of two signals: memory used by loaded data, and stored data size relative to the cluster storage quota.</p></td>
      <td><p>Dedicated / BYOC</p></td>
-     <td><blockquote>  <p>80%:  Recommended to <a href="./scale-query-cu">scale up query CU</a></p></blockquote></td>
+     <td><p>A sustained high value indicates that the current Query CU size may not have enough capacity. If auto scaling is enabled, Zilliz Cloud may <a href="./manage-replica">scale up query CU</a> to provide more capacity.</p></td>
    </tr>
    <tr>
      <td><p>Total Query CU (count)</p></td>
@@ -213,7 +213,7 @@ In this section, **Availability** refers to the project plan & deployment option
      <td><p>Number of Flush Operations (counts/min)</p></td>
      <td><p>The number of flush operations on a cluster.</p></td>
      <td><p>Dedicated (Enterprise or  Business Critical) / BYOC</p></td>
-     <td><p>Performing flush operations too frequently can negatively impact the overall performance of the cluster. For more information, refer to <a href="https://docs.cloud-uat3.zilliz.com/docs/limits#flush">Zilliz Cloud Limits</a>.</p></td>
+     <td><p>Performing flush operations too frequently can negatively impact the overall performance of the cluster. For more information, refer to <a href="./limits#flush">Zilliz Cloud Limits</a>.</p></td>
    </tr>
    <tr>
      <td><p>Cache Hit Rate (%)</p></td>

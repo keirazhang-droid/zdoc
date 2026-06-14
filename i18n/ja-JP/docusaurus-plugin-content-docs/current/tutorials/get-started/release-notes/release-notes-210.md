@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2023年8月16日） | Cloud"
+title: "リリースノート (2023年8月16日) | Cloud"
 slug: /release-notes-210
 sidebar_key: release-notes-210
 sidebar_label: "2023年8月16日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud のローンチを発表できることを嬉しく思います。このリリースには、拡張されたリージョンサポートや、移行やサーバーレスインスタンス管理などの使いやすさを向上させる機能を含む、さまざまな機能強化と新機能が含まれています。また、RESTful API に Bulk-insert と Dedicated Cluster サポートを追加しました。 | Cloud"
+description: "Zilliz Cloud のローンチを発表できることを大変嬉しく思います。今回のリリースには、リージョンサポートの拡大や、移行、サーバーレスインスタンス管理などのユーザビリティ機能の強化を含む、さまざまな拡張機能と新機能が含まれています。さらに、RESTful API に Bulk-insert および Dedicated Cluster のサポートを追加しました。 | Cloud"
 type: origin
 token: Ti5uwysf0iZhuyk4xvjcFmsSnhG
-sidebar_position: 29
+sidebar_position: 30
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

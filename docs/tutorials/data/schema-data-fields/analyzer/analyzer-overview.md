@@ -135,6 +135,17 @@ export analyzerParams='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "standard"},
+    {"stop_words",  {"a", "an", "for"}},
+};
+```
+
+</TabItem>
 </Tabs>
 
 To check the execution result of an analyzer, use the `run_analyzer` method:
@@ -221,10 +232,29 @@ export MILVUS_HOST="YOUR_CLUSTER_ENDPOINT"
 export TEXT_TO_ANALYZE="An efficient system relies on a robust analyzer to correctly process text for various applications."
 curl -X POST "http://${MILVUS_HOST}/v2/vectordb/common/run_analyzer" \
   -H "Content-Type: application/json" \
+  -H "Request-Timeout: 10" \
   -d '{
     "text": ["'"${TEXT_TO_ANALYZE}"'"],
     "analyzerParams": "{\"type\":\"standard\",\"stop_words\":[\"a\",\"an\",\"for\"]}"
   }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+std::string text = "An efficient system relies on a robust analyzer to correctly process text for various applications.";
+
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+auto status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -318,6 +348,17 @@ export analyzerParams='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "standard"},
+    {"filter", {"lowercase", {{"type", "stop"}, {"stop_words", {"a", "an", "for"}}}}},
+};
+```
+
+</TabItem>
 </Tabs>
 
 Zilliz Cloud offers the following built-in analyzers, each designed for specific text processing needs:
@@ -388,6 +429,16 @@ analyzerParams = map[string]any{"tokenizer": "whitespace"}
 export analyzerParams='{
        "type": "whitespace"
     }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "whitespace"}
+};
 ```
 
 </TabItem>
@@ -470,6 +521,13 @@ Filters in a custom analyzer can be either **built-in** or **custom**, depending
 
     </TabItem>
     </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "standard"},
+    {"filter", {"lowercase"}},
+};
+```
 
 - **Custom filters**: Custom filters allow for specialized configurations. You can define a custom filter by choosing a valid filter type (`filter.type`) and adding specific settings for each filter type. Examples of filter types that support customization:
 
@@ -678,6 +736,7 @@ export MILVUS_HOST="YOUR_CLUSTER_ENDPOINT"
 export MILVUS_TOKEN="YOUR_CLUSTER_TOKEN"
 curl -X POST "http://${MILVUS_HOST}/v2/vectordb/collections/create" \
   -H "Content-Type: application/json" \
+  -H "Request-Timeout: 10" \
   -H "Authorization: Bearer ${MILVUS_TOKEN}" \
   -d '{
     "collectionName": "my_collection",
@@ -687,6 +746,25 @@ curl -X POST "http://${MILVUS_HOST}/v2/vectordb/collections/create" \
       "enableDynamicField": false
     }
   }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->SetEnableDynamicField(false);
 ```
 
 </TabItem>
@@ -781,6 +859,7 @@ curl -X POST "http://${MILVUS_HOST}/v2/vectordb/collections/create" \
     export SAMPLE_TEXT="Milvus simplifies text analysis for search."
     curl -X POST "http://${MILVUS_HOST}/v2/vectordb/common/run_analyzer" \
       -H "Content-Type: application/json" \
+      -H "Request-Timeout: 10" \
       -d '{
         "text": ["'"${SAMPLE_TEXT}"'"],
         "analyzerParams": "{\"type\":\"english\"}"
@@ -789,6 +868,23 @@ curl -X POST "http://${MILVUS_HOST}/v2/vectordb/collections/create" \
 
     </TabItem>
     </Tabs>
+
+```c++
+nlohmann::json analyzer_params_built_in = {
+        {"type", "standard"}
+};
+
+std::string sample_text = "Milvus simplifies text analysis for search.";
+auto request = milvus::RunAnalyzerRequest()
+                   .AddText(sample_text)
+                   .WithAnalyzerParams(analyzer_params_built_in);
+
+milvus::RunAnalyzerResponse response;
+auto status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 1. **Configure and verify a custom analyzer:**
 
@@ -922,6 +1018,7 @@ curl -X POST "http://${MILVUS_HOST}/v2/vectordb/collections/create" \
     # 使用自定义分析器配置
     curl -X POST "http://${MILVUS_HOST}/v2/vectordb/common/run_analyzer" \
       -H "Content-Type: application/json" \
+      -H "Request-Timeout: 10" \
       -d '{
         "text": ["'"${SAMPLE_TEXT}"'"],
         "analyzerParams": "{\"tokenizer\":\"standard\",\"filter\":[\"lowercase\",{\"type\":\"length\",\"max\":40},{\"type\":\"stop\",\"stop_words\":[\"of\",\"for\"]}]}"
@@ -930,6 +1027,32 @@ curl -X POST "http://${MILVUS_HOST}/v2/vectordb/collections/create" \
 
     </TabItem>
     </Tabs>
+
+```c++
+nlohmann::json analyzer_params_custom = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        "lowercase", 
+        {{"type", "length"}, {"max", 40}},
+        {{"type", "stop"}, {"stop_words", {"of", "to"}}}
+    }},
+};
+
+const std::vector<std::string> texts = {
+        "Milvus provides flexible, customizable analyzers for robust text processing."
+};
+
+auto request = milvus::RunAnalyzerRequest()
+                       .WithTexts(text_content)
+                       .WithAnalyzerParams(analyzer_params_custom);
+
+milvus::RunAnalyzerResponse response;
+auto status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+```
 
 ### Step 3: Add analyzer to schema field\{#step-3-add-analyzer-to-schema-field}
 
@@ -1122,6 +1245,20 @@ export SCHEMA_CONFIG='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+schema->AddField({"id", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("title_en", milvus::DataType::VARCHAR).WithMaxLength(1000)
+                    .EnableAnalyzer(true).EnableMatch(true).WithAnalyzerParams(analyzer_params_built_in));
+schema->AddField(milvus::FieldSchema("title", milvus::DataType::VARCHAR).WithMaxLength(1000)
+                    .EnableAnalyzer(true).EnableMatch(true).WithAnalyzerParams(analyzer_params_custom));
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR).WithDimension(3));
+
+```
+
+</TabItem>
 </Tabs>
 
 ### Step 4: Prepare index parameters and create the collection\{#step-4-prepare-index-parameters-and-create-the-collection}
@@ -1214,11 +1351,31 @@ export INDEX_PARAMS='[{"fieldName": "embedding", "metricType": "COSINE", "indexT
 # restful
 curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create" \
   -H "Content-Type: application/json" \
+  -H "Request-Timeout: 10" \
   -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": ${SCHEMA_CONFIG},
     \"indexParams\": ${INDEX_PARAMS}
   }"
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("embedding", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("my_collection")
+                                    .WithIndexes(std::move(indexes))
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
 ```
 
 </TabItem>

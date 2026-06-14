@@ -1,18 +1,18 @@
 ---
-title: "リリースノート (2023年10月17日) | Cloud"
+title: "リリースノート (Oct 17, 2023) | Cloud"
 slug: /release-notes-230
 sidebar_key: release-notes-230
 sidebar_label: "2023年10月17日"
 beta: FALSE
 notebook: FALSE
-description: "AWS フランクフルトリージョン（EU）のローンチを発表いたします。この拡張に伴い、ベータ機能として Range Search、Upsert、およびコサイン メトリックタイプを導入し、検索機能とデータ管理の効率性を向上させました。その他の機能には、APIキーアクセス、生ベクトルの取得、JSONCONTAINS フィルター、およびエンティティ数が含まれます。また、RBAC、請求、料金計算、アカウント管理、およびサービス安定性の改善も実施し、ユーザー体験を向上させました。 | Cloud"
+description: "このたび、EU における AWS フランクフルトリージョンの立ち上げを発表できることを嬉しく思います。この拡張に伴い、ベータ機能として Range Search、Upsert、およびコサイン メトリックタイプを導入し、検索機能とデータ管理効率を向上させます。追加機能として、APIキーアクセス、生ベクトルの取得、JSONCONTAINSフィルター、エンティティ数が含まれます。また、RBAC、課金、料金計算、アカウント管理、サービスの安定性においても顕著な改善が実施され、ユーザーエクスペリエンスが向上しました。 | Cloud"
 type: origin
 token: MocQwCCItiHYEbkkJtOcROPTnod
-sidebar_position: 26
+sidebar_position: 27
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

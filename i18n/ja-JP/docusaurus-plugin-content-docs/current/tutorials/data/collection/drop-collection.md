@@ -5,15 +5,15 @@ sidebar_key: drop-collection
 sidebar_label: "削除"
 beta: FALSE
 notebook: FALSE
-description: "不要になったコレクションは削除できます。"
+description: "不要になったコレクションは削除できます。 | Cloud"
 type: origin
 token: DEUuwEwM4iMLOikU7XpcpNnKnGd
 sidebar_position: 12
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
+  - クラウド
+  - コレクション
   - 削除
   - フィルターによる削除
   - IDによる削除
@@ -30,7 +30,7 @@ import TabItem from '@theme/TabItem';
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>管理対象コレクションの削除ではコレクションとデータの両方が削除されますが、外部コレクションの削除ではコレクションのみが削除され、データはそのまま保持されます。</p>
+マネージドコレクションの削除とは異なり、外部コレクションの削除ではコレクションのみが削除され、データは保持されます。
 
 </Admonition>
 
@@ -153,6 +153,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/drop" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection"
 }'
@@ -164,5 +165,26 @@ curl --request POST \
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->DropCollection(milvus::DropCollectionRequest()
+                                    .WithCollectionName("my_collection"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+</Tabs>

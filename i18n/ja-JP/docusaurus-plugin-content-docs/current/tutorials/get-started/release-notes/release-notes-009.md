@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2022年12月5日） | Cloud"
+title: "リリースノート (2022年12月5日) | Cloud"
 slug: /release-notes-009
 sidebar_key: release-notes-009
 sidebar_label: "2022年12月5日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud の大幅なアップデートの一般提供を発表いたします。このリリースでは、Zilliz Cloud サービスの新しいコンソール、新しいクラウドリージョンのサポート、およびプライベートリンクによる安全なクラスターアクセスが導入されました。 | Cloud"
+description: "Zilliz Cloud の重要なアップデートの一般提供を発表できることを嬉しく思います。このリリースでは、Zilliz Cloud サービスの新しいコンソールの導入、新しいクラウドリージョンのサポート、プライベートリンクによる安全なクラスターアクセスが可能になります。 | Cloud"
 type: origin
 token: QZXVwFVH3i1p08kal8vcAmmxnie
-sidebar_position: 35
+sidebar_position: 36
 keywords: 
-  - zilliz
+  - Zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

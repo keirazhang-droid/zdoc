@@ -5,17 +5,17 @@ sidebar_key: manage-aliases
 sidebar_label: "エイリアス"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud では、エイリアスはコレクションの代替となる変更可能な名前です。エイリアスを使用することで、アプリケーションコードを変更することなくコレクションを動的に切り替える抽象化レイヤーを提供できます。これは、本番環境でのシームレスなデータ更新、A/B テスト、その他の運用タスクに特に有用です。 | BYOC"
+description: "Zilliz Cloud では、エイリアスはコレクションの二次的な可変名です。エイリアスを使用すると、アプリケーションコードを変更せずに動的にコレクションを切り替えることができる抽象化レイヤーが提供されます。これは、シームレスなデータ更新、A/Bテスト、その他の運用タスクのために本番環境で特に便利です。 | BYOC"
 type: origin
 token: OLn1wMgW0iceBlkuey2cBD91neb
 sidebar_position: 10
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - alias
-  - aliases
+  - クラウド
+  - コレクション
+  - エイリアス
+  - エイリアス
 
 ---
 
@@ -204,6 +204,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/aliases/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "aliasName": "bob",
     "collectionName": "my_collection_1"
@@ -218,6 +219,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/aliases/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "aliasName": "alice",
     "collectionName": "my_collection_1"
@@ -227,6 +229,36 @@ curl --request POST \
 #     "code": 0,
 #     "data": {}
 # }
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->CreateAlias(milvus::CreateAliasRequest()
+                                .WithCollectionName("my_collection_1")
+                                .WithAlias("bob"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->CreateAlias(milvus::CreateAliasRequest()
+                                .WithCollectionName("my_collection_1")
+                                .WithAlias("alice"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -323,6 +355,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/aliases/list" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{}'
 
 # {
@@ -332,6 +365,23 @@ curl --request POST \
 #         "alice"
 #     ]
 # }
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::ListAliasesResponse response;
+auto status = client->ListAliases(milvus::ListAliasesRequest()
+                                    .WithCollectionName("my_collection_1"),
+                                  response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+for (auto alias : response.Aliases()) {
+    std::cout << "\t" << alias << std::endl;
+}
 ```
 
 </TabItem>
@@ -438,6 +488,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/aliases/describe" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "aliasName": "bob"
 }'
@@ -450,6 +501,21 @@ curl --request POST \
 #         "dbName": "default"
 #     }
 # }
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::DescribeAliasResponse response;
+auto status = client->DescribeAlias(milvus::DescribeAliasRequest().WithAlias("bob"),
+                                    response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+std::cout << "Collection name: " << response.Desc().CollectionName() << std::endl;
+std::cout << "Database name: " << response.Desc().DatabaseName() << std::endl;
 ```
 
 </TabItem>
@@ -617,6 +683,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/aliases/alter" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "aliasName": "alice",
     "collectionName": "my_collection_2"
@@ -631,6 +698,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/aliases/describe" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "aliasName": "alice"
 }'
@@ -648,6 +716,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/aliases/describe" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "aliasName": "bob"
 }'
@@ -660,6 +729,42 @@ curl --request POST \
 #         "dbName": "default"
 #     }
 # }
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->AlterAlias(milvus::AlterAliasRequest()
+                                    .WithAlias("alice")
+                                    .WithCollectionName("my_collection_2"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::ListAliasesResponse response;
+status = client->ListAliases(milvus::ListAliasesRequest()
+                                .WithCollectionName("my_collection_2"),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+std::cout << "aliases of my_collection_2" << std::endl;
+for (auto alias : response.Aliases()) {
+    std::cout << "\t" << alias << std::endl;
+}
+
+status = client->ListAliases(milvus::ListAliasesRequest()
+                                .WithCollectionName("my_collection_1"),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+std::cout << "aliases of my_collection_1" << std::endl;
+for (auto alias : response.Aliases()) {
+    std::cout << "\t" << alias << std::endl;
+}
 ```
 
 </TabItem>
@@ -763,6 +868,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/aliases/drop" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "aliasName": "bob"
 }'
@@ -776,6 +882,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/aliases/drop" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "aliasName": "alice"
 }'
@@ -787,5 +894,20 @@ curl --request POST \
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='java'>
+
+```c++
+auto status = client->DropAlias(milvus::DropAliasRequest().WithAlias("bob"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->DropAlias(milvus::DropAliasRequest().WithAlias("alice"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+</Tabs>

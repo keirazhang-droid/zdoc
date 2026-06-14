@@ -152,6 +152,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/delete" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "filter": "color in [\"red_7025\", \"purple_4976\"]"
@@ -160,6 +161,27 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::DeleteResponse response;
+status = client->Delete(milvus::DeleteRequest()
+                            .WithCollectionName("quick_setup")
+                            .WithFilter("color in ['red_7025', 'purple_4976']"),
+                        response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ## Delete Entities by Primary Keys\{#delete-entities-by-primary-keys}
 
@@ -242,6 +264,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/delete" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "filter": "id in [18, 19]"
@@ -251,6 +274,17 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+milvus::DeleteResponse response;
+auto status = client->Delete(milvus::DeleteRequest()
+                                .WithCollectionName("quick_setup")
+                                .WithIDs(std::vector<int64_t>{18, 19}),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ## Delete Entities from Partitions\{#delete-entities-from-partitions}
 
@@ -336,6 +370,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/delete" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "partitionName": "partitionA",
@@ -352,3 +387,14 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+milvus::DeleteResponse response;
+auto status = client->Delete(milvus::DeleteRequest()
+                                .WithCollectionName("quick_setup")
+                                .AddPartitionName("partitionA")
+                                .WithIDs(std::vector<int64_t>{18, 19}),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```

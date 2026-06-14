@@ -1,24 +1,24 @@
 ---
-title: "フィルタテンプレート | Cloud"
+title: "フィルターテンプレート | Cloud"
 slug: /filtering-templating
 sidebar_key: filtering-templating
 sidebar_label: "テンプレート"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud では、特に CJK 文字などの非 ASCII 文字を含む多数の要素からなる複雑なフィルタ式は、クエリパフォーマンスに大きな影響を与える可能性があります。これに対処するため、Zilliz Cloud は複雑な式のパースにかかる時間を削減し、効率を向上させるフィルタ式のテンプレートメカニズムを導入しました。このページでは、検索、クエリ、および削除操作におけるフィルタ式テンプレートの使用方法について説明します。 | Cloud"
+description: "Zilliz Cloud では、多くの要素を含む複雑なフィルター式、特にCJK文字のような非ASCII文字を含む場合、クエリのパフォーマンスに大きな影響を与える可能性があります。これに対処するため、Zilliz Cloud はフィルター式テンプレート化メカニズムを導入し、複雑な式の解析に要する時間を削減して効率を向上させます。このページでは、検索、クエリ、および削除操作でのフィルター式テンプレートの使用方法について説明します。 | Cloud"
 type: origin
 token: TumJwDYrhiDYcUkKsUIcuSnbnCf
-sidebar_position: 3
+sidebar_position: 4
 keywords: 
-  - zilliz
+  - Zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - data
-  - filter
-  - filtering expressions
-  - filtering
-  - filtering templating
+  - クラウド
+  - コレクション
+  - データ
+  - フィルター
+  - フィルター式
+  - フィルタリング
+  - フィルタリングテンプレート
 
 ---
 
@@ -63,7 +63,7 @@ res = client.search(
     filter=expr,
     limit=10,
     output_fields=["age", "city"],
-    search_params={"metric_type": "COSINE", "params": {"search_list": 100}},
+    search_params={"params": {"search_list": 100}},
     filter_params=filter_params,
 )
 ```
@@ -103,6 +103,32 @@ res = client.delete(
 
 このアプローチにより、特に複雑なフィルター条件を扱う場合に、削除操作のパフォーマンスが向上します。
 
-## 結論\{#conclusion}
+## Regex filter templates\{#regex-filter-templates}
 
-フィルター式のテンプレート化は、Zilliz Cloud におけるクエリパフォーマンスの最適化に不可欠なツールです。プレースホルダーと `filter_params` 辞書を使用することで、複雑なフィルター式のパースにかかる時間を大幅に削減できます。これにより、クエリ実行が高速化され、全体的なパフォーマンスが向上します。
+フィルター式のテンプレートを正規表現フィルターと一緒に使用することができます。これは、リクエスト時に正規表現パターンが提供される場合に便利です。
+
+```python
+expr = "message =~ {pattern}"
+filter_params = {"pattern": "E[0-9]{4}"}
+res = client.query(
+    "hello_milvus",
+    filter=expr,
+    output_fields=["message"],
+    filter_params=filter_params,
+)
+```
+
+テンプレートパラメーターを `!~` と一緒に使用することもできます:
+
+```python
+expr = "message !~ {pattern}"
+filter_params = {"pattern": "^DEBUG"}
+```
+
+テンプレート値は、有効な RE2 正規表現パターンを含む文字列でなければなりません。Zilliz Cloud は、フィルターを実行する前にパターンを検証します。
+
+フィルターテンプレートは、正規表現パターンをフィルター式に連結するのではなく、値として渡します。これにより、式の解析オーバーヘッドが軽減され、パターンに引用符や演算子が含まれている場合に誤ってフィルター構造が変更されるのを防ぎます。
+
+## Conclusion\{#conclusion}
+
+フィルター式のテンプレート化は、Zilliz Cloud でのクエリパフォーマンスを最適化するための必須ツールです。プレースホルダーと `filter_params` 辞書を使用することで、複雑なフィルター式の解析にかかる時間を大幅に削減できます。これにより、クエリの実行速度が向上し、全体的なパフォーマンスが向上します。

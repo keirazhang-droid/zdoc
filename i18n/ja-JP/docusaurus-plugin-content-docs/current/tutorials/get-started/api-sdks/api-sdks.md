@@ -1,14 +1,14 @@
 ---
-title: "API & SDK | Cloud"
+title: "API と SDK | Cloud"
 slug: /api-sdks
 sidebar_key: api-sdks
-sidebar_label: "API & SDK"
+sidebar_label: "API と SDK"
 beta: FALSE
 notebook: FALSE
-description: "この章では、RESTful API および SDK の使用方法やインストール手順、ならびにそれらのリファレンスドキュメントへのアクセス方法について説明します。| Cloud"
+description: "この章では、RESTful API と SDK の使用またはインストール手順と、それらのリファレンスドキュメントにアクセスできます。 | Cloud"
 type: origin
 token: Ecwpw6cImiFV0gkkusgcQhvBnLe
-sidebar_position: 16
+sidebar_position: 17
 keywords: 
   - zilliz
   - milvus

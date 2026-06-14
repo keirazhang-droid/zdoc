@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2025年6月9日） | Cloud"
+title: "リリースノート (2025年6月9日) | Cloud"
 slug: /release-notes-2170
 sidebar_key: release-notes-2170
 sidebar_label: "2025年6月9日"
 beta: FALSE
 notebook: FALSE
-description: "このリリースでは、Zilliz Cloud の複数の機能において、より洗練され直感的なユーザー体験を提供します。再設計された移行コンソール、ポリシーベースのアラート、改善された mmap コントロールなど、ワークフローをより高速で柔軟かつ管理しやすくすることに焦点を当てています。新しい AI アシスタント機能と GCP 上の BYOC サポートにより、インフラストラクチャの管理、環境の監視、サポートの取得など、あらゆる場面でプラットフォームの機能性と使いやすさがさらに拡張されます。 | Cloud"
+description: "このリリースでは、Zilliz Cloudの複数の機能にわたって、より洗練された直感的なユーザーエクスペリエンスを提供します。再設計された移行コンソールからポリシーベースのアラート、改善されたmmapコントロールまで、ワークフローをより迅速、柔軟、かつ管理しやすくすることに重点を置いています。新しいAIアシスタント機能とGCP上でのBYOCサポートは、インフラの管理、環境の監視、サポートの利用など、どのような場面でもプラットフォームのパワーと使いやすさをさらに拡張します。 | Cloud"
 type: origin
 token: DF8HwUTD6iScNQkVzs8cZTr8n8b
-sidebar_position: 11
+sidebar_position: 12
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

@@ -1,21 +1,21 @@
 ---
-title: "Analyzer | Cloud"
+title: "アナライザー | Cloud"
 slug: /analyzer
 sidebar_key: analyzer
-sidebar_label: "Analyzer"
+sidebar_label: "アナライザー"
 beta: FALSE
 notebook: FALSE
-description: "テキスト処理において、Analyzer は生テキストを検索可能な構造化形式に変換する重要なコンポーネントです。各 Analyzer は通常、Tokenizer と Filter という 2 つのコア要素で構成されています。これらが連携して入力テキストをトークンに変換し、トークンを精査することで、効率的なインデックス作成と検索の準備を行います。この章では、Zilliz Cloud での Analyzer の使用方法について詳しく説明します。"
+description: "テキスト処理において、アナライザーは生のテキストを構造化された検索可能な形式に変換する重要なコンポーネントです。通常、各アナライザーはトークナイザーとフィルターの2つのコア要素で構成されます。これらが連携して入力テキストをトークンに変換し、それらのトークンを精製して、効率的なインデックス作成と検索に備えます。この章では、Zilliz Cloud でアナライザーを使用する方法について詳しく説明します。 | Cloud"
 type: origin
 token: Cou4wUDwti8G0FkibG4cFNRNnre
-sidebar_position: 16
+sidebar_position: 17
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
 
 ---
 

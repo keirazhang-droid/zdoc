@@ -5,21 +5,21 @@ sidebar_key: voyage-ai
 sidebar_label: "Voyage AI"
 beta: FALSE
 notebook: FALSE
-description: "このトピックでは、Milvus で Voyage AI 埋め込み関数を設定し使用する方法について説明します。 | Cloud"
+description: "このトピックでは、MilvusでVoyage AIの埋め込み関数を設定し使用する方法について説明します。 | Cloud"
 type: origin
 token: P4KNwDdqaivEZFk7RpOcYeyhn2N
 sidebar_position: 7
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - function
-  - model
-  - inference
-  - text
-  - embedding
+  - クラウド
+  - 関数
+  - モデル
+  - 推論
+  - テキスト
+  - 埋め込み
   - voyage
-  - ai
+  - AI
 
 ---
 
@@ -33,7 +33,7 @@ import TabItem from '@theme/TabItem';
 
 ## モデルの選択\{#model-choices}
 
-Milvus は Voyage AI が提供する埋め込みモデルをサポートしています。以下は現在利用可能な埋め込みモデルの一覧です（参考用）：
+Milvus は、Voyage AI が提供する埋め込みモデルをサポートしています。現在利用可能な埋め込みモデルを以下に示します。
 
 <table>
    <tr>
@@ -44,105 +44,105 @@ Milvus は Voyage AI が提供する埋め込みモデルをサポートして�
    </tr>
    <tr>
      <td><p><code>voyage-4-large</code></p></td>
-     <td><p>1024 (デフォルト), 256, 512, 2048</p></td>
+     <td><p>1024（デフォルト）、256、512、2048</p></td>
      <td><p>32,000</p></td>
-     <td><p>汎用的かつ多言語対応の検索品質に最適化されています。4 シリーズで作成されたすべての埋め込みは相互互換性があります。詳細については、<a href="https://blog.voyageai.com/2026/01/15/voyage-4/">ブログ記事</a>をご参照ください。</p></td>
+     <td><p>最高の汎用・多言語検索品質。4 シリーズで作成されたすべての埋め込みは互換性があります。詳細については、<a href="https://blog.voyageai.com/2026/01/15/voyage-4/">ブログ記事</a>を参照してください。</p></td>
    </tr>
    <tr>
      <td><p><code>voyage-4</code></p></td>
-     <td><p>1024 (デフォルト), 256, 512, 2048</p></td>
+     <td><p>1024（デフォルト）、256、512、2048</p></td>
      <td><p>32,000</p></td>
-     <td><p>汎用的かつ多言語対応の検索品質に最適化されています。4 シリーズで作成されたすべての埋め込みは相互互換性があります。詳細については、<a href="https://blog.voyageai.com/2026/01/15/voyage-4/">ブログ記事</a>をご参照ください。</p></td>
+     <td><p>汎用・多言語検索品質に最適化。4 シリーズで作成されたすべての埋め込みは互換性があります。詳細については、<a href="https://blog.voyageai.com/2026/01/15/voyage-4/">ブログ記事</a>を参照してください。</p></td>
    </tr>
    <tr>
      <td><p><code>voyage-4-lite</code></p></td>
-     <td><p>1024 (デフォルト), 256, 512, 2048</p></td>
+     <td><p>1024（デフォルト）、256、512、2048</p></td>
      <td><p>32,000</p></td>
-     <td><p>レイテンシとコストを最適化しています。4 シリーズで作成されたすべての埋め込みは相互互換性があります。詳細については、<a href="https://blog.voyageai.com/2026/01/15/voyage-4/">ブログ記事</a>をご参照ください。</p></td>
+     <td><p>レイテンシーとコストに最適化。4 シリーズで作成されたすべての埋め込みは互換性があります。詳細については、<a href="https://blog.voyageai.com/2026/01/15/voyage-4/">ブログ記事</a>を参照してください。</p></td>
    </tr>
    <tr>
      <td><p>voyage-3-large</p></td>
-     <td><p>1,024 (デフォルト), 256, 512, 2,048</p></td>
+     <td><p>1,024（デフォルト）、256、512、2,048</p></td>
      <td><p>32,000</p></td>
-     <td><p>汎用的かつ多言語対応の検索品質に最適化されています。</p></td>
+     <td><p>最高の汎用・多言語検索品質。</p></td>
    </tr>
    <tr>
      <td><p>voyage-3</p></td>
      <td><p>1,024</p></td>
      <td><p>32,000</p></td>
-     <td><p>汎用的かつ多言語対応の検索品質に最適化されています。詳細については、<a href="https://blog.voyageai.com/2024/09/18/voyage-3/">ブログ記事</a>をご参照ください。</p></td>
+     <td><p>汎用・多言語検索品質に最適化。詳細については、<a href="https://blog.voyageai.com/2024/09/18/voyage-3/">ブログ記事</a>を参照してください。</p></td>
    </tr>
    <tr>
      <td><p>voyage-3-lite</p></td>
      <td><p>512</p></td>
      <td><p>32,000</p></td>
-     <td><p>レイテンシとコストを最適化しています。詳細については、<a href="https://blog.voyageai.com/2024/09/18/voyage-3/">ブログ記事</a>をご参照ください。</p></td>
+     <td><p>レイテンシーとコストに最適化。詳細については、<a href="https://blog.voyageai.com/2024/09/18/voyage-3/">ブログ記事</a>を参照してください。</p></td>
    </tr>
    <tr>
      <td><p>voyage-code-3</p></td>
-     <td><p>1,024 (デフォルト), 256, 512, 2,048</p></td>
+     <td><p>1,024（デフォルト）、256、512、2,048</p></td>
      <td><p>32,000</p></td>
-     <td><p>コード検索に最適化されています。詳細については、<a href="https://blog.voyageai.com/2024/12/04/voyage-code-3/">ブログ記事</a>をご参照ください。</p></td>
+     <td><p>コード検索に最適化。詳細については、<a href="https://blog.voyageai.com/2024/12/04/voyage-code-3/">ブログ記事</a>を参照してください。</p></td>
    </tr>
    <tr>
      <td><p>voyage-finance-2</p></td>
      <td><p>1,024</p></td>
      <td><p>32,000</p></td>
-     <td><p>金融分野の検索および RAG に最適化されています。詳細については、<a href="https://blog.voyageai.com/2024/06/03/domain-specific-embeddings-finance-edition-voyage-finance-2/">ブログ記事</a>をご参照ください。</p></td>
+     <td><p>金融検索とRAGに最適化。詳細については、<a href="https://blog.voyageai.com/2024/06/03/domain-specific-embeddings-finance-edition-voyage-finance-2/">ブログ記事</a>を参照してください。</p></td>
    </tr>
    <tr>
      <td><p>voyage-law-2</p></td>
      <td><p>1,024</p></td>
      <td><p>16,000</p></td>
-     <td><p>法務分野の検索および RAG に最適化されています。また、全ドメインでのパフォーマンスも向上しています。詳細については、<a href="https://blog.voyageai.com/2024/04/15/domain-specific-embeddings-and-retrieval-legal-edition-voyage-law-2/">ブログ記事</a>をご参照ください。</p></td>
+     <td><p>法律検索とRAGに最適化。すべてのドメインでパフォーマンスが向上。詳細については、<a href="https://blog.voyageai.com/2024/04/15/domain-specific-embeddings-and-retrieval-legal-edition-voyage-law-2/">ブログ記事</a>を参照してください。</p></td>
    </tr>
    <tr>
      <td><p>voyage-code-2</p></td>
      <td><p>1,536</p></td>
      <td><p>16,000</p></td>
-     <td><p>コード検索に最適化されています（他社製品比で 17% 向上）／前世代のコード埋め込みモデルです。詳細については、<a href="https://blog.voyageai.com/2024/01/23/voyage-code-2-elevate-your-code-retrieval/">ブログ記事</a>をご参照ください。</p></td>
+     <td><p>コード検索に最適化（代替品より17%改善）/ 前世代のコード埋め込み。詳細については、<a href="https://blog.voyageai.com/2024/01/23/voyage-code-2-elevate-your-code-retrieval/">ブログ記事</a>を参照してください。</p></td>
    </tr>
 </table>
 
-詳細については、[Text embedding models](https://docs.voyageai.com/reference/embeddings-api) を参照してください。
+詳細については、[テキスト埋め込みモデル](https://docs.voyageai.com/reference/embeddings-api)を参照してください。
 
 ## 始める前に\{#before-you-start}
 
-テキスト埋め込み関数を使用する前に、以下の前提条件を満たしていることを確認してください。
+テキスト埋め込み関数を使用する前に、次の前提条件を満たしていることを確認してください。
 
 - **埋め込みモデルを選択**
 
-    使用する埋め込みモデルを決定してください。この選択により、埋め込みの動作と出力形式が決まります。詳細については、[埋め込みモデルを選択](./voyage-ai#model-choices) を参照してください。
+    使用する埋め込みモデルを決定します。この選択により、埋め込みの動作と出力形式が決まります。詳細については、[埋め込みモデルを選択](./voyage-ai#model-choices)を参照してください。
 
-- **Voyage AI との連携と統合IDの取得**
+- **Voyage AI と統合し、統合IDを取得**
 
-    Voyage AI の埋め込みモデルを使用するには、事前に Voyage AI とのモデルプロバイダー連携を作成し、統合IDを取得する必要があります。詳細については、[モデルプロバイダーとの連携](./integrate-with-model-providers) を参照してください。
+    Voyage AI とのモデルプロバイダー連携を作成し、統合IDを取得する必要があります。詳細については、[モデルプロバイダーとの統合](./integrate-with-model-providers)を参照してください。
 
-- **互換性のあるコレクションスキーマの設計**
+- **互換性のあるコレクションスキーマを設計**
 
-    コレクションスキーマには以下のフィールドを含めるように計画してください：
+    コレクションスキーマを計画し、以下を含める必要があります。
 
-    - 生の入力テキストを格納するテキストフィールド（`VARCHAR`）
+    - 生の入力テキスト用のテキストフィールド（`VARCHAR`）
 
-    - 選択した埋め込みモデルのデータ型および次元数に一致する密ベクトルフィールド
+    - 選択した埋め込みモデルにデータ型と次元数が一致する密ベクトルフィールド
 
-- **挿入時および検索時に生テキストを扱う準備**
+- **挿入時と検索時に生テキストを扱う準備**
 
     テキスト埋め込み関数を有効にすると、生テキストを直接挿入およびクエリできます。埋め込みはシステムによって自動的に生成されます。
 
-## ステップ 1: テキスト埋め込み関数付きのコレクションを作成\{#step-1-create-a-collection-with-a-text-embedding-function}
+## ステップ1：テキスト埋め込み関数を使用したコレクションの作成\{#step-1-create-a-collection-with-a-text-embedding-function}
 
 ### スキーマフィールドの定義\{#define-schema-fields}
 
-埋め込み関数を使用するには、特定のスキーマを持つコレクションを作成する必要があります。このスキーマには、少なくとも以下の 3 つの必須フィールドを含める必要があります：
+埋め込み関数を使用するには、特定のスキーマを持つコレクションを作成します。このスキーマには、少なくとも次の3つの必須フィールドが含まれている必要があります。
 
-- コレクション内の各エンティティを一意に識別する主キーとなるフィールド
+- コレクション内の各エンティティを一意に識別するプライマリフィールド。
 
-- 埋め込み対象の生データを格納する `VARCHAR` フィールド
+- 埋め込む生データを格納する`VARCHAR`フィールド。
 
-- テキスト埋め込み関数が `VARCHAR` フィールドに対して生成する密ベクトル埋め込みを格納するためのベクトルフィールド
+- テキスト埋め込み関数が`VARCHAR`フィールドに対して生成する密ベクトル埋め込みを格納するために予約されたベクトルフィールド。
 
-以下の例では、テキストデータを格納する `VARCHAR` フィールド `"document"` と、テキスト埋め込み関数によって生成される密ベクトル埋め込みを格納するベクトルフィールド `"dense"` を持つスキーマを定義しています。選択した埋め込みモデルの出力に合わせて、ベクトルの次元数（`dim`）を正しく設定することを忘れないでください。
+次の例では、テキストデータを格納する`VARCHAR`フィールド`"document"`と、テキスト埋め込み関数が生成する密ベクトル埋め込みを格納するベクトルフィールド`"dense"`を持つスキーマを定義しています。ベクトル次元数（`dim`）は、選択した埋め込みモデルの出力に一致するように設定してください。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -238,6 +238,28 @@ schema.addField(AddFieldReq.builder()
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("document", milvus::DataType::VARCHAR).WithMaxLength(9000));
+schema->AddField(milvus::FieldSchema("dense", milvus::DataType::FLOAT_VECTOR).WithDimension(1024));
+
+```
+
+</TabItem>
 </Tabs>
 
 ### テキスト埋め込み関数を定義する\{#define-the-text-embedding-function}
@@ -320,6 +342,22 @@ schema.addFunction(function);
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::FunctionPtr function = std::make_shared<milvus::Function>("voya", milvus::FunctionType::TEXTEMBEDDING);
+function->AddInputFieldName("document");
+function->AddOutputFieldName("dense");
+function->AddParam("provider", "voyageai");
+function->AddParam("model_name", "voyage-3-large");
+
+function->AddParam("integration_id", "YOUR_INTEGRATION_ID");
+
+collection_schema->AddFunction(function);
+```
+
+</TabItem>
 </Tabs>
 
 ### インデックスの設定\{#configure-the-index}
@@ -381,6 +419,17 @@ indexes.add(IndexParam.builder()
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("dense", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+
+```
+
+</TabItem>
 </Tabs>
 
 ### コレクションの作成\{#create-the-collection}
@@ -436,6 +485,20 @@ client.createCollection(requestCreate);
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("demo")
+                                    .WithIndexes(std::move(indexes))
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -501,6 +564,27 @@ client.insert(InsertReq.builder()
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::EntityRows data = {
+    {{"id", 1}, {"document", "Milvus simplifies semantic search through embeddings."}},
+    {{"id", 2}, {"document", "Vector embeddings convert text into searchable numeric data."}},
+    {{"id", 3}, {"document", "Semantic search helps users find relevant information quickly."}}
+};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("demo")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -574,5 +658,23 @@ for (List<SearchResp.SearchResult> results : searchResults) {
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='java'>
+
+```c++
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("demo")
+                   .AddEmbeddedText("How does Milvus handle semantic search?")
+                   .WithLimit(1)
+                   .WithAnnsField("dense")
+                   .AddOutputField("document");
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+</Tabs>

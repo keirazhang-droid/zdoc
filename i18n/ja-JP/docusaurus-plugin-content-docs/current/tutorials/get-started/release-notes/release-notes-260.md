@@ -5,14 +5,14 @@ sidebar_key: release-notes-260
 sidebar_label: "2024年3月13日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud は最新リリースで2つの主要な機能強化を導入しました。まず、Pipelines が6つの最先端（SOTA）エンベディングモデルをサポートするようになり、データ処理能力が拡張されました。もう1つの主要な機能強化は、Collection Playground 機能の追加です。これにより、オンボーディング体験が簡略化されます。この機能を使用すると、Zilliz Cloud コンソールから直接基本的な作成、実行、更新、削除（CRUD）操作を簡単に実行できるため、データ操作プロセスがより効率化されます。これらの新機能を今すぐ試して、より効率的で効果的なワークフローを体験してください。 | Cloud"
+description: "Zilliz Cloudの最新リリースでは、2つの主要な拡張機能が導入されました。まず、Pipelinesが6つの最先端（SOTA）埋め込みモデルをサポートするようになり、データ処理能力が拡大しました。もう1つの主要な拡張機能は、オンボーディング体験を簡素化するCollection Playground機能が追加されたことです。この機能により、Zilliz Cloudコンソールから直接、基本的な作成、実行、更新、削除（CRUD）操作を簡単に実行でき、データ操作プロセスがより効率的になります。これらの新機能を今すぐ試して、より効率的で効果的なワークフローをお楽しみください。 | Cloud"
 type: origin
 token: NmolwVTkCiQ2yZkXsJhcftyTnhc
-sidebar_position: 23
+sidebar_position: 24
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

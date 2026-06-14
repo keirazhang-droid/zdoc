@@ -31,17 +31,15 @@ import Supademo from '@site/src/components/Supademo';
 
 This guide describes the lifecycle of a cluster so that you can make full use of your Zilliz Cloud console to achieve your goals.
 
-## Manage serving cluster\{#manage-serving-cluster}
+You can perform the following operations on a Dedicated cluster.
 
-You can perform the following operations on a serving cluster.
-
-### Rename\{#rename}
+## Rename\{#rename}
 
 Navigate to the **Cluster Details** page of your target cluster and then follow the instructions below to rename your cluster.
 
 <Supademo id="cm9tp57ye0ri911m7ljrn1yg6" title=""  />
 
-### Suspend\{#suspend}
+## Suspend\{#suspend}
 
 You can suspend a cluster via the web console or programmatically.
 
@@ -91,7 +89,7 @@ For details, refer to [Suspend Cluster](/reference/restful/suspend-cluster-v2).
 
 Once the suspend operation is successful, a job record will be generated. You can check the progress on the [Jobs](./job-center) page.
 
-### Resume\{#resume}
+## Resume\{#resume}
 
 Please note that during resuming, you cannot perform other actions on the cluster.
 
@@ -155,7 +153,7 @@ For details, refer to [Resume Cluster](/reference/restful/resume-cluster-v2).
 
 Once the resume operation is successful, a job record will be generated. You can check the progress on the [Jobs](./job-center) page.
 
-### Drop\{#drop}
+## Drop\{#drop}
 
 When a cluster is no longer needed, you can drop it. You can drop a cluster via the web console or programatically.
 
@@ -186,7 +184,7 @@ curl --request POST \
 #     "code": 0,
 #     "data": {
 #         "clusterId": "inxx-xxxxxxxxxxxxxxx",
-#         "prompt": "The cluster has been deleted. If you consider this action to be an error, you have the option to restore the deleted cluster from the recycle bin within a 30-day period. Kindly note, this recovery feature does not apply to free clusters."
+#         "prompt": "The cluster has been deleted. If you consider this action to be an error, you have the option to restore the deleted cluster from the recycle bin within a 30-day period."
 #     }
 # }     
 ```
@@ -202,21 +200,4 @@ For details, refer to [Drop Cluster](/reference/restful/drop-cluster-v2).
 </TabItem>
 
 </Tabs>
-
-## Manage on-demand cluster ｜PUBLIC\{#manage-on-demand-cluster-public}
-
-You can perform the following operations on an on-demand cluster.
-
-### Drop\{#drop}
-
-- **Via RESTful API**
-
-    ```bash
-    curl --request DELETE \
-         --url "https://${BASE_URL}/v2/clusters/onDemandClusters/in07-7d6ac8697204a6a" \
-         --header "Authorization: Bearer ${API_KEY}" \
-         --header "Accept: application/json"
-    ```
-
-- **Via web console**
 

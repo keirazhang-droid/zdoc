@@ -5,19 +5,19 @@ sidebar_key: regex-filter
 sidebar_label: "正規表現"
 beta: FALSE
 notebook: FALSE
-description: "`regex` フィルターは正規表現フィルターであり、トークナイザーによって生成されたトークンのうち、指定した式に一致するもののみが保持され、それ以外は破棄されます。| Cloud"
+description: "`regex` フィルターは正規表現フィルターで、トークナイザーが生成したトークンのうち、指定した正規表現に一致するものだけを保持し、それ以外は破棄します。| Cloud"
 type: origin
 token: AwmtwHGQii1j9Wk1W04cNxvBnth
 sidebar_position: 11
 keywords: 
-  - zilliz
+  - Zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
   - 組み込みフィルター
-  - regex
+  - 正規表現
 
 ---
 
@@ -92,7 +92,16 @@ analyzerParams = map[string]any{"tokenizer": "standard",
 </TabItem>
 </Tabs>
 
-`regex` フィルターは、以下の設定可能なパラメーターを受け入れます。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {{"type", "regex"}, {"expr", "^(?!test)"}}
+    }}
+};
+```
+
+`regex`フィルターは、以下の設定可能なパラメーターを受け入れます。
 
 <table>
    <tr>
@@ -101,19 +110,19 @@ analyzerParams = map[string]any{"tokenizer": "standard",
    </tr>
    <tr>
      <td><p><code>expr</code></p></td>
-     <td><p>各トークンに適用される正規表現パターン。このパターンに一致するトークンは保持され、一致しないトークンは破棄されます。</p><p>正規表現の構文の詳細については、<a href="https://docs.rs/regex/latest/regex/#syntax">Syntax</a> を参照してください。</p></td>
+     <td><p>各トークンに適用される正規表現パターン。一致したトークンは保持され、一致しなかったものは削除されます。</p><p>正規表現の構文の詳細については、<a href="https://docs.rs/regex/latest/regex/#syntax">構文</a>を参照してください。</p></td>
    </tr>
 </table>
 
-`regex` フィルターはトークナイザーによって生成された語彙項（term）に対して動作するため、トークナイザーと組み合わせて使用する必要があります。
+`regex`フィルターは、トークナイザーによって生成されたトークンに対して動作するため、トークナイザーと組み合わせて使用する必要があります。
 
-`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` 型フィールドにそれを適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化およびフィルタリングを実現します。詳細については、[Example use](./analyzer-overview#example-use) を参照してください。
+`analyzer_params`を定義した後、コレクションスキーマを定義する際に`VARCHAR`フィールドに適用できます。これにより、Zilliz Cloudは指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングが可能になります。詳細については、[使用例](./analyzer-overview#example-use)を参照してください。
 
 ## 例\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を検証してください。
+アナライザー構成をコレクションスキーマに適用する前に、`run_analyzer`メソッドを使用してその動作を確認します。
 
-### アナライザー設定\{#analyzer-configuration}
+### アナライザー構成\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -172,6 +181,15 @@ analyzerParams = map[string]any{"tokenizer": "standard",
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {{"type", "regex"}, {"expr", "^(?!test)"}}
+    }}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -270,6 +288,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "testItem apple testCase banana";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

@@ -113,6 +113,18 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {
+            {"type", "stemmer"},
+            {"language", "english"}
+        }
+    }}
+};
+```
+
 The `stemmer` filter accepts the following configurable parameters.
 
 <table>
@@ -206,6 +218,18 @@ analyzerParams='{
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {
+            {"type", "stemmer"},
+            {"language", "english"}
+        }
+    }}
+};
+```
 
 ### Verification using `run_analyzer`\{#verification-using-runanalyzer}
 
@@ -305,6 +329,29 @@ not support yet
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "running runs looked ran runner";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Expected output\{#expected-output}
 

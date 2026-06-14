@@ -5,16 +5,16 @@ sidebar_key: import-data-via-sdks
 sidebar_label: "SDK"
 beta: FALSE
 notebook: FALSE
-description: "このガイドでは、bulk-writer および bulk-import API を使用して SDK でコレクションにデータをインポートする方法を説明します。 | Cloud"
+description: "このガイドでは、bulk-writer および bulk-import API を使用してコレクションにデータをインポートするための SDK の使い方を学びます。 | Cloud"
 type: origin
 token: MvgAwL4HIiuRRJkH0FwcJhxSnld
 sidebar_position: 3
 keywords: 
-  - zilliz
+  - Zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - データインポート
-  - sdk
+  - SDK
 
 ---
 
@@ -24,9 +24,17 @@ import TabItem from '@theme/TabItem';
 
 # データのインポート (SDK)
 
-このガイドでは、bulk-writer および bulk-import API を使用して SDK でコレクションにデータをインポートする方法を説明します。
+このガイドでは、SDK を使用して bulk-writer および bulk-import API でデータをコレクションにインポートする方法を説明します。
 
-または、[クイックスタートのエンドツーエンドコース](./data-import-zero-to-hero) を参照することもできます。このコースでは、Zilliz Cloud コレクションへのデータ準備とデータインポートの両方をカバーしています。
+または、[高速エンドツーエンドコース](./data-import-zero-to-hero) も参照してください。このコースでは、データの準備と Zilliz Cloud コレクションへのデータインポートの両方をカバーしています。
+
+<Admonition type="info" icon="📘" title="Notes">
+
+Zilliz Cloud では、クラスターをホストするクラウドプロバイダーに関係なく、任意のオブジェクトストレージサービスから任意の Zilliz Cloud クラスターにデータをインポートできるようになりました。たとえば、AWS S3 バケットから GCP にデプロイされた Zilliz Cloud クラスターにデータをインポートできます。
+
+低レイテンシーで安定したエクスペリエンスを確保するには、ターゲットクラスターと同じプロバイダーおよび同じリージョンのバケットまたは blob コンテナを使用することをお勧めします。
+
+</Admonition>
 
 ## 依存関係のインストール\{#install-dependencies}
 
@@ -34,7 +42,7 @@ import TabItem from '@theme/TabItem';
 
 <TabItem value='python'>
 
-ターミナルで以下のコマンドを実行して、**pymilvus** および **minio** をインストールするか、最新バージョンにアップグレードしてください。
+ターミナルで次のコマンドを実行して、**pymilvus** と **minio** をインストールするか、最新バージョンにアップグレードします。
 
 ```shell
 python3 -m pip install --upgrade pymilvus minio
@@ -319,13 +327,13 @@ public static void main(String[] args) throws Exception {
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>データのインポートを成功させるには、対象のコレクションに実行中または保留中のインポートジョブが10,000件未満であることを確認してください。</p>
+データのインポートを成功させるには、対象のコレクションの実行中または保留中のインポートジョブが 10,000 件未満であることを確認してください。
 
 </Admonition>
 
-### インポートの進行状況を確認する\{#check-import-progress}
+### インポートの進捗状況を確認する\{#check-import-progress}
 
-指定した一括インポートジョブの進行状況を確認できます。
+指定したバルクインポートジョブの進捗状況を確認できます。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"}]}>
 <TabItem value='python'>

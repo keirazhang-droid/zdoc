@@ -5,10 +5,10 @@ sidebar_key: use-geometry-field
 sidebar_label: "ジオメトリ"
 beta: FALSE
 notebook: FALSE
-description: "地理情報システム (GIS)、マッピングツール、位置情報サービスなどのアプリケーションを構築する際、幾何データの保存とクエリが必要になることがよくあります。Milvus の `GEOMETRY` データ型は、柔軟な幾何データをネイティブに保存およびクエリする方法を提供することで、この課題を解決します。| BYOC"
+description: "地理情報システム（GIS）、マッピングツール、位置情報サービスなどのアプリケーションを構築する際、ジオメトリデータの保存とクエリが必要になることがよくあります。Milvusの`GEOMETRY`データ型は、柔軟なジオメトリデータをネイティブに保存およびクエリする方法を提供することで、この課題を解決します。 | BYOC"
 type: origin
 token: H2GHwE8umiuP6WkwjxPcQOfGn0e
-sidebar_position: 11
+sidebar_position: 12
 keywords: 
   - zilliz
   - ベクトルデータベース
@@ -23,51 +23,51 @@ import Admonition from '@theme/Admonition';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# ジオメトリフィールド
+# ジオメトリ フィールド
 
-地理情報システム (GIS)、マッピングツール、位置情報ベースのサービスなどのアプリケーションを構築する際には、ジオメトリデータを保存およびクエリする必要がよくあります。Milvus の `GEOMETRY` データ型は、柔軟なジオメトリデータをネイティブに保存・クエリする方法を提供することで、この課題を解決します。
+地理情報システム（GIS）、マッピングツール、位置情報サービスなどのアプリケーションを構築する際、ジオメトリ データを保存・クエリする必要がよくあります。Milvus の `GEOMETRY` データ型は、柔軟なジオメトリ データをネイティブに保存・クエリする方法を提供することで、この課題を解決します。
 
-ベクトル類似性と空間制約を組み合わせる必要がある場合は、GEOMETRY フィールドを使用します。例えば以下のようなケースです：
+ベクトル類似性と空間制約を組み合わせる必要がある場合に GEOMETRY フィールドを使用します。例えば：
 
-- 位置情報ベースサービス (LBS)：「この街区**内**にある類似のPOIを検索」
+- 位置情報サービス（LBS）：「この街区 **within** 類似したPOIを見つける」
 
-- マルチモーダル検索：「この地点から**1km以内**にある類似の写真を取得」
+- マルチモーダル検索：「この地点から **1km以内** の類似した写真を取得する」
 
-- 地図・物流：「ある地域**内**の資産」または「ある経路と**交差する**ルート」
+- 地図・物流：「領域 **inside** の資産」または「経路 **intersecting** するルート」
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>GEOMETRY フィールドを使用するには、SDK を最新バージョンにアップグレードしてください。</p>
+GEOMETRY フィールドを使用するには、SDK を最新バージョンにアップグレードしてください。
 
 </Admonition>
 
 ## GEOMETRY フィールドとは？\{#what-is-a-geometry-field}
 
-GEOMETRY フィールドは、Zilliz Cloud におけるスキーマ定義済みのデータ型（`データType.GEOMETRY`）で、ジオメトリデータを格納します。ジオメトリフィールドを操作する際には、データの挿入およびクエリの両方で [Well-Known Text (WKT)](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) 形式を使用します。これは人間が読みやすい表現形式です。内部的には、Zilliz Cloud が WKT を効率的な保存・処理のために [Well-Known Binary (WKB)](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry#Well-known_binary) に変換しますが、ユーザーが WKB を直接扱う必要はありません。
+GEOMETRY フィールドは、Zilliz Cloud でジオメトリ データを保存するためのスキーマ定義データ型（`データType.GEOMETRY`）です。ジオメトリ フィールドを使用する際、[Well-Known Text (WKT)](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) 形式を使用してデータを操作します。WKT は、データの挿入とクエリの両方に使用される人間が読める表現形式です。内部的には、Zilliz Cloud は WKT を [Well-Known Binary (WKB)](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry#Well-known_binary) に変換して効率的に保存・処理しますが、WKB を直接扱う必要はありません。
 
-`GEOMETRY` データ型は以下のジオメトリオブジェクトをサポートしています：
+`GEOMETRY` データ型は以下のジオメトリ オブジェクトをサポートします：
 
-- **POINT**: `POINT (x y)`；例：`POINT (13.403683 52.520711)`（`x` = 経度、`y` = 緯度）
+- **POINT**：`POINT (x y)`；例：`POINT (13.403683 52.520711)`（`x` = 経度、`y` = 緯度）
 
-- **LINESTRING**: `LINESTRING (x1 y1, x2 y2, …)`；例：`LINESTRING (13.40 52.52, 13.41 52.51)`
+- **LINESTRING**：`LINESTRING (x1 y1, x2 y2, …)`；例：`LINESTRING (13.40 52.52, 13.41 52.51)`
 
-- **POLYGON**: `POLYGON ((x1 y1, x2 y2, x3 y3, x1 y1))`；例：`POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))`
+- **POLYGON**：`POLYGON ((x1 y1, x2 y2, x3 y3, x1 y1))`；例：`POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))`
 
-- **MULTIPOINT**: `MULTIPOINT ((x1 y1), (x2 y2), …)`；例：`MULTIPOINT ((10 40), (40 30), (20 20), (30 10))`
+- **MULTIPOINT**：`MULTIPOINT ((x1 y1), (x2 y2), …)`；例：`MULTIPOINT ((10 40), (40 30), (20 20), (30 10))`
 
-- **MULTILINESTRING**: `MULTILINESTRING ((x1 y1, …), (xk yk, …))`；例：`MULTILINESTRING ((10 10, 20 20, 10 40), (40 40, 30 30, 40 20, 30 10))`
+- **MULTILINESTRING**：`MULTILINESTRING ((x1 y1, …), (xk yk, …))`；例：`MULTILINESTRING ((10 10, 20 20, 10 40), (40 40, 30 30, 40 20, 30 10))`
 
-- **MULTIPOLYGON**: `MULTIPOLYGON (((outer ring ...)), ((outer ring ...)))`；例：`MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5)))`
+- **MULTIPOLYGON**：`MULTIPOLYGON (((outer ring ...)), ((outer ring ...)))`；例：`MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5)))`
 
-- **GEOMETRYCOLLECTION**: `GEOMETRYCOLLECTION(POINT(x y), LINESTRING(x1 y1, x2 y2), ...)`；例：`GEOMETRYCOLLECTION (POINT (40 10), LINESTRING (10 10, 20 20, 10 40), POLYGON ((40 40, 20 45, 45 30, 40 40)))`
+- **GEOMETRYCOLLECTION**：`GEOMETRYCOLLECTION(POINT(x y), LINESTRING(x1 y1, x2 y2), ...)`；例：`GEOMETRYCOLLECTION (POINT (40 10), LINESTRING (10 10, 20 20, 10 40), POLYGON ((40 40, 20 45, 45 30, 40 40)))`
 
 ## 基本操作\{#basic-operations}
 
-`GEOMETRY` フィールドのワークフローには、コレクションスキーマでの定義、ジオメトリデータの挿入、そして特定のフィルター式を使用したデータのクエリが含まれます。
+`GEOMETRY` フィールドを使用するワークフローは、コレクションスキーマでの定義、ジオメトリ データの挿入、特定のフィルター式を使用したデータのクエリを含みます。
 
-### ステップ 1: GEOMETRY フィールドの定義\{#step-1-define-a-geometry-field}
+### ステップ 1：GEOMETRY フィールドを定義する\{#step-1-define-a-geometry-field}
 
-GEOMETRY フィールドを使用するには、コレクション作成時に明示的にコレクションスキーマ内で定義する必要があります。以下の例では、`geo` フィールドを `データType.GEOMETRY` 型として持つコレクションを作成する方法を示しています。
+`GEOMETRY` フィールドを使用するには、コレクション作成時にコレクションスキーマで明示的に定義します。以下の例は、`データType.GEOMETRY` 型の `geo` フィールドを持つコレクションの作成方法を示しています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -186,6 +186,7 @@ curl --request POST \
   --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
   --header "Authorization: Bearer ${TOKEN}" \
   --header "Content-Type: application/json" \
+  --header "Request-Timeout: 10" \
   -d "{
     \"collectionName\": \"${COLLECTION_NAME}\",
     \"schema\": {
@@ -224,15 +225,41 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+const std::string collection_name = "geo_collection";
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("embeddings", milvus::DataType::FLOAT_VECTOR).WithDimension(8));
+schema->AddField(milvus::FieldSchema("geo", milvus::DataType::GEOMETRY).WithNullable(true));
+schema->AddField(milvus::FieldSchema("name", milvus::DataType::VARCHAR).WithMaxLength(128));
+
+status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName(collection_name)
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>この例では、コレクションスキーマで定義された <code>GEOMETRY</code> フィールドが <code>nullable=True</code> により NULL 許容となっています。詳細については、<a href="./nullable-fields">NULL許容 & デフォルト値</a> を参照してください。</p>
+この例では、コレクションスキーマで定義された `GEOMETRY` フィールドは、`nullable=True` で NULL 値を許可します。詳細については、[NULL許容とデフォルト値](./nullable-fields) を参照してください。
 
 </Admonition>
 
-### Step 2: Insert data\{#step-2-insert-data}
+### Step 2: データの挿入\{#step-2-insert-data}
 
-[WKT](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) 形式のジオメトリデータを含むエンティティを挿入します。以下は複数の地理ポイントを含む例です：
+ジオメトリデータを持つエンティティを [WKT](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) 形式で挿入します。以下は、いくつかのジオポイントを使用した例です。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -352,6 +379,7 @@ curl --request POST \
   --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
   --header "Authorization: Bearer ${TOKEN}" \
   --header "Content-Type: application/json" \
+  --header "Request-Timeout: 10" \
   -d "{
     \"collectionName\": \"${COLLECTION_NAME}\",
     \"data\": [
@@ -398,13 +426,30 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+milvus::EntityRows data = {{{"id", 1}, {"name", "Shop A"}, {"embeddings", std::vector<float>{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8}}, {"geo", "POINT(13.399710 52.518010)"}},
+                           {{"id", 2}, {"name", "Shop B"}, {"embeddings", std::vector<float>{0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}}, {"geo", "POINT(13.403934 52.522877)"}},
+                           {{"id", 3}, {"name", "Shop C"}, {"embeddings", std::vector<float>{0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.1}}, {"geo", "POINT(13.405088 52.521124)"}},
+                           {{"id", 4}, {"name", "Shop D"}, {"embeddings", std::vector<float>{0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.1, 0.2}}, {"geo", "POINT(13.408223 52.516876)"}},
+                           {{"id", 5}, {"name", "Shop E"}, {"embeddings", std::vector<float>{0.5, 0.6, 0.7, 0.8, 0.9, 0.1, 0.2, 0.3}}, {"geo", "POINT(13.400092 52.521507)"}},
+                           {{"id", 6}, {"name", "Shop F"}, {"embeddings", std::vector<float>{0.6, 0.7, 0.8, 0.9, 0.1, 0.2, 0.3, 0.4}}, {"geo", "POINT(13.408529 52.519274)"}}};
+                           
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName(collection_name)
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 ### ステップ 3: フィルタリング操作\{#step-3-filtering-operations}
 
-`GEOMETRY` フィールドに対してフィルタリング操作を実行する前に、以下の点を確認してください。
+`GEOMETRY` フィールドに対してフィルタリング操作を実行する前に、以下の条件を満たしていることを確認してください。
 
-- 各ベクターフィールドにインデックスを作成済みであること。
-
-- コレクションがメモリにロード済みであること。
+- 各ベクトルフィールドにインデックスを作成していること。
+- コレクションがメモリにロードされていること。
 
 <details>
 
@@ -483,6 +528,7 @@ curl --request POST \
   --url "${CLUSTER_ENDPOINT}/v2/vectordb/indexes/create" \
   --header "Authorization: Bearer ${TOKEN}" \
   --header "Content-Type: application/json" \
+  --header "Request-Timeout: 10" \
   -d "{
     \"collectionName\": \"${COLLECTION_NAME}\",
     \"indexParams\": [
@@ -499,6 +545,7 @@ curl --request POST \
   --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/load" \
   --header "Authorization: Bearer ${TOKEN}" \
   --header "Content-Type: application/json" \
+  --header "Request-Timeout: 10" \
   -d "{
     \"collectionName\": \"${COLLECTION_NAME}\"
   }"
@@ -510,31 +557,49 @@ sleep 3
 </TabItem>
 </Tabs>
 
+```c++
+milvus::IndexDesc index_vector("embeddings", "", milvus::IndexType::IVF_FLAT, milvus::MetricType::L2)
+index_vector.AddExtraParam(milvus::NLIST, "128");
+
+auto status = client->CreateIndex(milvus::CreateIndexRequest()
+                                     .WithCollectionName(collection_name)
+                                     .AddIndex(std::move(index_vector)));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->LoadCollection(milvus::LoadCollectionRequest()
+                                    .WithCollectionName(collection_name));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 </details>
 
-これらの要件を満たせば、専用のジオメトリ演算子を使用した式で、ジオメトリ値に基づいてコレクションをフィルタリングできます。
+これらの要件を満たしたら、幾何学値に基づいてコレクションをフィルタリングするために、専用のジオメトリ演算子を使用した式を使用できます。
 
-#### フィルター式の定義\{#define-filter-expressions}
+#### フィルター式を定義する\{#define-filter-expressions}
 
-`GEOMETRY` フィールドでフィルタリングするには、式内でジオメトリ演算子を使用します：
+`GEOMETRY` フィールドをフィルタリングするには、式でジオメトリ演算子を使用します。
 
 - 一般: `{operator}(geo_field, '{wkt}')`
 
 - 距離ベース: `ST_DWITHIN(geo_field, '{wkt}', distance)`
 
-ここで：
+ここで:
 
-- `operator` はサポートされているジオメトリ演算子のいずれか（例：`ST_CONTAINS`, `ST_INTERSECTS`）です。演算子名はすべて大文字またはすべて小文字で記述する必要があります。サポートされている演算子の一覧については、[Supported geometry operators](./geometry-operators) を参照してください。
+- `operator` はサポートされているジオメトリ演算子の1つです（例：`ST_CONTAINS`、`ST_INTERSECTS`）。演算子名はすべて大文字またはすべて小文字でなければなりません。サポートされている演算子の一覧については、[サポートされているジオメトリ演算子](./geometry-operators) を参照してください。
 
 - `geo_field` は `GEOMETRY` フィールドの名前です。
 
-- `'{wkt}'` はクエリ対象ジオメトリの WKT 表現です。
+- `'{wkt}'` はクエリ対象のジオメトリの WKT 表現です。
 
-- `distance` は `ST_DWITHIN` 専用の距離しきい値です。
+- `distance` は特に `ST_DWITHIN` のための閾値です。
 
-以下の例では、さまざまなジオメトリ固有の演算子をフィルター式で使用する方法を示します：
+次の例は、フィルター式で異なるジオメトリ固有の演算子を使用する方法を示しています。
 
-#### 例 1: 矩形領域内に存在するエンティティを検索\{#example-1-find-entities-within-a-rectangular-area}
+#### 例1: 矩形領域内のエンティティを検索する\{#example-1-find-entities-within-a-rectangular-area}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -633,6 +698,7 @@ curl --request POST \
   --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
   --header "Authorization: Bearer ${TOKEN}" \
   --header "Content-Type: application/json" \
+  --header "Request-Timeout: 10" \
   -d "{
     \"collectionName\": \"${COLLECTION_NAME}\",
     \"filter\": \"st_within(geo, 'POLYGON((13.403683 52.520711, 13.455868 52.520711, 13.455868 52.495862, 13.403683 52.495862, 13.403683 52.520711))')\",
@@ -643,7 +709,28 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-#### 例2: 中心点から1km以内のエンティティを検索する\{#example-2-find-entities-within-1km-of-a-central-point}
+```c++
+std::string filter = "st_within(geo, 'POLYGON((13.403683 52.520711, 13.455868 52.520711, 13.455868 52.495862, 13.403683 52.495862, 13.403683 52.520711))')";
+auto request = milvus::QueryRequest()
+                       .WithCollectionName(collection_name)
+                       .WithFilter(filter)
+                       .AddOutputField("name")
+                       .AddOutputField("geo");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
+
+#### 例2: 中心点から1km以内のエンティティを検索\{#example-2-find-entities-within-1km-of-a-central-point}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -730,6 +817,7 @@ curl --request POST \
   --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
   --header "Authorization: Bearer ${TOKEN}" \
   --header "Content-Type: application/json" \
+  --header "Request-Timeout: 10" \
   -d "{
     \"collectionName\": \"${COLLECTION_NAME}\",
     \"filter\": \"st_dwithin(geo, 'POINT(13.403683 52.520711)', 1000.0)\",
@@ -740,7 +828,28 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-#### 例3: ベクトル類似性と空間フィルターを組み合わせる\{#example-3-combine-vector-similarity-with-a-spatial-filter}
+```c++
+std::string filter = "st_dwithin(geo, 'POINT(13.403683 52.520711)', 1000.0)";
+auto request = milvus::QueryRequest()
+                       .WithCollectionName(collection_name)
+                       .WithFilter(filter)
+                       .AddOutputField("name")
+                       .AddOutputField("geo");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
+
+#### 例3: ベクトル類似度と空間フィルターの組み合わせ\{#example-3-combine-vector-similarity-with-a-spatial-filter\}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -845,6 +954,7 @@ curl --request POST \
   --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
   --header "Authorization: Bearer ${TOKEN}" \
   --header "Content-Type: application/json" \
+  --header "Request-Timeout: 10" \
   --data "{
     \"collectionName\": \"geo_collection\",
     \"data\": [${QUERY_VECTOR}],
@@ -858,22 +968,50 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-## 次のステップ: クエリの高速化\{#next-accelerate-queries}
+```c++
+std::vector<float> query_vector = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8};
+std::string filter = "st_within(geo, 'POLYGON((13.403683 52.520711, 13.455868 52.520711, 13.455868 52.495862, 13.403683 52.495862, 13.403683 52.520711))')";
+auto request = milvus::SearchRequest()
+                   .WithCollectionName(collection_name)
+                   .WithAnnsField("embeddings")
+                   .WithLimit(3)
+                   .WithFilter(filter)
+                   .AddOutputField("name")
+                   .AddOutputField("geo")
+                   .AddFloatVector(query_vector);
 
-インデックスが設定されていない `GEOMETRY` フィールドに対するクエリは、デフォルトで全行をスキャンするため、大規模なデータセットでは遅くなる可能性があります。幾何学的クエリを高速化するには、`GEOMETRY` フィールドに `AUTOINDEX` インデックスを作成してください。
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 
-詳細については、[スカラー フィールドのインデックス作成](./index-scalar-fields)を参照してください。
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
+## 次へ: クエリの高速化\{#next-accelerate-queries}
+
+デフォルトでは、インデックスがない `GEOMETRY` フィールドに対するクエリは全行をスキャンするため、大規模データセットでは低速になる可能性があります。ジオメトリッククエリを高速化するには、`GEOMETRY` フィールドに `AUTOINDEX` インデックスを作成してください。
+
+詳細については、[スカラーフィールドのインデックス作成](./index-scalar-fields) を参照してください。
 
 ## FAQ\{#faq}
 
-### コレクションで動的フィールド機能を有効にしている場合、動的フィールドキーに幾何学的データを挿入できますか？\{#if-ive-enabled-the-dynamic-field-feature-for-my-collection-can-i-insert-geometric-data-into-a-dynamic-field-key}
+### コレクションの動的フィールド機能を有効にしている場合、ジオメトリックデータを動的フィールドキーに挿入できますか？\{#if-ive-enabled-the-dynamic-field-feature-for-my-collection-can-i-insert-geometric-data-into-a-dynamic-field-key}
 
-いいえ、幾何学的データを動的フィールドに挿入することはできません。幾何学的データを挿入する前に、コレクションスキーマ内で `GEOMETRY` フィールドが明示的に定義されていることを確認してください。
+いいえ、ジオメトリックデータは動的フィールドに挿入できません。ジオメトリックデータを挿入する前に、`GEOMETRY` フィールドがコレクションスキーマで明示的に定義されていることを確認してください。
 
 ### GEOMETRY フィールドは mmap 機能をサポートしていますか？\{#does-the-geometry-field-support-the-mmap-feature}
 
-はい、`GEOMETRY` フィールドは mmap をサポートしています。詳細については、[mmap の使用](./use-mmap)を参照してください。
+はい、`GEOMETRY` フィールドは mmap をサポートしています。詳細については、[mmap の使用](./use-mmap) を参照してください。
 
-### GEOMETRY フィールドを NULL 許容にしたり、デフォルト値を設定したりできますか？\{#can-i-define-the-geometry-field-as-nullable-or-set-a-default-value}
+### GEOMETRY フィールドを NULL 許容として定義したり、デフォルト値を設定できますか？\{#can-i-define-the-geometry-field-as-nullable-or-set-a-default-value}
 
-はい、`GEOMETRY` フィールドは `nullable` 属性と WKT 形式でのデフォルト値をサポートしています。詳細については、[NULL 許容 & デフォルト値](./nullable-fields)を参照してください。
+はい、GEOMETRY フィールドは `nullable` 属性と WKT 形式のデフォルト値をサポートしています。詳細については、[NULL 許容とデフォルト値](./nullable-fields) を参照してください。

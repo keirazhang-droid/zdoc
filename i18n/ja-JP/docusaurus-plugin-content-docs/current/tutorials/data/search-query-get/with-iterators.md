@@ -1,21 +1,21 @@
 ---
-title: "Search Iterator | Cloud"
+title: "検索イテレータ | Cloud"
 slug: /with-iterators
 sidebar_key: with-iterators
-sidebar_label: "Search Iterator"
+sidebar_label: "検索イテレータ"
 beta: FALSE
 notebook: FALSE
-description: "ANN 検索では、1 つのクエリで取得できるエンティティ数に上限があり、基本的な ANN 検索だけでは大規模な検索ニーズに対応できない場合があります。topK が 16,384 を超える ANN 検索リクエストでは、SearchIterator の使用を検討することをお勧めします。このセクションでは、SearchIterator の使用方法と関連する考慮事項について説明します。 | Cloud"
+description: "ANN Search には1回のクエリで呼び出せるエンティティ数の最大制限があり、基本的な ANN Search だけでは大規模な検索の需要を満たせない場合があります。topK が16,384を超える ANN Search リクエストでは、SearchIterator の使用を検討することをお勧めします。このセクションでは、SearchIterator の使用方法と関連する注意事項について説明します。 | Cloud"
 type: origin
 token: QVTnwVz2aifvSAkgomAc9KWRnHb
-sidebar_position: 17
+sidebar_position: 18
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - data
-  - search iterators
+  - クラウド
+  - コレクション
+  - データ
+  - 検索イテレータ
 
 ---
 
@@ -62,7 +62,6 @@ iterator = client.search_iterator(
     collection_name="iterator_collection"
     data=query_vectors,
     anns_field="vector",
-    search_param={"metric_type": "L2", "params": {"nprobe": 16}},
     # highlight-next-line
     batch_size=50,
     output_fields=["color"],
@@ -97,7 +96,6 @@ SearchIterator searchIterator = client.searchIterator(SearchIteratorReq.builder(
         .batchSize(500L)
         .outputFields(Lists.newArrayList("color"))
         .topK(20000)
-        .metricType(IndexParam.MetricType.L2)
         .build());
 ```
 
@@ -161,7 +159,6 @@ const iterator = milvusClient.searchIterator({
     collection_name: collectionName,
     vectors: queryVectors,
     anns_field: 'vector',
-    params: { metric_type: 'L2', params: { nprobe: 16 } },
     batch_size: 50,
     output_fields: ['color'],
     limit: 20000,
@@ -175,6 +172,39 @@ const iterator = milvusClient.searchIterator({
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::SearchIteratorRequest request;
+request.SetCollectionName("iterator_collection");
+request.SetBatchSize(50);
+request.SetLimit(20000);
+request.SetAnnsField("vector");
+request.AddOutputField("color");
+request.SetMetricType(milvus::MetricType::L2);
+
+std::vector<float> vector = {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592};
+request.AddFloatVector(vector);
+
+milvus::SearchIteratorPtr iterator;
+auto status = client->SearchIterator(request, iterator);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -256,6 +286,32 @@ for await (const result of iterator) {
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+while (true) {
+    milvus::SingleResult batch_results;
+    auto status = iterator->Next(batch_results);
+    if (!status.IsOk()) {
+        std::cout << status.Message() << std::endl;
+        break;
+    }
+
+    if (batch_results.GetRowCount() == 0) {
+        std::cout << "search iteration finished" << std::endl;
+        break;
+    }
+
+    milvus::EntityRows rows;
+    status = batch_results.OutputRows(rows);
+    for (const auto& row : rows) {
+        std::cout << row.dump() << std::endl;
+    }
+}
 ```
 
 </TabItem>

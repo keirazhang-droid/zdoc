@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2025年4月24日） | Cloud"
+title: "リリースノート (April 24, 2025) | Cloud"
 slug: /release-notes-2150
 sidebar_key: release-notes-2150
-sidebar_label: "2025年4月24日"
+sidebar_label: "April 24, 2025"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz BYOC において、BYOC プロジェクトのインスタンス設定の構成やクラスターへの AWS PrivateLink の有効化など、いくつかの機能強化が導入されました。 | Cloud"
+description: "Zilliz BYOC にいくつかの機能強化が導入され、BYOC プロジェクトのインスタンス設定を構成したり、クラスターに対して AWS PrivateLink を有効にできるようになったことをお知らせします。 | Cloud"
 type: origin
 token: JPNiwF6rPiNe0pkx460cr321nTc
-sidebar_position: 12
+sidebar_position: 13
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

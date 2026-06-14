@@ -37,7 +37,7 @@ This guide demonstrates the procedure for setting up a private link from a Zilli
 
 <Admonition type="info" icon="📘" title="Notes">
 
-This feature is available only to **Dedicated** clusters.
+This feature is available only to **Dedicated** serving clusters and **on-demand** clusters.
 
 </Admonition>
 
@@ -99,7 +99,7 @@ You need to complete this step on your cloud provider console using either the U
 
         ![create_endpoint_type_gcp](https://zdoc-images.s3.us-west-2.amazonaws.com/create_endpoint_type_gcp.png "create_endpoint_type_gcp")
 
-    1. Switch to the AWS console. In **Service Settings**, paste the **Service Name** you copied from the Zilliz Cloud web console into the **Service Name** field. Then click **Verify service**.
+    1. In **Service Settings**, paste the **Service Name** you copied from the Zilliz Cloud web console into the **Service Name** field. Then click **Verify service**.
 
         ![enter_service_name_gcp](https://zdoc-images.s3.us-west-2.amazonaws.com/enter_service_name_gcp.png "enter_service_name_gcp")
 
@@ -113,7 +113,7 @@ You need to complete this step on your cloud provider console using either the U
 
         </Admonition>
 
-    1. When the service name is verified, complete network settings, subnet, security groups, and click **Create**.
+    1. When the service name is verified, configure subnets, security groups first, and then click **Create**.
 
     1. When the endpoint is successfully created, copy the Endpoint ID (starting with "vpce-").
 
@@ -209,7 +209,7 @@ Before you can access your cluster via the private link allocated by Zilliz Clou
            </tr>
            <tr>
              <td><p><strong>Domain name</strong></p></td>
-             <td><p>Private Link allocated by Zilliz Cloud for the target cluster.</p></td>
+             <td><ul><li><p>Serving cluster: Private Link allocated by Zilliz Cloud for the target serving cluster.</p></li><li><p>On-demand compute: Project endpoint of the service.</p></li></ul></td>
            </tr>
            <tr>
              <td><p><strong>Description</strong></p></td>
@@ -241,7 +241,7 @@ Before you can access your cluster via the private link allocated by Zilliz Clou
 
         1. Select the cloud region in the second drop-down list.
 
-        1. Enter the name of the endpoint that has been created above.
+        1. Enter the DNS name of the VPC endpoint that has been created above.
 
     1. Click **Create records**.
 

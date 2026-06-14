@@ -1,14 +1,14 @@
 ---
-title: "String Field | Cloud"
+title: "VarChar Field | Cloud"
 slug: /use-string-field
 sidebar_key: use-string-field
-sidebar_label: "String"
+sidebar_label: "VarChar"
 added_since: FALSE
 last_modified: FALSE
 deprecate_since: FALSE
 beta: FALSE
 notebook: FALSE
-description: "In Zilliz Cloud clusters, `VARCHAR` is the data type used for storing string data. | Cloud"
+description: "In Zilliz Cloud clusters, textual scalar data can be stored with `VARCHAR` and `TEXT` fields. This page describes `VARCHAR`, which is designed for short, bounded string metadata such as names, tags, categories, and external IDs. | Cloud"
 type: origin
 token: QBXVwP7oiiuEovkprDnckJlEnoK
 sidebar_position: 6
@@ -27,9 +27,11 @@ import Admonition from '@theme/Admonition';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# String Field
+# VarChar Field
 
-In Zilliz Cloud clusters, `VARCHAR` is the data type used for storing string data. 
+In Zilliz Cloud clusters, textual scalar data can be stored with `VARCHAR` and `TEXT` fields. This page describes `VARCHAR`, which is designed for short, bounded string metadata such as names, tags, categories, and external IDs.
+
+For longer source text, document passages, article bodies, tickets, or logs that should be stored and returned with entities, use a `TEXT` field instead. For details, refer to [TEXT Field](./undefined).
 
 When you define a `VARCHAR` field, two parameters are mandatory:
 
@@ -45,7 +47,7 @@ Zilliz Cloud supports null values and default values for `VARCHAR` fields. To en
 
 ## Add VARCHAR field\{#add-varchar-field}
 
-To store string data in Zilliz Cloud clusters, define a `VARCHAR` field in your collection schema. Below is an example of defining a collection schema with two `VARCHAR` fields:
+To store short, bounded string metadata in Zilliz Cloud clusters, define a `VARCHAR` field in your collection schema. Below is an example of defining a collection schema with two `VARCHAR` fields:
 
 - `varchar_field1`: stores up to 100 bytes, allows null values, and has a default value of `"Unknown"`.
 
@@ -268,6 +270,24 @@ export schema="{
 </TabItem>
 </Tabs>
 
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"pk", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR,).WithDimension(3));
+schema->AddField(milvus::FieldSchema("varchar_field1", milvus::DataType::VARCHAR).WithMaxLength(100).WithNullable(true));
+schema->AddField(milvus::FieldSchema("varchar_field2", milvus::DataType::VARCHAR).WithMaxLength(200).WithNullable(true));
+```
+
 ## Set index params\{#set-index-params}
 
 Indexing helps improve search and query performance. In Zilliz Cloud clusters, indexing is mandatory for vector fields but optional for scalar fields.
@@ -379,6 +399,13 @@ export indexParams='[
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("varchar_field1", "varchar_index", milvus::IndexType::AUTOINDEX),
+    milvus::IndexDesc("embedding", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+```
+
 ## Create collection\{#create-collection}
 
 Once the schema and index are defined, create a collection that includes string fields.
@@ -443,6 +470,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
@@ -453,6 +481,16 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("my_collection")
+                                        .WithIndexes(std::move(indexes))
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ## Insert data\{#insert-data}
 
@@ -579,6 +617,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data '{
     "data": [
         {"varchar_field1": "Product A", "varchar_field2": "High quality product", "pk": 1, "embedding": [0.1, 0.2, 0.3]},
@@ -597,6 +636,25 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+milvus::EntityRows data = {{{"varchar_field1", "Product A"}, {"varchar_field2", "High quality product"}, {"pk", 1}, {"embedding", std::vector<float>{0.1, 0.2, 0.3}}},
+                           {{"varchar_field1", "Product B"}, {"pk", 2}, {"embedding", std::vector<float>{0.4, 0.5, 0.6}}},
+                           {{"varchar_field1", nullptr}, {"varchar_field2", nullptr}, {"pk", 3}, {"embedding", std::vector<float>{0.2, 0.3, 0.1}}},
+                           {{"varchar_field1", "Product C"}, {"varchar_field2", nullptr}, {"pk", 4}, {"embedding", std::vector<float>{0.5, 0.7, 0.2}}},
+                           {{"varchar_field1", nullptr}, {"varchar_field2", "Exclusive deal"}, {"pk", 5}, {"embedding", std::vector<float>{0.5, 0.4, 0.8}}},
+                           {{"varchar_field1", "Unknown"}, {"varchar_field2", nullptr}, {"pk", 6}, {"embedding", std::vector<float>{0.8, 0.5, 0.3}}},
+                           {{"varchar_field1", ""}, {"varchar_field2", "Best seller"}, {"pk", 7}, {"embedding", std::vector<float>{0.8, 0.5, 0.3}}}};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ## Query with filter expressions\{#query-with-filter-expressions}
 
@@ -690,6 +748,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": "varchar_field1 == \"Product A\"",
@@ -700,6 +759,26 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter(R"(varchar_field1 == "Product A")")
+                       .AddOutputField("varchar_field1")
+                       .AddOutputField("varchar_field2");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = response.Results().OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
 
 To retrieve entities where the `varchar_field2` is null:
 
@@ -790,6 +869,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": "varchar_field2 is null",
@@ -799,6 +879,26 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("varchar_field2 IS NULL")
+                       .AddOutputField("varchar_field1")
+                       .AddOutputField("varchar_field2");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = response.Results().OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
 
 To retrieve entities where `varchar_field1` has the value `"Unknown"`, use the following expression below. As the default value of `varchar_field1` is `"Unknown"`, the expected result should include entities with `varchar_field1` explicitly set to `"Unknown"` or with `varchar_field1` set to null.
 
@@ -888,6 +988,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": "varchar_field1 == \"Unknown\"",
@@ -897,6 +998,25 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter(R"(varchar_field1 == "Unknown")")
+                       .AddOutputField("varchar_field1")
+                       .AddOutputField("varchar_field2");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+milvus::EntityRows output_rows;
+status = response.Results().OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
 
 ## Vector search with filter expressions\{#vector-search-with-filter-expressions}
 
@@ -1010,6 +1130,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "data": [
@@ -1029,3 +1150,29 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<float> query_vector = {0.3, -0.6, 0.1};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("embedding")
+                   .WithFilter(R"(varchar_field2 == "Best seller")")
+                   .WithLimit(5)
+                   .AddExtraParam("nprobe", "10")
+                   .AddOutputField("varchar_field1")
+                   .AddOutputField("varchar_field2")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```

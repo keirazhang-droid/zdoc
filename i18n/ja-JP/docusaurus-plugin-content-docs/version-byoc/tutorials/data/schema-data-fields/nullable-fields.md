@@ -1,21 +1,21 @@
 ---
-title: "NULL 許容フィールド | BYOC"
+title: "NULL許容フィールド | BYOC"
 slug: /nullable-fields
 sidebar_key: nullable-fields
-sidebar_label: "NULL 許容フィールド"
+sidebar_label: "NULL許容フィールド"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud は NULL 許容フィールドをサポートしており、フィールド値を欠落させるか、明示的に NULL に設定することができます。NULL 許容性はスキーマレベルで定義され、データ取り込み、インデックス作成、検索、およびクエリ操作全体で一貫して適用されます。| BYOC"
+description: "Zilliz Cloud は NULL 許容フィールドをサポートしており、フィールドの値を欠落させたり、明示的に NULL に設定したりできます。NULL 許容性はスキーマレベルで定義され、データ取り込み、インデックス作成、検索、クエリ操作に一貫して適用されます。 | BYOC"
 type: origin
 token: DjROwgK6ziCf7Rkoji6ccyEUnsg
-sidebar_position: 14
+sidebar_position: 15
 keywords: 
   - zilliz
   - ベクトルデータベース
   - cloud
   - コレクション
   - スキーマ
-  - nullable
+  - NULL許容
 
 ---
 
@@ -23,49 +23,49 @@ import Admonition from '@theme/Admonition';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# NULL 許容フィールド
+# NULL許容フィールド
 
-Zilliz Cloud は NULL 許容フィールドをサポートしており、フィールド値を欠落させるか、明示的に NULL に設定することができます。NULL 許容性はスキーマレベルで定義され、データの取り込み、インデックス作成、検索、およびクエリ操作全体で一貫して適用されます。
+Zilliz Cloud は NULL 許容フィールドをサポートしており、フィールド値が欠損している場合や明示的に NULL に設定されている場合を許容します。NULL 許容性はスキーマレベルで定義され、データの取り込み、インデックス作成、検索、およびクエリ操作全体で一貫して適用されます。
 
-以下のケースで NULL 許容フィールドを使用します：
+NULL 許容フィールドは以下の場合に使用します：
 
-- 欠損値を許可する外部システムからデータを取り込む場合
+- 欠損値を許容する外部システムからデータが取り込まれる場合
 
-- メタデータの一部がオプションであるか、データセットの一部でのみ利用可能な場合
+- 一部のメタデータがオプションであるか、データセットの一部でのみ利用可能な場合
 
 - ベクトル埋め込みが非同期に生成され、後で挿入される場合
 
 ## 制限\{#limits}
 
-- NULL 値を許可するベクトルフィールドは、`IS NULL` または `IS NOT NULL` フィルター式をサポートしません。ベクトルフィールドの値が NULL かどうかに基づいてエンティティを明示的にフィルタリングすることはできません。
+- NULL 値を許容するベクトルフィールドは、`IS NULL` または `IS NOT NULL` フィルター式をサポートしません。ベクトルフィールド値が NULL かどうかに基づいてエンティティを明示的にフィルタリングすることはできません。
 
-- 構造体の配列フィールドは NULL 値をサポートしません。構造体の配列フィールド、またはその内部にネストされた任意のフィールドを NULL 許容としてマークすることはできません。
+- 構造体の配列フィールドは NULL 値をサポートしません。構造体の配列フィールド、またはその内部にネストされたフィールドを NULL 許容としてマークすることはできません。
 
 - `nullable` 属性はフィールド作成時に定義され、後から変更することはできません。既存のフィールドに対して NULL 許容性を有効化または無効化することはできません。
 
-- NULL 許容としてマークされたフィールドはパーティションキーとして使用できません。パーティションキーフィールドは常に有効な非 NULL 値を含む必要があります。
+- NULL 許容としてマークされたフィールドは、パーティションキーとして使用できません。パーティションキーフィールドには常に有効な非 NULL 値が含まれている必要があります。
 
 ## NULL 許容フィールドとは何か？\{#what-is-a-nullable-field}
 
-Zilliz Cloud では、フィールドが NULL 値を格納できるかどうかは、`nullable` という名前のスキーマレベルのフィールド属性によって制御されます。
+Zilliz Cloud では、フィールドが NULL 値の保存を許可されるかどうかは、`nullable` というスキーマレベルのフィールド属性によって制御されます。
 
-フィールドが `nullable=True` で定義されている場合、Zilliz Cloud はデータ取り込み中にそのフィールド値の欠落を許可します。実際には、Zilliz Cloud は以下の 2 つの入力を同等として扱い、フィールド値を NULL として格納します：
+フィールドが `nullable=True` で定義されている場合、Zilliz Cloud はデータ取り込み時にフィールド値が欠損していることを許容します。実際には、Zilliz Cloud は以下の 2 つの入力を同等に扱い、フィールド値を NULL として保存します：
 
 - 入力エンティティからフィールドが省略されている場合
 
-- フィールドが明示的に NULL に設定されている場合（例：Python での `None`）
+- フィールドが明示的に NULL に設定されている場合（例えば、Python での `None`）
 
-フィールドが NULL 許容として定義されていない場合（デフォルトの動作）、すべてのエンティティはそのフィールドに対して有効な値を提供する必要があります。フィールドを省略するか、明示的に NULL 値を割り当てると、挿入またはインポート操作は失敗します。
+フィールドが NULL 許容として定義されていない場合（デフォルトの動作）、すべてのエンティティはそのフィールドに有効な値を提供する必要があります。フィールドを省略するか、明示的に NULL 値を割り当てると、挿入またはインポート操作が失敗します。
 
-NULL 許容属性は、コレクションスキーマ内の**スカラーフィールドとベクトルフィールド**の両方でサポートされています。ただし、構造体の配列フィールドは NULL 許容属性をサポートしません。
+NULL 許容属性は、コレクションスキーマ内の **スカラーフィールドおよびベクトルフィールド** の両方でサポートされています。ただし、構造体の配列フィールドは NULL 許容属性をサポートしません。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>NULL 許容性はフィールド値が欠落してもよいかどうかを決定しますが、フィールドが欠落した場合に使用される値を定義するものではありません。</p>
-<ul>
-<li><p>NULL 許容フィールドがデフォルト値なしで構成されている場合、フィールドを省略すると格納される値は NULL になります。</p></li>
-<li><p>デフォルト値が構成されている場合、Zilliz Cloud は代わりにデフォルト値を格納することがあります。詳細については、<a href="./default-fields">デフォルト値</a> を参照してください。</p></li>
-</ul>
+NULL 許容性は、フィールド値が欠損してもよいかどうかを決定するものであり、フィールドが欠損した場合に使用される値を定義するものではありません。
+
+- NULL 許容フィールドにデフォルト値なしで設定されている場合、フィールドを省略すると保存される値は NULL になります。
+
+- デフォルト値が設定されている場合、Zilliz Cloud は代わりにデフォルト値を保存する場合があります。詳細については、[デフォルト値](./default-fields) を参照してください。
 
 </Admonition>
 
@@ -73,7 +73,7 @@ NULL 許容属性は、コレクションスキーマ内の**スカラーフィ�
 
 NULL 許容フィールドを使用するには、コレクションスキーマを定義する際に `nullable` 属性を有効にする必要があります。
 
-この例では、コレクションスキーマが `nullable=True` の `embedding` という名前のベクトルフィールドを定義しています。これにより、コレクション内のエンティティはデータ取り込み中にベクトル値を省略するか、明示的に NULL に設定することができます。
+この例では、コレクションスキーマは `nullable=True` で `embedding` という名前のベクトルフィールドを定義しています。これにより、コレクション内のエンティティは、データ取り込み時にベクトル値を省略するか、明示的に NULL に設定することができます。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -108,7 +108,38 @@ client.create_collection(
 <TabItem value='java'>
 
 ```java
-// java
+import io.milvus.v2.client.ConnectConfig;
+import io.milvus.v2.client.MilvusClientV2;
+import io.milvus.v2.common.DataType;
+import io.milvus.v2.service.collection.request.AddFieldReq;
+import io.milvus.v2.service.collection.request.CreateCollectionReq;
+
+MilvusClientV2 client = new MilvusClientV2(ConnectConfig.builder()
+        .uri("YOUR_CLUSTER_ENDPOINT")
+        .token("YOUR_CLUSTER_TOKEN")
+        .build());
+
+CreateCollectionReq.CollectionSchema schema = CreateCollectionReq.CollectionSchema.builder()
+        .build();
+
+schema.addField(AddFieldReq.builder()
+        .fieldName("id")
+        .dataType(DataType.Int64)
+        .isPrimaryKey(true)
+        .build());
+schema.addField(AddFieldReq.builder()
+        .fieldName("embedding")
+        .dataType(DataType.FloatVector)
+        .dimension(4)
+        // highlight-next-line
+        .isNullable(true)
+        .build());
+
+client.createCollection(CreateCollectionReq.builder()
+        .collectionName("my_collection")
+        .collectionSchema(schema)
+        .build());
+
 ```
 
 </TabItem>
@@ -116,7 +147,31 @@ client.create_collection(
 <TabItem value='java'>
 
 ```javascript
-// js
+import { MilvusClient, DataType } from '@zilliz/milvus2-sdk-node';
+
+const client = new MilvusClient({
+  address: 'YOUR_CLUSTER_ENDPOINT',
+  token: 'YOUR_CLUSTER_TOKEN'
+});
+
+await client.createCollection({
+  collection_name: 'my_collection',
+  fields: [
+    {
+      name: 'id',
+      data_type: DataType.Int64,
+      is_primary_key: true
+    },
+    {
+      name: 'embedding',
+      data_type: DataType.FloatVector,
+      dim: 4,
+      // highlight-next-line
+      nullable: true // Enable the nullable attribute; defaults to false
+    }
+  ]
+});
+
 ```
 
 </TabItem>
@@ -124,7 +179,47 @@ client.create_collection(
 <TabItem value='java'>
 
 ```go
-// go
+import (
+    "context"
+    "fmt"
+
+    "github.com/milvus-io/milvus/client/v2/entity"
+    "github.com/milvus-io/milvus/client/v2/milvusclient"
+)
+
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+
+client, err := milvusclient.New(ctx, &milvusclient.ClientConfig{
+    Address: "YOUR_CLUSTER_ENDPOINT",
+    APIKey:  "YOUR_CLUSTER_TOKEN",
+})
+if err != nil {
+    fmt.Println(err.Error())
+    // handle error
+}
+defer client.Close(ctx)
+
+schema := entity.NewSchema()
+schema.WithField(entity.NewField().
+    WithName("id").
+    WithDataType(entity.FieldTypeInt64).
+    WithIsPrimaryKey(true),
+).WithField(entity.NewField().
+    WithName("embedding").
+    WithDataType(entity.FieldTypeFloatVector).
+    WithDim(4).
+    // highlight-next-line
+    WithNullable(true),
+)
+
+err = client.CreateCollection(ctx,
+    milvusclient.NewCreateCollectionOption("my_collection", schema))
+if err != nil {
+    fmt.Println(err.Error())
+    // handle error
+}
+
 ```
 
 </TabItem>
@@ -132,27 +227,53 @@ client.create_collection(
 <TabItem value='java'>
 
 ```bash
-# restful
+curl --request POST \
+  --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
+  --header "Authorization: Bearer ${TOKEN}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "collectionName": "my_collection",
+    "schema": {
+      "autoID": false,
+      "fields": [
+        {
+          "fieldName": "id",
+          "dataType": "Int64",
+          "isPrimary": true
+        },
+        {
+          "fieldName": "embedding",
+          "dataType": "FloatVector",
+          "elementTypeParams": {
+            "dim": "4"
+          },
+          "nullable": true
+        }
+      ]
+    }
+  }'
+
 ```
 
 </TabItem>
 </Tabs>
 
-このスキーマでは、以下のようになります。
+このスキーマでは:
 
-- `embedding` フィールドは明示的に NULL 許容としてマークされています。
-
+- `embedding` フィールドは明示的に `nullable` としてマークされています。
 - エンティティは挿入時に `embedding` フィールドを省略するか、NULL 値を割り当てることができます。
+- NULL 値を許可するかどうかの決定は、コレクション作成時に固定されます。
 
-- NULL 値を許容するかどうかの決定は、コレクション作成時に固定されます。
-
-わかりやすくするため、以下の例では NULL 許容のベクトルフィールド（`embedding`）に焦点を当てています。スカラーフィールドを NULL 許容として定義することは任意であり、このガイドの残りの部分に従うために必須ではありません。
+明確にするために、以下の例では null 許容のベクターフィールド (`embedding`) に焦点を当てます。null 許容のスカラーフィールドを定義することはオプションであり、このガイドの残りの部分に従う必要はありません。
 
 <details>
 
-<summary>**任意：NULL 許容のスカラーフィールドを定義する**</summary>
+<summary>**オプション: null 許容のスカラーフィールドを定義する**</summary>
 
-スカラーフィールドも同様に `nullable` 属性を使用して NULL 許容として定義でき、取り込み時にも同じルールに従います。例えば：
+スカラーフィールドも同じ `nullable` 属性を使用して null 許容として定義でき、取り込み時に同じルールに従います。例:
+
+<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
+<TabItem value='python'>
 
 ```python
 schema.add_field(
@@ -163,13 +284,71 @@ schema.add_field(
 )
 ```
 
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+schema.addField(AddFieldReq.builder()
+        .fieldName("age")
+        .dataType(DataType.Int64)
+        // highlight-next-line
+        .isNullable(true)
+        .build());
+
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+const ageField = {
+  name: 'age',
+  data_type: DataType.Int64,
+  // highlight-next-line
+  nullable: true
+};
+
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+schema.WithField(entity.NewField().
+    WithName("age").
+    WithDataType(entity.FieldTypeInt64).
+    // highlight-next-line
+    WithNullable(true),
+)
+
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```bash
+{
+  "fieldName": "age",
+  "dataType": "Int64",
+  "nullable": true
+}
+
+```
+
+</TabItem>
+</Tabs>
+
 </details>
 
-## 欠落値または NULL 値がある場合の挿入動作\{#insert-behavior-with-missing-or-null-values}
+## NULL値欠落時の挿入動作\{#insert-behavior-with-missing-or-null-values}
 
-コレクションスキーマでフィールドが nullable として定義されると、Zilliz Cloud はデータ取り込み中にそのフィールド値を欠落させるか、明示的に NULL に設定することを許可します。
+コレクションスキーマでフィールドがNULL可能として定義されると、Zilliz Cloudはデータ取り込み中にフィールド値を欠落させたり、明示的にNULLに設定したりすることを許可します。
 
-以下の例では、[ステップ 1](./nullable-fields#define-a-nullable-field-in-the-collection-schema) で作成したコレクションに 3 つのエンティティを挿入し、これらの異なるケースを示しています。
+以下の例では、[ステップ1](./nullable-fields#define-a-nullable-field-in-the-collection-schema)で作成したコレクションに3つのエンティティを挿入し、これらの異なるケースを示しています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -200,7 +379,34 @@ client.insert(
 <TabItem value='java'>
 
 ```java
-// java
+import com.google.gson.Gson;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import io.milvus.v2.service.vector.request.InsertReq;
+
+import java.util.Arrays;
+import java.util.List;
+
+Gson gson = new Gson();
+
+JsonObject row1 = new JsonObject();
+row1.addProperty("id", 1);
+row1.add("embedding", gson.toJsonTree(Arrays.asList(0.1f, 0.2f, 0.3f, 0.4f)));
+
+JsonObject row2 = new JsonObject();
+row2.addProperty("id", 2);
+row2.add("embedding", JsonNull.INSTANCE); // Explicitly set to NULL
+
+JsonObject row3 = new JsonObject();
+row3.addProperty("id", 3); // Field omitted; stored as NULL
+
+List<JsonObject> data = Arrays.asList(row1, row2, row3);
+
+client.insert(InsertReq.builder()
+        .collectionName("my_collection")
+        .data(data)
+        .build());
+
 ```
 
 </TabItem>
@@ -208,7 +414,25 @@ client.insert(
 <TabItem value='java'>
 
 ```javascript
-// js
+const data = [
+  {
+    id: 1,
+    embedding: [0.1, 0.2, 0.3, 0.4]
+  },
+  {
+    id: 2,
+    embedding: null // Explicitly set to NULL
+  },
+  {
+    id: 3 // Field omitted; stored as NULL
+  }
+];
+
+await client.insert({
+  collection_name: 'my_collection',
+  data
+});
+
 ```
 
 </TabItem>
@@ -216,7 +440,34 @@ client.insert(
 <TabItem value='java'>
 
 ```go
-// go
+import (
+    "fmt"
+
+    "github.com/milvus-io/milvus/client/v2/column"
+    "github.com/milvus-io/milvus/client/v2/milvusclient"
+)
+
+embeddingCol, err := column.NewNullableColumnFloatVector(
+    "embedding",
+    4,
+    [][]float32{{0.1, 0.2, 0.3, 0.4}},
+    []bool{true, false, false},
+)
+if err != nil {
+    fmt.Println(err.Error())
+    // handle error
+}
+
+_, err = client.Insert(ctx, milvusclient.NewColumnBasedInsertOption(
+    "my_collection",
+    column.NewColumnInt64("id", []int64{1, 2, 3}),
+    embeddingCol,
+))
+if err != nil {
+    fmt.Println(err.Error())
+    // handle error
+}
+
 ```
 
 </TabItem>
@@ -224,7 +475,27 @@ client.insert(
 <TabItem value='java'>
 
 ```bash
-# restful
+curl --request POST \
+  --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
+  --header "Authorization: Bearer ${TOKEN}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "collectionName": "my_collection",
+    "data": [
+      {
+        "id": 1,
+        "embedding": [0.1, 0.2, 0.3, 0.4]
+      },
+      {
+        "id": 2,
+        "embedding": null
+      },
+      {
+        "id": 3
+      }
+    ]
+  }'
+
 ```
 
 </TabItem>
@@ -275,7 +546,28 @@ client.load_collection(collection_name="my_collection")
 <TabItem value='java'>
 
 ```java
-// java
+import io.milvus.v2.common.IndexParam;
+import io.milvus.v2.service.collection.request.LoadCollectionReq;
+import io.milvus.v2.service.index.request.CreateIndexReq;
+
+import java.util.Collections;
+
+IndexParam indexParam = IndexParam.builder()
+        .fieldName("embedding")
+        .indexName("embedding_index")
+        .indexType(IndexParam.IndexType.AUTOINDEX)
+        .metricType(IndexParam.MetricType.COSINE)
+        .build();
+
+client.createIndex(CreateIndexReq.builder()
+        .collectionName("my_collection")
+        .indexParams(Collections.singletonList(indexParam))
+        .build());
+
+client.loadCollection(LoadCollectionReq.builder()
+        .collectionName("my_collection")
+        .build());
+
 ```
 
 </TabItem>
@@ -283,7 +575,17 @@ client.load_collection(collection_name="my_collection")
 <TabItem value='java'>
 
 ```javascript
-// js
+await client.createIndex({
+  collection_name: 'my_collection',
+  field_name: 'embedding',
+  index_type: 'AUTOINDEX',
+  metric_type: 'COSINE'
+});
+
+await client.loadCollection({
+  collection_name: 'my_collection'
+});
+
 ```
 
 </TabItem>
@@ -291,7 +593,42 @@ client.load_collection(collection_name="my_collection")
 <TabItem value='java'>
 
 ```go
-// go
+import (
+    "fmt"
+
+    "github.com/milvus-io/milvus/client/v2/entity"
+    "github.com/milvus-io/milvus/client/v2/index"
+    "github.com/milvus-io/milvus/client/v2/milvusclient"
+)
+
+indexTask, err := client.CreateIndex(ctx, milvusclient.NewCreateIndexOption(
+    "my_collection",
+    "embedding",
+    index.NewAutoIndex(entity.COSINE),
+))
+if err != nil {
+    fmt.Println(err.Error())
+    // handle error
+}
+
+err = indexTask.Await(ctx)
+if err != nil {
+    fmt.Println(err.Error())
+    // handle error
+}
+
+loadTask, err := client.LoadCollection(ctx, milvusclient.NewLoadCollectionOption("my_collection"))
+if err != nil {
+    fmt.Println(err.Error())
+    // handle error
+}
+
+err = loadTask.Await(ctx)
+if err != nil {
+    fmt.Println(err.Error())
+    // handle error
+}
+
 ```
 
 </TabItem>
@@ -299,7 +636,30 @@ client.load_collection(collection_name="my_collection")
 <TabItem value='java'>
 
 ```bash
-# restful
+curl --request POST \
+  --url "${CLUSTER_ENDPOINT}/v2/vectordb/indexes/create" \
+  --header "Authorization: Bearer ${TOKEN}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "collectionName": "my_collection",
+    "indexParams": [
+      {
+        "fieldName": "embedding",
+        "indexName": "embedding_index",
+        "indexType": "AUTOINDEX",
+        "metricType": "COSINE"
+      }
+    ]
+  }'
+
+curl --request POST \
+  --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/load" \
+  --header "Authorization: Bearer ${TOKEN}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "collectionName": "my_collection"
+  }'
+
 ```
 
 </TabItem>
@@ -345,7 +705,23 @@ print(res)
 <TabItem value='java'>
 
 ```java
-// java
+import io.milvus.v2.service.vector.request.SearchReq;
+import io.milvus.v2.service.vector.request.data.FloatVec;
+import io.milvus.v2.service.vector.response.SearchResp;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+SearchResp res = client.search(SearchReq.builder()
+        .collectionName("my_collection")
+        .data(Collections.singletonList(new FloatVec(Arrays.asList(0.1f, 0.2f, 0.3f, 0.4f))))
+        .annsField("embedding")
+        .limit(3)
+        .outputFields(Collections.singletonList("embedding"))
+        .build());
+
+System.out.println(res);
+
 ```
 
 </TabItem>
@@ -353,7 +729,16 @@ print(res)
 <TabItem value='java'>
 
 ```javascript
-// js
+const res = await client.search({
+  collection_name: 'my_collection',
+  data: [[0.1, 0.2, 0.3, 0.4]],
+  anns_field: 'embedding',
+  limit: 3,
+  output_fields: ['embedding']
+});
+
+console.log(res);
+
 ```
 
 </TabItem>
@@ -361,7 +746,27 @@ print(res)
 <TabItem value='java'>
 
 ```go
-// go
+import (
+    "fmt"
+
+    "github.com/milvus-io/milvus/client/v2/entity"
+    "github.com/milvus-io/milvus/client/v2/milvusclient"
+)
+
+query := []float32{0.1, 0.2, 0.3, 0.4}
+resultSets, err := client.Search(ctx, milvusclient.NewSearchOption(
+    "my_collection",
+    3,
+    []entity.Vector{entity.FloatVector(query)},
+).WithANNSField("embedding").
+    WithOutputFields("embedding"))
+if err != nil {
+    fmt.Println(err.Error())
+    // handle error
+}
+
+fmt.Println(resultSets)
+
 ```
 
 </TabItem>
@@ -369,7 +774,18 @@ print(res)
 <TabItem value='java'>
 
 ```bash
-# restful
+curl --request POST \
+  --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
+  --header "Authorization: Bearer ${TOKEN}" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "collectionName": "my_collection",
+    "data": [[0.1, 0.2, 0.3, 0.4]],
+    "annsField": "embedding",
+    "limit": 3,
+    "outputFields": ["embedding"]
+  }'
+
 ```
 
 </TabItem>
@@ -403,7 +819,8 @@ expr = "age > 18"
 <TabItem value='java'>
 
 ```java
-// java
+String filter = "age > 18";
+
 ```
 
 </TabItem>
@@ -411,7 +828,8 @@ expr = "age > 18"
 <TabItem value='java'>
 
 ```javascript
-// js
+const filter = 'age > 18';
+
 ```
 
 </TabItem>
@@ -419,7 +837,8 @@ expr = "age > 18"
 <TabItem value='java'>
 
 ```go
-// go
+filter := "age > 18"
+
 ```
 
 </TabItem>
@@ -427,7 +846,8 @@ expr = "age > 18"
 <TabItem value='java'>
 
 ```bash
-# restful
+"filter": "age > 18"
+
 ```
 
 </TabItem>
@@ -449,7 +869,8 @@ expr = "status == \"active\""
 <TabItem value='java'>
 
 ```java
-// java
+String filter = "status == \"active\"";
+
 ```
 
 </TabItem>
@@ -457,7 +878,8 @@ expr = "status == \"active\""
 <TabItem value='java'>
 
 ```javascript
-// js
+const filter = 'status == "active"';
+
 ```
 
 </TabItem>
@@ -465,7 +887,8 @@ expr = "status == \"active\""
 <TabItem value='java'>
 
 ```go
-// go
+filter := \`status == "active"\`
+
 ```
 
 </TabItem>
@@ -473,7 +896,8 @@ expr = "status == \"active\""
 <TabItem value='java'>
 
 ```bash
-# restful
+"filter": "status == \"active\""
+
 ```
 
 </TabItem>

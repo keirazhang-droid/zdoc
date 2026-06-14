@@ -121,21 +121,21 @@ A deployment environment is a local machine, a virtual machine (VM), or a CI/CD 
 
 ### Step 2: Create a project\{#step-2-create-a-project}
 
-Within your BYOC-I organization, click the **Create Project and Deploy Data Plane** button to start the deployment.
+Within your BYOC-I organization, click the **Create Project** button to start the deployment. In the prompted dialog box, set **Zilliz BYOC Project Name**, and click **Create and Next**.
 
-![YYgcbgENMo6672xja9ucq9Dsnne](https://zdoc-images.s3.us-west-2.amazonaws.com/yygcbgenmo6672xja9ucq9dsnne.png "YYgcbgENMo6672xja9ucq9Dsnne")
+The project is created at the end of this step, and you will be redirected to the **Deploy Data Plane** dialog box.
 
-### Step 3: Set up the general settings\{#step-3-set-up-the-general-settings}
+![Wc5KwW4BihKe17beYFccNdb3nCf](https://zdoc-images.s3.us-west-2.amazonaws.com/Wc5KwW4BihKe17beYFccNdb3nCf.png)
 
-In **General Settings**, you need to set the project name and determine the cloud providers and regions where Zilliz Cloud deploys the data plane for the project.
-
-![Ugm3bsxb9oCsxzxqOYkclb7ZnRb](https://zdoc-images.s3.us-west-2.amazonaws.com/ugm3bsxb9ocsxzxqoykclb7znrb.png "Ugm3bsxb9oCsxzxqOYkclb7ZnRb")
+### Step 3: Deploy the data plane\{#step-3-deploy-the-data-plane}
 
 <Procedures>
 
-1. Set **Project Name**.
+1. Set **Data Plane Name** and **Cloud Region**, and click **Next**.
 
-1. Select **Cloud Provider** and **Region**.
+    Click **Cancel** to stop deploying the data plane. However, the project created above is still available. You can start deploying a data plane in the project at any time and add multiple data planes to a project. 
+
+    ![M8EWwH1WJhTkVBbyJLOcWEDjnqN](https://zdoc-images.s3.us-west-2.amazonaws.com/M8EWwH1WJhTkVBbyJLOcWEDjnqN.png)
 
 1. Determine whether to enable **Azure Private Service Connect**.
 
@@ -157,11 +157,11 @@ In **General Settings**, you need to set the project name and determine the clou
 
         If **Auto-scaling** is disabled, simply specify the number of VM instances required for each project component in the corresponding **Count** field.
 
-        ![Ut9fbvTUDoXYxOxfp99cZIAGnMd](https://zdoc-images.s3.us-west-2.amazonaws.com/ut9fbvtudoxyxoxfp99cziagnmd.png "Ut9fbvTUDoXYxOxfp99cZIAGnMd")
+        ![DYwHb4uOioMCbZxajkHc6unEn8f](https://zdoc-images.s3.us-west-2.amazonaws.com/dywhb4uoiomcbzxajkhc6unen8f.png "DYwHb4uOioMCbZxajkHc6unEn8f")
 
         Once **Auto-scaling** is enabled, you need to specify a range for Zilliz Cloud to automatically scale the number of VM instances based on actual project workloads by setting the corresponding **Min** and **Max** fields.
 
-        ![VS2UbJ1cDoIqj0x3fiKc4vhMnLg](https://zdoc-images.s3.us-west-2.amazonaws.com/vs2ubj1cdoiqj0x3fikc4vhmnlg.png "VS2UbJ1cDoIqj0x3fiKc4vhMnLg")
+        ![As6Ebvzaoo4iccxsxdlctOCRnpd](https://zdoc-images.s3.us-west-2.amazonaws.com/as6ebvzaoo4iccxsxdlctocrnpd.png "As6Ebvzaoo4iccxsxdlctOCRnpd")
 
         To facilitate resource settings, there are four predefined project size options. The following table shows the mapping between these project size options and the number of clusters that can be created in the project, along with the number of entities each cluster can contain.
 
@@ -169,39 +169,60 @@ In **General Settings**, you need to set the project name and determine the clou
            <tr>
              <th rowspan="2"><p>Size</p></th>
              <th rowspan="2"><p>Maximum Cluster Quantity</p></th>
-             <th colspan="2"><p>Maximum Number of Entities (Million)</p></th>
+             <th colspan="3"><p>Maximum Number of Entities (Million)</p></th>
            </tr>
            <tr>
              <td><p>Performance-optimized CU</p></td>
              <td><p>Capacity-optimized CU</p></td>
+             <td><p>Tiered-storage CU</p></td>
            </tr>
            <tr>
              <td><p>Small</p></td>
              <td><p>3 clusters with 8 to 16 CUs</p></td>
-             <td><p>10 Million - 25 Million</p></td>
-             <td><p>40 Million - 80 Million</p></td>
+             <td><p>20 Million - 40 Million</p></td>
+             <td><p>64 Million - 128 Million</p></td>
+             <td><p>320 Million - 640 Million</p></td>
            </tr>
            <tr>
              <td><p>Medium</p></td>
              <td><p>7 clusters with 16 to 64 CUs</p></td>
-             <td><p>25 Million - 100 Million</p></td>
-             <td><p>80 Million - 350 Million</p></td>
+             <td><p>40 Million - 160 Million</p></td>
+             <td><p>128 Million - 512 Million</p></td>
+             <td><p>640 Million - 2.6 Billion</p></td>
            </tr>
            <tr>
              <td><p>Large</p></td>
              <td><p>12 clusters with 64 to 192 CUs</p></td>
-             <td><p>100 Million - 300 Million</p></td>
-             <td><p>350 Million - 1 Billion</p></td>
+             <td><p>160 Million - 480 Million</p></td>
+             <td><p>512 Million - 1.5 Billion</p></td>
+             <td><p>2.6 Billion - 7.7 Billion</p></td>
            </tr>
            <tr>
              <td><p>X-Large</p></td>
              <td><p>17 clusters with 192 to 576 CUs</p></td>
-             <td><p>300 Million - 900 Million</p></td>
-             <td><p>1 Billion - 3 Billion</p></td>
+             <td><p>480 Million - 1.44 Billion</p></td>
+             <td><p>1.5 Billion -  4.6 Billion</p></td>
+             <td><p>7.7 Billion - 23 Billion</p></td>
            </tr>
         </table>
 
         You can also customize the settings by selecting **Custom** in **Initial Project Size** and adjusting the VM instance types and counts for all data plane components. If your preferred VM instance types are not listed, please [contact Zilliz support](https://zilliz.com/contact) for further assistance. 
+
+    1. Determine whether to enable **Tiered Query Node**.
+
+        This option determines whether you can create tiered-storage clusters. Once you select this option, you can set the instance type and count for the tiered query nodes. 
+
+        ![Aolab6yB3o8Z3mxDFCycMzNqnTf](https://zdoc-images.s3.us-west-2.amazonaws.com/aolab6yb3o8z3mxdfcycmznqntf.png "Aolab6yB3o8Z3mxDFCycMzNqnTf")
+
+        <Admonition type="info" icon="📘" title="Notes">
+
+        - Your choice in **Project Size** does not affect the settings in **Tiered Storage Node**.
+
+        - If **Auto-scaling** is disabled, the sum of the **Default Query Node** count and the **Tiered Query Node** count should be a positive integer.
+
+        - If **Auto-scaling** is enabled, the sum of the **Min** values of both the **Default Query Node** and the **Tiered Query Node** should be a positive integer.
+
+        </Admonition>
 
 1. Click **Next**.
 
@@ -217,19 +238,19 @@ For details on running the above Terraform scripts, refer to the [Zilliz Cloud B
 
 Once you have deployed the project's data plane and created clusters, you can connect to these clusters either through direct VPC access or via Azure Private Link. For details, refer to [Connect to BYOC Clusters](./prepare-for-cluster-connection).
 
-## Manage projects\{#manage-projects}
+## Manage dataplanes\{#manage-dataplanes}
 
-![J3Xibh9vtozuRHxt8Hjc0SqwnYg](https://zdoc-images.s3.us-west-2.amazonaws.com/j3xibh9vtozurhxt8hjc0sqwnyg.png "J3Xibh9vtozuRHxt8Hjc0SqwnYg")
+![IqvEwsg5ah4UaAb56tmcbOOlnIR](https://zdoc-images.s3.us-west-2.amazonaws.com/IqvEwsg5ah4UaAb56tmcbOOlnIR.png)
 
-### Projects with an Undeploy tag\{#projects-with-an-undeploy-tag}
+### Data planes with an Undeploy tag\{#data-planes-with-an-undeploy-tag}
 
 If the status tag on the right corner of a project card reads **Undeploy**, you can always click the **Deploy Data Plane** button on the project card to reopen it. To rename or delete the project, click the **...** button in the project card and select **Rename** or **Delete** from the drop-down menu.  
 
-### Projects with a Deploying tag\{#projects-with-a-deploying-tag}
+### Data planes with a Deploying tag\{#data-planes-with-a-deploying-tag}
 
 Once you have prepared the deployment environment and executed the displayed commands, you must wait for the BYOC agent to activate. When the status tag on the project card reads **Deploying** and shows the progress percentage, you cannot rename or delete the project until the data plane is in place.
 
-### Projects with a Running tag\{#projects-with-a-running-tag}
+### Data plans with a Running tag\{#data-plans-with-a-running-tag}
 
 Once the status tag on a project card reads **Running**, you can start creating clusters in the project. To rename or delete a running project, ensure that there are no clusters in the project.
 

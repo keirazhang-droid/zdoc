@@ -1,19 +1,19 @@
 ---
-title: "変更履歴 | Cloud"
+title: "変更ログ | Cloud"
 slug: /changelogs
 sidebar_key: changelogs
-sidebar_label: "変更履歴"
+sidebar_label: "変更ログ"
 beta: FALSE
 notebook: FALSE
-description: "最終更新日: 2026年4月11日 | Cloud"
+description: "最終更新日: 2026年6月3日 | Cloud"
 type: origin
 token: MUL3wkn7Yi3YoFkYk59csf8bnNc
 sidebar_position: 1
 keywords: 
-  - zilliz
+  - zillip
   - ベクトルデータベース
-  - cloud
-  - 変更履歴
+  - クラウド
+  - 変更ログ
 
 ---
 
@@ -24,7 +24,7 @@ import Grid from '@site/src/components/Grid';
 
 # 変更履歴
 
-**最終更新日:** 2026年4月11日
+**最終更新日:** 2026年6月3日
 
 <Grid columnSize="2" widthRatios="25,74">
 
@@ -36,7 +36,7 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        - Lakebaseが近日公開予定です。
+        - さらなる vector lakebase 機能が今後提供される予定です。
 
     </div>
 
@@ -48,41 +48,103 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[4月](./release-notes-2604)[ 11, 2026](./release-notes-2604)**
+        **[2026年6月3日](./release-notes-2606#nullable-vector)**
 
     </div>
 
     <div>
 
-        - [🌎 グローバルクラスタ](./global-cluster-explained)が、強化されたプラットフォーム機能により、リージョン間ディザスタリカバリーの完全なサポートを提供するようになりました。
+        - 📅 ベクターフィールドが `nullable` 属性をサポートするようになり、既存のコレクションに新しいベクターフィールドを追加できるようになりました。
 
-        - 📈 より細かい粒度の[コレクションレベルでのメトリクス](./metrics-alerts-reference#cluster-and-collection-metrics)が利用可能になりました。
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2026年5月13日](./release-notes-2605#byoc-multi-dataplane-support)**
+
+    </div>
+
+    <div>
+
+        - 🔒 BYOC プロジェクトで、異なるリージョンに複数のデータプレーンを配置できるようになりました。
+
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2026年5月7日](./release-notes-2605)**
+
+    </div>
+
+    <div>
+
+        - 🏠 Zilliz Cloud がベクトルデータベース製品から Vector Lakebase プラットフォームへと進化し、以下のハイライト機能を提供します。
+
+            - [オンデマンド検索](./on-demand-compute)
+
+            - [外部データレイク検索](./external-collection)
+
+        - 🐦 Zilliz Cloud で Milvus v3.0.x がパブリックレビューに入り、以下の機能を提供します。
+
+            - [外部コレクションとバックフィル](./external-collection)
+
+            - [NULL 許容ベクター](./nullable-fields)
+
+            - [埋め込みリストの検索とフィルタリング](./use-array-of-structs)
+
+            - [MinHash 関数](./minhash-function)
+
+            - [検索](./single-vector-search#sort-search-results-by-scalar-fields-or-private)と[クエリ](./get-and-scalar-query#sort-query-results-or-private)の Order by
+
+            - [スナップショット](./snapshots)
+
+            - [エンティティ TTL](./set-collection-ttl)
+
+            - Force merge
+
+            - カスタム辞書とトークナイザー
+
+            - Spark セマンティック重複排除と異常検出
+
+        - 💾 読み取り専用の[外部ボリューム](./external-volume)がインポート、マイグレーション、外部コレクションワークフローでオンラインになりました。
+
+        - 🔍︎ コレクションレベルの[大規模 top-K](./use-large-topk) が利用可能になり、有効なコレクションで返されるエンティティの最大数が 16,384 から 1,000,000 に拡張されました。
+
+        - 🗺️ [プロジェクトでリージョン制約が利用可能](./manage-projects#add-project-regions)になり、企業がデータの保存場所を管理し、リージョナルデータプレーンへのアクセスを明示的に保つことができます。
+
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2026年4月11日](./release-notes-2604)**
+
+    </div>
+
+    <div>
+
+        - [🌎 グローバルクラスター](./global-cluster-explained)が、洗練されたプラットフォーム機能により、リージョナルディザスタリカバリ障害を完全にサポートするようになりました。
+
+        - 📈 より細かい[メトリクスがコレクションレベルで利用可能](./metrics-alerts-reference#cluster-and-collection-metrics)になりました。
 
         - 📋 [アクセスログ](./access-logs)がパブリックプレビューで利用可能になりました。
 
-        - ⚙️ [メンテナンスウィンドウ](./organization-settings#set-up-preferred-maintenance-window)が再設計され、より予測可能なアップグレードスケジューリングと事前通知が提供されるようになりました。
+        - ⚙️ [メンテナンスウィンドウ](./organization-settings#set-up-preferred-maintenance-window)が再設計され、より予測可能なアップグレードスケジュールとプロアクティブな通知を提供します。
 
-        - 👥 新しい[クラスタ管理者](./project-users#cluster-admin)ロールにより、チームメンバーはプロジェクトレベルの完全な管理者権限なしに、特定のクラスタへの運用アクセスを取得できます。
+        - 👥 新しい[クラスター管理者](./project-users#cluster-admin)ロールにより、チームメンバーがプロジェクトレベルの管理者権限なしで特定のクラスターへの運用アクセス権を持てるようになりました。
 
-        - 💾 階層型ストレージがBYOCプロジェクトのクラスタで利用可能になりました。
-
-    </div>
-
-</Grid>
-
-<Grid columnSize="2" widthRatios="25,74">
-
-    <div>
-
-        **[2月9日](./release-notes-2602#sso-enforcement)[, 2026](./release-notes-2602#sso-enforcement)**
-
-    </div>
-
-    <div>
-
-        - 🔐 [SSOの強制適用](./enforce-sso-in-your-organization)により、SSO認証以外からのアクセスを制限できます。
-
-        - 👥 [組織レベル](./organization-users#organization-role)および[プロジェクトレベル](./project-users#project-access)で設定されるクラスタレベルのアクセス制御により、きめ細かなデータアクセスが実現します。
+        - 💾 BYOC プロジェクトのクラスターで階層型ストレージが利用可能になりました。
 
     </div>
 
@@ -92,7 +154,25 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[2月4日](./release-notes-2602#new-region-aws-ireland)[, 2026](./release-notes-2602#new-region-aws-ireland)**
+        **[2026年2月9日](./release-notes-2602#sso-enforcement)**
+
+    </div>
+
+    <div>
+
+        - 🔐 [SSO 強制適用](./enforce-sso-in-your-organization)により、非 SSO 認証からのアクセスを制限します。
+
+        - 👥 [組織レベル](./organization-users#organization-role)および[プロジェクトレベル](./project-users#project-access)で設定されたクラスターレベルのアクセス制御により、きめ細かなデータアクセスを実現します。
+
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2026年2月4日](./release-notes-2602#new-region-aws-ireland)**
 
     </div>
 
@@ -108,19 +188,19 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[1月29日, 2026](./release-notes-2601#another-milvus-v26x-new-feature)**
+        **[2026年1月29日](./release-notes-2601#another-milvus-v26x-new-feature)**
 
     </div>
 
     <div>
 
-        - 🚀   新しいMilvus v2.6.xの機能がZilliz Cloudで利用可能になりました
+        - 🚀   もう一つの新しい Milvus v2.6.x 機能が Zilliz Cloud で利用可能になりました。
 
-            - [プライマリキー検索](./primary-key-search)
+            - [プライマリーキー検索](./primary-key-search)
 
-        - 🔒 BYOC-Iが[Microsoft Azure](/docs/byoc/deploy-byoc-i-azure)で利用可能になりました。
+        - 🔒 BYOC-I が [Microsoft Azure](/docs/byoc/deploy-byoc-i-azure) で利用可能になりました。
 
-        - 🔐 [カスタマー管理の暗号化キー](./cmek)が、Zilliz Cloudクラスタ内の保存データの暗号化に利用可能になりました。
+        - 🔐 [カスタマーマネージド暗号化キー](./cmek)が、Zilliz Cloud クラスターでの保存データの暗号化に利用可能になりました。
 
     </div>
 
@@ -130,13 +210,13 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[1月23日, 2026](./release-notes-2601#milvus-v26x-new-feature)**
+        **[2026年1月23日](./release-notes-2601#milvus-v26x-new-feature)**
 
     </div>
 
     <div>
 
-        - 🚀   新しいMilvus v2.6.xの機能がZilliz Cloudで利用可能になりました
+        - 🚀   新しい Milvus v2.6.x 機能が Zilliz Cloud で利用可能になりました。
 
             - [セマンティックハイライター](./semantic-highlighter)
 
@@ -148,33 +228,33 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[1月15日, 2026](./release-notes-2601)**
+        **[2026年1月15日](./release-notes-2601)**
 
     </div>
 
     <div>
 
-        - 🚀   新しいMilvus v2.6.xの機能がZilliz Cloudで利用可能になりました
+        - 🚀   新しい Milvus v2.6.x 機能が Zilliz Cloud で利用可能になりました。
 
-            - [TIMESTAMPTZフィールド](./use-timestamptz-field)
+            - [TIMESTAMPTZ フィールド](./use-timestamptz-field)
 
             - [テキストハイライター](./text-highlighter)
 
-        - 🤖 [モデルベースの埋め込み](./model-based-functions)および[リランキング機能](./model-ranker)がパブリックプレビューで利用可能になりました。
+        - 🤖 [モデルベースの埋め込み](./model-based-functions)および[再ランク関数](./model-ranker)がパブリックプレビューで提供されます。
 
-        - 🤖 [ホストモデル](./hosted-models)がプライベートプレビューで利用可能になりました。
+        - 🤖 [ホステッドモデル](./hosted-models)がプライベートプレビューで提供されます。
 
-        - 🛠️ インテリジェンスを備えた[動的レプリカの自動スケーリング](./manage-replica#dynamic-scaling)。
+        - 🛠️ [インテリジェントな動的レプリカ自動スケーリング](./manage-replica#dynamic-scaling)
 
-        - 📅 おなじみのcron設定による高度な[スケジュールされたスケーリング](./scale-query-cu#scheduled-scaling)。
+        - 📅 使い慣れた cron 設定による高度な[スケジュールされたスケーリング](./scale-query-cu#scheduled-scaling)
 
-        - 🌎 [グローバルクラスタ](./global-cluster-explained)が稼働開始しました。[お問い合わせ](https://support.zilliz.com/hc/en-us)いただくとアクセスできます。
+        - 🌎 [グローバルクラスター](./global-cluster-explained)が稼働を開始しました。アクセスするには[お問い合わせ](https://support.zilliz.com/hc/en-us)ください。
 
-        - ☁️ BYOCが以下の機能強化により、より使いやすくなりました：
+        - ☁️ BYOC が以下の拡張によりさらにユーザーフレンドリーになりました。
 
             - [完全な自動スケーリング機能](/docs/byoc/scale-cluster)
 
-            - [テクニカルサポートのアクセス制御](/docs/byoc/deploy-byoc-aws#technical-support-access)
+            - [テクニカルサポートアクセス制御](/docs/byoc/deploy-byoc-aws#technical-support-access)
 
     </div>
 
@@ -186,15 +266,15 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[12月26日, 2025](./release-notes-2512#milvus-v26-ga)**
+        **[2025年12月26日](./release-notes-2512#milvus-v26-ga)**
 
     </div>
 
     <div>
 
-        - 🚀   Milvus v2.6.xが一般提供（GA）開始
+        - 🚀   Milvus v2.6.x が一般提供（GA）になりました。
 
-        - 💾  階層型ストレージがGAとなり、[課金が開始](./storage-cost)されました
+        - 💾  階層型ストレージが GA になり、[課金が開始](./storage-cost)されました。
 
     </div>
 
@@ -204,17 +284,17 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[12月1日, 2025](./release-notes-2512#volume-ga-formerly-stage)**
+        **[2025年12月1日](./release-notes-2512#volume-ga-formerly-stage)**
 
     </div>
 
     <div>
 
-        - 📦  ステージが[ボリューム](./volume)に名称変更され、GAとなりました
+        - 📦  ステージは[ボリューム](./volume)に名称変更され、GA になりました。
 
-        - [🔐  組織レベルのIPホワイトリスト](./setup-console-ip-allowlist)が利用可能になりました
+        - [🔐  組織レベルの IP ホワイトリスト](./setup-console-ip-allowlist)が利用可能になりました。
 
-        - [🔐  TOTPベースのMFA](./multi-factor-auth)が利用可能になりました
+        - [🔐  TOTP ベースの MFA](./multi-factor-auth)が利用可能になりました。
 
     </div>
 
@@ -224,25 +304,25 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[11月6日, 2025](./release-notes-2511#business-critical-plan-availability)**
+        **[2025年11月6日](./release-notes-2511#business-critical-plan-availability)**
 
     </div>
 
     <div>
 
-        - 🚀  Milvus v2.6.xがZilliz Cloudで利用可能になり、より多くのデータ型をサポート：
+        - 🚀  Zilliz Cloud で Milvus v2.6.x が利用可能になり、以下のデータタイプが追加されました。
 
-            - [ジオメトリ](./use-geometry-field)、および
+            - [ジオメトリ](./use-geometry-field)
 
             - [構造体の配列](./use-array-of-structs)
 
-        - 🔍  [データ移行](./via-endpoint#getting-started)中に全文検索機能が利用可能になりました。
+        - 🔍  [マイグレーション](./via-endpoint#getting-started)中に全文検索機能が利用可能になりました。
 
-        - ⏰  繰り返しのアラートを抑制するための[通知間隔のカスタマイズ](./manage-project-alerts#alert-settings)。
+        - ⏰  繰り返しのアラートを抑制するために[通知間隔](./manage-project-alerts#alert-settings)をカスタマイズできます。
 
-        - 🔧  [既存のコレクションで動的フィールドを有効化](./modify-collections#example-5-enable-dynamic-field)でき、コレクションの再作成が不要になりました。
+        - 🔧  コレクションを再作成せずに、[既存のコレクションで動的フィールドを有効化](./modify-collections#example-5-enable-dynamic-field)できるようになりました。
 
-        - 💳  サブスクリプションプランがプロジェクトレベルに移行し、クラスタには複数のデプロイメントオプションが用意されました。詳細は[詳細なプラン比較](./select-zilliz-cloud-service-plans)をご覧ください。
+        - 💳  サブスクリプションプランがプロジェクトレベルになり、クラスターにはいくつかのデプロイメントオプションがあります。詳細な比較は[プラン比較詳細](./select-zilliz-cloud-service-plans)をご覧ください。
 
     </div>
 
@@ -252,51 +332,31 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[10月9日, 2025](./release-notes-2510#milvus-v26x-public-preview)**
+        **[2025年10月9日](./release-notes-2510#milvus-v26x-public-preview)**
 
     </div>
 
     <div>
 
-        - 🚀  Milvus v2.6.xがZilliz Cloudで利用可能になりました
+        - 🚀  Zilliz Cloud で Milvus v2.6.x が利用可能になりました。
 
-            - ダウンタイムなしの[フィールド追加](./add-fields-to-an-existing-collection)
+            - [ダウンタイムなしのフィールド追加](./add-fields-to-an-existing-collection)
 
             - [多言語アナライザー](./multi-language-analyzers)と[フレーズ一致](./phrase-match)による強化された全文検索
 
-            - [JSONインデックス](./json-indexing)と[Shredding](./json-shredding)による高速化されたJSONフィルタリング
+            - [JSON インデックス](./json-indexing)と[シュレッディング](./json-shredding)による高速化された JSON フィルタリング
 
-            - 検索結果の絞り込みのための[ブーストランカー](./boost-ranker)と[デケイランカー](./decay-ranker)
+            - 検索結果の絞り込みのための[ブーストランカー](./boost-ranker)と[減衰ランカー](./decay-ranker)
 
-            - [INT8_VECTORデータ型](./use-dense-vector)のサポート
+            - [INT8_VECTOR データタイプ](./use-dense-vector)のサポート
 
-        - 💾  拡張容量クラスタ向けの階層型ストレージアップグレード
+        - 💾  容量拡張クラスター向けの階層型ストレージアップグレード
 
-        - [🔄 クロスリージョンバックアップ](./backup-to-other-regions)によるビジネス継続性戦略
+        - [🔄 ビジネス継続性戦略のためのクロスリージョンバックアップ](./backup-to-other-regions)
 
-        - [⚙️  インデックス構築レベル](./tune-index-build-level)により、シナリオに応じたインデックス設定のカスタマイズが可能
+        - [⚙️  インデックスビルドレベル](./tune-index-build-level)により、シナリオに合わせてインデックス設定を調整可能
 
-        - 🚧 Pipelinesが非推奨となりました
-
-    </div>
-
-</Grid>
-
-<Grid columnSize="2" widthRatios="25,74">
-
-    <div>
-
-        **[8月20日, 2025](./release-notes-2508#autoscaling-upgrade)**
-
-    </div>
-
-    <div>
-
-        - [📈  自動スケーリングのアップグレード](./scale-query-cu#dynamic-scaling)により、設定が簡素化されました
-
-        - [📋  監査ログ](./audit-logs)が一般提供開始
-
-        - [🔐  SSO](./single-sign-on)のエクスペリエンスが改善されました
+        - 🚧 パイプラインは非推奨になりました。
 
     </div>
 
@@ -306,7 +366,27 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[8月13日, 2025](./release-notes-2508#support-aws-sydney-region)**
+        **[2025年8月20日](./release-notes-2508#autoscaling-upgrade)**
+
+    </div>
+
+    <div>
+
+        - [📈  設定が簡素化された自動スケーリングのアップグレード](./scale-query-cu#dynamic-scaling)
+
+        - [📋  監査ログ](./audit-logs)が一般提供になりました。
+
+        - [🔐  SSO](./single-sign-on) のエクスペリエンスが向上しました。
+
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2025年8月13日](./release-notes-2508#support-aws-sydney-region)**
 
     </div>
 
@@ -322,49 +402,25 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[7月15日, 2025](./release-notes-2180)**
+        **[2025年7月15日](./release-notes-2180)**
 
     </div>
 
     <div>
 
-        - [🔗  データマージAPI](./merge-data)によるスキーマ進化。
+        - [🔗  スキーマ進化のためのマージデータ API](./merge-data)
 
-        - [📦  ステージ](./volume)をデータ移行とデータインポートの共有ステージングレイヤーとして
+        - [📦  マイグレーションとデータインポートのための共有ステージングレイヤーとしてのステージ](./volume)
 
-        - [📅  スケジュールベースのクラスタ自動スケーリング](./scale-query-cu)
+        - [📅  スケジュールベースのクラスター自動スケーリング](./scale-query-cu)
 
-        - [🔄  クラスタの部分的な復元](./restore-from-snapshot#restore-a-partial-cluster)
+        - [🔄  クラスターの部分復元](./restore-from-backup-files#restore-a-partial-cluster)
 
-        - [⚙️  Zilliz CloudコンソールでのJSONインデックス](./json-indexing)設定
+        - [⚙️  Zilliz Cloud コンソールでの JSON インデックス](./json-indexing)設定
 
-        - 📊  BYOCプロジェクトのクォータ設定
+        - 📊  BYOC プロジェクトのクォータ設定
 
-        - 🔐  クラスタ復元時のRBAC設定の復元
-
-    </div>
-
-</Grid>
-
-<Grid columnSize="2" widthRatios="25,74">
-
-    <div>
-
-        **[6月9日, 2025](./release-notes-2170)**
-
-    </div>
-
-    <div>
-
-        - [📚  移行ドキュメントとベストプラクティス](./migrations)のリファクタリング
-
-        - [🚨  ポリシーベースのアラート](./manage-project-alerts)によるきめ細かく柔軟な監視
-
-        - ⚙️  Zilliz Cloudコンソールでのmmap設定
-
-        - ☁️  BYOCがGoogle Cloud Platform (GCP)で利用可能になりました
-
-        - 🤖  コマンドに応じる洗練されたAIアシスタント
+        - 🔐  クラスター復元中の RBAC 設定の復元
 
     </div>
 
@@ -374,35 +430,21 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[4月24日, 2025](./release-notes-2150)**
+        **[2025年6月9日](./release-notes-2170)**
 
     </div>
 
     <div>
 
-        - ⚙️  BYOCプロジェクトのインスタンス設定とAWS プライベートLinkサポート
+        - [📚  マイグレーションドキュメントとベストプラクティス](./migrations)をリファクタリング
 
-        - 🔍  [JSONインデックス](./use-json-fields)を使用したJSONフィールドのきめ細かなフィルタリング
+        - [🚨  きめ細かく柔軟なモニタリングのためのポリシーベースのアラート](./manage-project-alerts)
 
-        - 🛠️  RESTful APIを使用して[クラスタのレプリカ数を変更](/reference/restful/modify-cluster-replica-v2)できます。
+        - ⚙️  Zilliz Cloud コンソールでの mmap 設定
 
-    </div>
+        - ☁️  Google Cloud Platform (GCP) で BYOC が利用可能に
 
-</Grid>
-
-<Grid columnSize="2" widthRatios="25,74">
-
-    <div>
-
-        **[3月27日, 2025](./release-notes-2140)**
-
-    </div>
-
-    <div>
-
-        - 🔒 BYOC-Iが完全なデータ主権を提供
-
-        - [📋  クラスタの監査ログ](./audit-logs)が利用可能になりました
+        - 🤖  コマンド操作に対応する設計の優れた AI アシスタント
 
     </div>
 
@@ -412,19 +454,57 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[1月27日, 2025](./release-notes-2130)**
+        **[2025年4月24日](./release-notes-2150)**
 
     </div>
 
     <div>
 
-        - 🚀  Milvus v2.5.xがZilliz Cloudで利用可能になりました
+        - ⚙️  BYOC プロジェクトのインスタンス設定と AWS プライベートLink サポート
 
-        - [🔍  全文検索](./full-text-search)が既存のセマンティック検索機能を補完
+        - 🔍  [JSON インデックス](./use-json-fields)を使用した JSON フィールドのきめ細かなフィルタリング
 
-        - [📋  クラスタの監査ログ](./audit-logs)が利用可能になりました
+        - 🛠️  RESTful API を使用して、[クラスターのレプリカ数を変更](/reference/restful/modify-cluster-replica-v2)できます。
 
-        - [☁️  AWSでのBYOC](/docs/byoc/deploy-byoc-aws)がセキュリティ強化とともに提供開始
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2025年3月27日](./release-notes-2140)**
+
+    </div>
+
+    <div>
+
+        - 🔒 BYOC-I は完全なデータ主権を提供します。
+
+        - [📋  クラスターの監査ログ](./audit-logs)が利用可能になりました。
+
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2025年1月27日](./release-notes-2130)**
+
+    </div>
+
+    <div>
+
+        - 🚀  Zilliz Cloud で Milvus v2.5.x が利用可能になりました。
+
+        - [🔍  全文検索](./full-text-search)が既存のセマンティック検索機能を補完します。
+
+        - [📋  クラスターの監査ログ](./audit-logs)が利用可能になりました。
+
+        - [☁ー 強化されたセキュリティを備えた AWS 上の BYOC](/docs/byoc/deploy-byoc-aws)
 
     </div>
 
@@ -436,23 +516,23 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[12月26日, 2024](./release-notes-2120)**
+        **[2024年12月26日](./release-notes-2120)**
 
     </div>
 
     <div>
 
-        - 🎯  [検索レベルの変更](./tune-recall-rate)による高い再現率
+        - 🎯  [検索レベルを調整](./tune-recall-rate)することで高いリコール率を実現
 
-        - [🔐  コレクションレベルのRBACサポート](./cluster-privileges#collection-level-privilege-groups)
+        - [🔐  コレクションレベルの RBAC サポート](./cluster-privileges#collection-level-privilege-groups)
 
-        - [💾  mmap](./use-mmap)による拡張データ容量のサポート
+        - [💾  データ容量拡大のための mmap サポート](./use-mmap)
 
-        - [🗂️  マルチテナンシー向けデータベース](/docs/database)が利用可能になりました
+        - [🗂ー  マルチテナントのためのデータベース](/docs/database)が利用可能に
 
         - **新しいリージョン**: 🇺🇸 GCP us-central1 (アイオワ)
 
-        - [☁️  AWSでのBYOC](/docs/byoc/deploy-byoc-aws)が利用可能になりました
+        - [☁ー  AWS 上で BYOC](/docs/byoc/deploy-byoc-aws)が利用可能に
 
     </div>
 
@@ -462,23 +542,23 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[11月6日, 2024](./release-notes-2110)**
+        **[2024年11月6日](./release-notes-2110)**
 
     </div>
 
     <div>
 
-        - 🎨  Zilliz Cloudコンソールのリファクタリング
+        - 🎨  Zilliz Cloud コンソールをリファクタリング
 
-        - 🔄  データ移行のソースが拡大：
+        - 🔄  拡張されたソースからのデータマイグレーション:
 
-            - [Qdrant](./migrate-from-qdrant)、
+            - [Qdrant](./migrate-from-qdrant)
 
-            - [Pinecone](./migrate-from-pinecone)、および
+            - [Pinecone](./migrate-from-pinecone)
 
             - [Tencent Cloud](./migrate-from-tencent-cloud)
 
-        - 💳  支払いプロセスの改善と[請求書ページ](./view-invoice)の再設計
+        - 💳  改善された支払いプロセスと再設計された[請求書ページ](./view-invoice)
 
     </div>
 
@@ -488,25 +568,25 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[10月14日, 2024](./release-notes-2102)**
+        **[2024年10月14日](./release-notes-2102)**
 
     </div>
 
     <div>
 
-        - [📚  ノートブックギャラリー](https://zilliz.com/learn/milvus-notebooks)が公開
+        - [📚  ノートブックギャラリー](https://zilliz.com/learn/milvus-notebooks)がオンラインに
 
-        - ⚡  容量拡張されたパフォーマンス最適化済みクラスタ
+        - ⚡  容量拡張されたパフォーマンス最適化済みクラスター
 
-        - [🔄  マルチレプリカ](./manage-replica)が一般提供開始
+        - [🔄  マルチレプリカ](./manage-replica)が一般提供に
 
         - **新しいリージョン**: 🇯🇵 AWS 東京 (ap-northeast-1)
 
-        - [📊  Prometheusとの統合](./prometheus-monitoring)
+        - [📊  Prometheus との統合](./prometheus-monitoring)
 
-        - [🔑  Auth0を使用したシングルサインオン (SSO)](./single-sign-on)
+        - [🔑  Auth0 を使用したシングルサインオン (SSO)](./single-sign-on)
 
-        - 🎁  AWS Marketplaceを使用した無料トライアル
+        - 🎁  AWS Marketplace を使用した無料トライアル
 
     </div>
 
@@ -516,27 +596,27 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[9月14日, 2024](./release-notes-2100)**
+        **[2024年9月14日](./release-notes-2100)**
 
     </div>
 
     <div>
 
-        - ☁️  サーバーレスクラスタが一般提供開始
+        - ☁ー サーバーレスクラスターが一般提供に
 
-        - [🔄  マルチレプリカ](./manage-replica)がパブリックプレビューで利用可能
+        - [🔄  マルチレプリカ](./manage-replica)がパブリックプレビューで利用可能に
 
-        - 📦  Zilliz Cloudへのデータ移行サービス：
+        - 📦  Zilliz Cloud へのデータマイグレーションサービス:
 
             - [Milvus](./migrate-from-milvus)
 
             - [Elasticsearch](./migrate-from-elasticsearch)
 
-            - [PostgreSQL](./migrate-from-pgvector)、および
+            - [PostgreSQL](./migrate-from-pgvector)
 
-            - [Zilliz Cloudクラスタ間](./offline-migration)
+            - [Zilliz Cloud クラスター間](./offline-migration)
 
-        - 🛠️  バックアップ、復元、移行、およびジョブ管理のRESTful APIエンドポイント
+        - 🛠️  バックアップ、復元、マイグレーション、ジョブ管理のための RESTful API エンドポイント
 
     </div>
 
@@ -546,51 +626,21 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[7月23日, 2024](./release-notes-291)**
+        **[2024年7月23日](./release-notes-291)**
 
     </div>
 
     <div>
 
-        - 🛠️  RESTful APIエンドポイントのリファクタリング
+        - 🛠️  RESTful API エンドポイントをリファクタリング
 
         - 🤖  簡単な情報検索のためのチャットボット
 
-        - [📋  バックアップ、復元、移行、およびデータインポートのためのワンストップジョブ監視](./job-center)
+        - [📋  バックアップ、復元、マイグレーション、データインポートのためのワンストップジョブモニタリング](./job-center)
 
-        - [📈  自動スケーリング](./manage-cluster)がプライベートプレビューで利用可能
+        - [📈  自動スケーリング](./manage-cluster)がプライベートプレビューで利用可能に
 
-        - 🖼️  画像検索機能が強化されたPipelines
-
-    </div>
-
-</Grid>
-
-<Grid columnSize="2" widthRatios="25,74">
-
-    <div>
-
-        **[6月18日, 2024](./release-notes-290)**
-
-    </div>
-
-    <div>
-
-        - 🚀  Milvus v2.4.xがZilliz Cloudで利用可能になりました
-
-            - [スパースベクトル](./use-sparse-vector)データ型のサポート
-
-            - Float16 & BFloat16ベクトルデータ型のサポート
-
-            - [マルチベクトルハイブリッド検索](./hybrid-search)
-
-            - [転置インデックス](./index-scalar-fields)と[ファジーマッチ](./basic-filtering-operators#example-2-using-like-for-pattern-matching)
-
-            - [グルーピング検索](./grouping-search)
-
-            - 洗練されたMilvusClientインターフェース
-
-        - 📊  Pipelinesがトークン使用量を監視するようになりました
+        - 🖼️  画像検索で強化されたパイプライン
 
     </div>
 
@@ -600,19 +650,49 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[5月15日, 2024](./release-notes-280)**
+        **[2024年6月18日](./release-notes-290)**
 
     </div>
 
     <div>
 
-        - ☁️  サーバーレスクラスタがベータ版となりました
+        - 🚀  Zilliz Cloud で Milvus v2.4.x が利用可能に
 
-        - **新しいリージョン**: 🇩🇪 Azure Germany West Central (フランクフルト)
+            - [スパースベクター](./use-sparse-vector)データタイプのサポート
+
+            - Float16 および BFloat16 ベクターデータタイプのサポート
+
+            - [マルチベクターハイブリッド検索](./hybrid-search)
+
+            - [転置インデックス](./index-scalar-fields)と[ファジーマッチ](./basic-filtering-operators)
+
+            - [グループ化検索](./grouping-search)
+
+            - 洗練された MilvusClient インターフェース
+
+        - 📊  パイプラインがトークン使用量を監視するようになりました。
+
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2024年5月15日](./release-notes-280)**
+
+    </div>
+
+    <div>
+
+        - ☁ー サーバーレスクラスターがベータ版になりました。
+
+        - **新しいリージョン**: 🇩🇪 Azure ドイツ中西部 (フランクフルト)
 
         - **新しいリージョン**: 🇩🇪 GCP europe-west3 (フランクフルト) および 🇺🇸 us-east-4 (バージニア)
 
-        - 🧠  テキストパイプラインと画像パイプラインが利用可能になりました
+        - 🧠  テキストパイプラインと画像パイプラインが利用可能になりました。
 
     </div>
 
@@ -622,39 +702,21 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[4月13日, 2024](./release-notes-270)**
+        **[2024年4月13日](./release-notes-270)**
 
     </div>
 
     <div>
 
-        - [🛒  Azure Marketplace](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/zillizinc1703056661329.zilliz_cloud?tab=PlansAndPrice)が公開
+        - [🛒  Azure Marketplace](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/zillizinc1703056661329.zilliz_cloud?tab=PlansAndPrice) がオンラインになりました。
 
-        - 🔌  Pipelinesがコネクタをサポート
+        - 🔌  パイプラインがコネクターをサポートするようになりました。
 
-        - 🔄  検索パイプラインのリランカー導入
+        - 🔄  パイプラインが検索パイプラインに再ランカーを導入しました。
 
-        - [📊  RESTful APIによるメトリクス監視](/reference/restful/query-metrics)が利用可能
+        - [📊  RESTful API を通じたメトリクスモニタリング](/reference/restful/query-metrics)が利用可能になりました。
 
-        - 🌐  クロスクラウドの[データインポート](./data-import)と[データ移行](./migrations)
-
-    </div>
-
-</Grid>
-
-<Grid columnSize="2" widthRatios="25,74">
-
-    <div>
-
-        **[3月13日, 2024](./release-notes-260)**
-
-    </div>
-
-    <div>
-
-        - 🧠  Pipelinesがより多くの埋め込みモデルをサポート
-
-        - 🎮  Zilliz Cloudコンソールでコレクションプレイグラウンドが利用可能
+        - 🌐  クロスクラウド[データインポート](./data-import)および[マイグレーション](./migrations)
 
     </div>
 
@@ -664,17 +726,35 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[1月18日, 2024](./release-notes-250)**
+        **[2024年3月13日](./release-notes-260)**
 
     </div>
 
     <div>
 
-        - [📥  Parquetファイルからのデータインポート](./data-import)
+        - 🧠  パイプラインがより多くの埋め込みモデルをサポートするようになりました。
 
-        - [🔐  RBAC原則を備えたAPIキー](./manage-api-keys)の強化
+        - 🎮  Zilliz Cloud コンソールでコレクションプレイグラウンドが利用可能になりました。
 
-        - [📊  メトリクスボードとアラートシステム](./metrics-and-alerts)のリファクタリング
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2024年1月18日](./release-notes-250)**
+
+    </div>
+
+    <div>
+
+        - [📥  Parquet ファイルからのデータインポート](./data-import)
+
+        - [🔐  RBAC 原則により強化された API キー](./manage-api-keys)
+
+        - [📊  メトリクスボードとアラートシステム](./metrics-and-alerts)をリファクタリング
 
     </div>
 
@@ -686,21 +766,21 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[12月11日, 2023](./release-notes-240)**
+        **[2023年12月11日](./release-notes-240)**
 
     </div>
 
     <div>
 
-        - ☁️  Zilliz CloudがAzureで利用可能になり、以下のリージョンを提供：
+        - ☁ー Zilliz Cloud が Azure で利用可能になり、以下のリージョンに対応:
 
-            - **新しいリージョン**: 🇺🇸  Azure East US
+            - **新しいリージョン**: 🇺🇸 Azure East US
 
-        - 🚀  Pipelinesがベータ版で利用可能
+        - 🚀  パイプラインがベータ版で利用可能に
 
-        - 🔐  クラスタでのRBACと認証情報管理
+        - 🔐  クラスター内の RBAC と認証情報管理
 
-        - 🛠️  クラスタ関連のRESTful APIエンドポイント
+        - 🛠️  クラスター関連の RESTful API エンドポイント
 
     </div>
 
@@ -710,7 +790,7 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[10月17日, 2023](./release-notes-230)**
+        **[2023年10月17日](./release-notes-230)**
 
     </div>
 
@@ -718,19 +798,19 @@ import Grid from '@site/src/components/Grid';
 
         - **新しいリージョン**: 🇩🇪 AWS フランクフルト (aws-en-central-1)
 
-        - 🚀  Milvus v2.3.xがパブリックプレビューで利用可能
+        - 🚀  Milvus v2.3.x がパブリックプレビューで利用可能に
 
-            - [範囲検索](./range-search)
+            - [レンジ検索](./range-search)
 
-            - [アップサート](./upsert-entities)
+            - [Upsert](./upsert-entities)
 
             - [コサインメトリックタイプ](./search-metrics-explained)
 
             - [アクセス制御](./access-control)
 
-            - 返却される生ベクトル
+            - 返り値としての生ベクター
 
-            - [JSON_CONTAINSフィルタ](./json-filtering-operators)
+            - [JSON_CONTAINS フィルター](./json-filtering-operators)
 
             - [エンティティ数](./count-entities)
 
@@ -742,7 +822,7 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[9月27日, 2023](./release-notes-221)**
+        **[2023年9月27日](./release-notes-221)**
 
     </div>
 
@@ -760,17 +840,17 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[9月13日, 2023](./release-notes-220)**
+        **[2023年9月13日](./release-notes-220)**
 
     </div>
 
     <div>
 
-        - [🔄  Zilliz Cloudクラスタ間のデータ移行](./offline-migration)
+        - [🔄  Zilliz Cloud クラスター間のデータマイグレーション](./offline-migration)
 
-        - [🚀  Elasticsearchからの簡単な移行](./migrate-from-elasticsearch)
+        - [🚀  Elasticsearch からの簡単なマイグレーション](./migrate-from-elasticsearch)
 
-        - [📥  データインポートの機能強化](./prepare-data-import)
+        - [📥  データインポートの拡張](./prepare-data-import)
 
     </div>
 
@@ -780,7 +860,7 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[8月16日, 2023](./release-notes-210)**
+        **[2023年8月16日](./release-notes-210)**
 
     </div>
 
@@ -790,35 +870,9 @@ import Grid from '@site/src/components/Grid';
 
         - **新しいリージョン**: 🇸🇬 GCP シンガポール (asia-southeast-1)
 
-        - 🔄  サーバーレスクラスタから専用クラスタへの移行サポート
+        - 🔄  サーバーレスクラスターから専用クラスターへのマイグレーションサポート
 
-        - 📤  一括挿入のサポート
-
-    </div>
-
-</Grid>
-
-<Grid columnSize="2" widthRatios="25,74">
-
-    <div>
-
-        **[6月11日, 2023](./release-notes-200)**
-
-    </div>
-
-    <div>
-
-        - ☁️  サーバーレスクラスタが利用可能になりました
-
-        - [💰  Zilliz Cloudプラン階層の導入](https://zilliz.com/pricing)
-
-        - 👥  [アクセス制御](./access-control)のための組織、コラボレーション、およびRBAC
-
-        - 🏷️  名前空間分けのためのパーティションキーの導入
-
-        - 📝  動的スキーマが利用可能になりました
-
-        - 📊  新しいデータ型: JSON
+        - 📤  バルクインサートのサポート
 
     </div>
 
@@ -828,19 +882,45 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[4月6日, 2023](./release-notes-110)**
+        **[2023年6月11日](./release-notes-200)**
 
     </div>
 
     <div>
 
-        - [💰  料金計算ツール](https://zilliz.com/pricing#calculator)
+        - ☁ー サーバーレスクラスターが利用可能に
 
-        - [💾  GCPでのバックアップと復元](./backup-and-restore)
+        - [💰  Zilliz Cloud のプラン階層を導入](https://zilliz.com/pricing)
+
+        - 👥  [アクセス制御](./access-control)のための組織、コラボレーション、RBAC
+
+        - 🏷ー  名前空間のためのパーティションキーを導入
+
+        - 📝  動的スキーマが利用可能に
+
+        - 📊  新しいデータタイプ: JSON
+
+    </div>
+
+</Grid>
+
+<Grid columnSize="2" widthRatios="25,74">
+
+    <div>
+
+        **[2023年4月6日](./release-notes-110)**
+
+    </div>
+
+    <div>
+
+        - [💰  料金計算機](https://zilliz.com/pricing#calculator)
+
+        - [💾  GCP でのバックアップと復元](./backup-and-restore)
 
         - [⏰  カスタムタイムゾーン](./organization-settings#manage-timezone)
 
-        - [🔄  コレクション名の変更](./manage-collections-console)
+        - [🔄  コレクションのリネーム](./manage-collections-console)
 
     </div>
 
@@ -850,7 +930,7 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[3月6日, 2023](./release-notes-100)**
+        **[2023年3月6日](./release-notes-100)**
 
     </div>
 
@@ -858,13 +938,13 @@ import Grid from '@site/src/components/Grid';
 
         - **新しいリージョン**: 🇺🇸 GCP オレゴン (us-west1)
 
-        - ☁️  Zilliz Cloudが[AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-iqbidum7feuio)で利用可能になりました
+        - ☁ー Zilliz Cloud が [AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-iqbidum7feuio) で利用可能に
 
-        - [💾  AWSでのバックアップと復元](./backup-and-restore)が利用可能になりました
+        - [💾  AWS でバックアップと復元](./backup-and-restore)が利用可能に
 
-        - [🗑️  データ継続性戦略のためのごみ箱](./use-recycle-bin)
+        - [🗑ー  データ継続性戦略のためのごみ箱](./use-recycle-bin)
 
-        - [🔄  Milvusからの移行](./migrations)
+        - [🔄  Milvus からのマイグレーション](./migrations)
 
     </div>
 
@@ -874,7 +954,7 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[2月13日, 2023](./release-notes-011)**
+        **[2023年2月13日](./release-notes-011)**
 
     </div>
 
@@ -882,7 +962,7 @@ import Grid from '@site/src/components/Grid';
 
         - 📧  Eメール通知
 
-        - 📚  初心者向けのインラインガイダンス
+        - 📚  初心者向けのインラインヘルプ
 
     </div>
 
@@ -892,15 +972,15 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[1月10日, 2023](./release-notes-010)**
+        **[2023年1月10日](./release-notes-010)**
 
     </div>
 
     <div>
 
-        - 👁️  コレクションのデータプレビュー
+        - 👁ー  コレクションのデータプレビュー
 
-        - 📚  ベクトルデータベースに慣れるためのデモデータセット
+        - 📚  初心者がベクトルデータベースに慣れるためのデモデータセット
 
     </div>
 
@@ -912,19 +992,19 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[12月5日, 2022](./release-notes-009)**
+        **[2022年12月5日](./release-notes-009)**
 
     </div>
 
     <div>
 
-        - 🎨  新しいデザインのZilliz Cloudコンソール
+        - 🎨  新しいデザインの Zilliz Cloud コンソール
 
         - **新しいリージョン**: 🇺🇸 AWS オハイオ (us-east-2)
 
-        - [🔐  プライベート Link](./setup-a-private-link)が利用可能になりました
+        - [🔐  プライベートリンク](./setup-a-private-link)が利用可能に
 
-        - [📥  データインポート](./data-import)が利用可能になりました
+        - [📥  データインポート](./data-import)が利用可能に
 
     </div>
 
@@ -934,21 +1014,21 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        **[11月18日, 2022](./release-notes-008)**
+        **[2022年11月18日](./release-notes-008)**
 
     </div>
 
     <div>
 
-        - 🚀  Zilliz Cloudが招待なしで一般公開
+        - 🚀  Zilliz Cloud が招待なしで一般公開
 
-        - ⚡  容量最適化済みCUがオンライン
+        - ⚡  容量最適化済み CU がオンラインに
 
-        - 📊  QPSとクエリレイテンシーのリソースモニター
+        - 📊  QPS とクエリレイテンシのリソースモニター
 
-        - 🛠️  インデックス作成を簡素化するAUTOINDEX
+        - 🛠️  AUTOINDEX によるインデックス作成の簡素化
 
-        - ⚡  より良いユーザーエクスペリエンスのためのUIパフォーマンスの最適化
+        - ⚡  より良いユーザーエクスペリエンスのための UI パフォーマンス最適化
 
     </div>
 
@@ -964,13 +1044,13 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        - 🎨  コレクションビューのリファクタリング
+        - 🎨  コレクションビューをリファクタリング
 
-        - 🔍  ベクトル検索ビューのリファクタリング
+        - 🔍  ベクター検索ビューをリファクタリング
 
-        - 🧑‍💻  Googleでのサインアップが利用可能
+        - 🧑‍💻  Google アカウントでのサインアップが可能に
 
-        - [⚙️  システムメンテナンス設定](./organization-settings)が利用可能
+        - [⚙ー  システムメンテナンス設定](./organization-settings)が利用可能に
 
     </div>
 
@@ -986,21 +1066,21 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        - 📊  より大きな標準ベクトルデータベース。
+        - 📊  より大規模な標準ベクトルデータベース。
 
-        - ⚙️  Cloud UIでのコレクション管理。
+        - ⚙ー  Cloud UI でのコレクション管理。
 
-        - ⚙️  Cloud UIでのインデックス管理。
+        - ⚙ー  Cloud UI でのインデックス管理。
 
-        - 🔍  Cloud UIでのベクトル検索実行。
+        - 🔍  Cloud UI でのベクター検索の実行。
 
         - 🔐  セキュリティ上の理由から、デフォルトでインターネットからのデータベースアクセスを無効化。
 
-        - 🔐  ホワイトリスト機能の改善。
+        - 🔐  ホワイトリストのエクスペリエンスを改善。
 
-        - 💰  クレジットのサポート。
+        - 💰  クレジットをサポート。
 
-        - 🚀  より良いインタラクションのためのCloud UIの改善。
+        - 🚀  Cloud UI を改善し、操作性を向上。
 
     </div>
 
@@ -1016,17 +1096,17 @@ import Grid from '@site/src/components/Grid';
 
     <div>
 
-        - 👁️  Cloud UIでのコレクション表示。
+        - 👁ー  Cloud UI でのコレクションの表示。
 
-        - 👁️  Cloud UIでのコレクションスキーマ表示。
+        - 👁ー  Cloud UI でのコレクションスキーマの表示。
 
-        - ➕  Cloud UIでのコレクション作成。
+        - ➕  Cloud UI でのコレクションの作成。
 
-        - ➖  Cloud UIでのコレクション削除。
+        - ➖  Cloud UI でのコレクションの削除。
 
-        - 👁️  Cloud UIでのインデックス表示。
+        - 👁ー  Cloud UI でのインデックスの表示。
 
-        - 🚀  より良いインタラクションのためのCloud UI。
+        - 🚀  より良い操作性のための Cloud UI。
 
     </div>
 
@@ -1044,21 +1124,21 @@ import Grid from '@site/src/components/Grid';
 
         - **新しいリージョン**: 🇺🇸 AWS オレゴン (us-west-2)
 
-        - ✅  すべてのCore Milvus機能をサポート。
+        - ✅  すべての Core Milvus 機能をサポート。
 
-        - ⏸️  ベクトルデータベースの一時停止と再開をサポート。
+        - ⏸ー  ベクトルデータベースの一時停止と再開をサポート。
 
-        - 📊  基本的なベクトルデータベースメトリクスの表示をサポート。
+        - 📊  ベクトルデータベースの基本的なメトリクス表示をサポート。
 
-        - 👥  データベースユーザー管理をサポート。
+        - 👥  データベースのユーザー管理をサポート。
 
-        - ➕  複数のプロジェクト作成をサポート。
+        - ➕  複数プロジェクトの作成をサポート。
 
-        - 🔐  プロジェクトレベルでのIPホワイトリスト設定をサポート。
+        - 🔐  プロジェクトレベルでの IP ホワイトリスト設定をサポート。
 
-        - 👁️  ユーザー操作イベントの表示をサポート。
+        - 👁ー  ユーザー操作イベントの表示をサポート。
 
-        - 🔐  EメールによるMFAの有効化をサポート。
+        - 🔐  メールによる MFA 有効化をサポート。
 
     </div>
 

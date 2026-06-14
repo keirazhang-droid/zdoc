@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2023年9月27日） | Cloud"
+title: "リリースノート (2023年9月27日) | Cloud"
 slug: /release-notes-221
 sidebar_key: release-notes-221
 sidebar_label: "2023年9月27日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud のローンチを発表できることを嬉しく思います。このリリースでは、新しい CU サイズオプションによる柔軟性の向上、前払いのサポート、さらに多くの AWS リージョンなど、さまざまな機能強化と新機能を導入しています。 | Cloud"
+description: "Zilliz Cloudのローンチをお知らせできることを大変嬉しく思います。このリリースでは、新しいCUサイズオプションによる柔軟性の向上、前払いサポート、AWSリージョンの追加など、さまざまな機能強化と新機能を導入しています。 | Cloud"
 type: origin
 token: YtxBwrPfBiuFDdk10GVcYY1DnGg
-sidebar_position: 27
+sidebar_position: 28
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

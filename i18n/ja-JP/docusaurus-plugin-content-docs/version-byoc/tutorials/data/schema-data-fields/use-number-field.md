@@ -1,23 +1,23 @@
 ---
-title: "Boolean & Number | BYOC"
+title: "ブーリアン & 数値 | BYOC"
 slug: /use-number-field
 sidebar_key: use-number-field
-sidebar_label: "Boolean & Number"
+sidebar_label: "ブーリアン & 数値"
 beta: FALSE
 notebook: FALSE
-description: "Boolean フィールドまたは数値フィールドは、ブール値または数値を格納するスカラーフィールドです。これらの値は、2 つの可能な値のいずれか、整数、または浮動小数点数となります。これらは通常、数量、測定値、または論理的あるいは数学的に処理が必要なデータを表すために使用されます。| BYOC"
+description: "ブーリアンまたは数値フィールドは、ブーリアン値または数値を格納するスカラーフィールドです。これらの値は、2つの可能な値のうちの1つ、または整数（整数）と小数（浮動小数点数）のいずれかです。これらは通常、数量、測定値、または論理的または数学的に処理する必要があるデータを表すために使用されます。 | BYOC"
 type: origin
 token: EwArwXCOPip15hkSvvpciAMJnSe
-sidebar_position: 7
+sidebar_position: 8
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
+  - クラウド
+  - コレクション
+  - スキーマ
   - 数値フィールド
   - int
-  - integer
+  - 整数
   - float
 
 ---
@@ -28,66 +28,66 @@ import TabItem from '@theme/TabItem';
 
 # Boolean & Number
 
-ブールフィールドまたは数値フィールドは、ブール値または数値を格納するスカラーフィールドです。これらの値は、2つの可能な値のいずれか、または整数（**integers**）および小数（**浮動小数点数**）のいずれかになります。通常、数量や測定値、または論理的・数学的に処理する必要のあるデータを表現するために使用されます。
+ブール値または数値フィールドは、ブール値または数値を格納するスカラーフィールドです。これらの値は、2つの可能な値のいずれか、または整数（**integers**）と小数（**浮動小数点数**）です。これらは通常、数量、測定値、または論理的または数学的に処理する必要があるデータを表すために使用されます。
 
-以下の表は、Zilliz Cloud クラスターで利用可能な数値フィールドのデータ型を示しています。
+以下の表は、Zilliz Cloud クラスタで利用可能な数値フィールドのデータ型を説明しています。
 
 <table>
    <tr>
-     <th><p>Field Type</p></th>
-     <th><p>Description</p></th>
+     <th><p>フィールド型</p></th>
+     <th><p>説明</p></th>
    </tr>
    <tr>
      <td><p><code>BOOL</code></p></td>
-     <td><p>Boolean type for storing <code>true</code> or <code>false</code>, suitable for describing binary states.</p></td>
+     <td><p>ブール型で、<code>true</code> または <code>false</code> を格納します。2値状態の記述に適しています。</p></td>
    </tr>
    <tr>
      <td><p><code>INT8</code></p></td>
-     <td><p>8-bit integer, suitable for storing small-range integer data.</p></td>
+     <td><p>8ビット整数で、小さな範囲の整数データの格納に適しています。</p></td>
    </tr>
    <tr>
      <td><p><code>INT16</code></p></td>
-     <td><p>16-bit integer, for medium-range integer data.</p></td>
+     <td><p>16ビット整数で、中程度の範囲の整数データに適しています。</p></td>
    </tr>
    <tr>
      <td><p><code>INT32</code></p></td>
-     <td><p>32-bit integer, ideal for general integer data storage like product quantities or user IDs.</p></td>
+     <td><p>32ビット整数で、商品数量やユーザーIDなどの一般的な整数データの格納に最適です。</p></td>
    </tr>
    <tr>
      <td><p><code>INT64</code></p></td>
-     <td><p>64-bit integer, suitable for storing large-range data like timestamps or identifiers.</p></td>
+     <td><p>64ビット整数で、タイムスタンプや識別子などの大きな範囲のデータの格納に適しています。</p></td>
    </tr>
    <tr>
      <td><p><code>FLOAT</code></p></td>
-     <td><p>32-bit floating-point number, for data requiring general precision, such as ratings or temperature.</p></td>
+     <td><p>32ビット浮動小数点数で、評価や温度などの一般的な精度を必要とするデータに適しています。</p></td>
    </tr>
    <tr>
      <td><p><code>DOUBLE</code></p></td>
-     <td><p>64-bit double-precision floating-point number, for high-precision data like financial information or scientific calculations.</p></td>
+     <td><p>64ビット倍精度浮動小数点数で、財務情報や科学計算などの高精度データに適しています。</p></td>
    </tr>
 </table>
 
-ブールフィールドを宣言するには、`datatype` を `BOOL` に設定します。数値フィールドを宣言するには、利用可能な数値データ型のいずれかに設定します。たとえば、整数フィールドの場合は `データType.INT64`、浮動小数点数フィールドの場合は `データType.FLOAT` を使用します。
+ブールフィールドを宣言するには、`datatype` を `BOOL` に設定するだけです。数値フィールドを宣言するには、利用可能な数値データ型のいずれかに設定するだけです。例えば、整数フィールドの場合は `データType.INT64`、浮動小数点フィールドの場合は `データType.FLOAT` です。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>Zilliz Cloud supports null values and default values for boolean and number fields. To enable these features, set <code>nullable</code> to <code>True</code> and <code>default_value</code> to a numeric value. For details, refer to <a href="./nullable-fields">NULL許容 & Default</a>.</p>
+Zilliz Cloud は、ブール値および数値フィールドに対して NULL 値とデフォルト値をサポートしています。これらの機能を有効にするには、`nullable` を `True` に設定し、`default_value` を数値に設定します。詳細については、[NULL許容 & Default](./nullable-fields) を参照してください。
 
 </Admonition>
 
-## Add boolean and number fields\{#add-boolean-and-number-fields}
+## ブール値および数値フィールドの追加\{#add-boolean-and-number-fields}
 
-ブール値または数値データを格納するには、コレクションスキーマ内で対応するタイプのフィールドを定義します。以下は、2つの数値フィールドを持つコレクションスキーマの例です：
+ブール値または数値データを格納するには、コレクションスキーマに対応する型のフィールドを定義します。以下は、2つの数値フィールドを持つコレクションスキーマの例です：
 
-- `age`: 整数データを格納し、NULL許容で、デフォルト値は `18` です。
+- `age`: 整数データを格納し、NULL 値を許可し、デフォルト値は `18` です。
 
-- `broken`: ブールデータを格納し、NULL許容ですが、デフォルト値はありません。
+- `broken`: ブールデータを格納し、NULL 値を許可しますが、デフォルト値はありません。
 
-- `price`: 浮動小数点数データを格納し、NULL許容ですが、デフォルト値はありません。
+- `price`: 浮動小数点データを格納し、NULL 値を許可しますが、デフォルト値はありません。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>If you set <code>enable_dynamic_fields=True</code> when defining the schema, Zilliz Cloud allows you to insert スカラーフィールド that were not defined in advance. However, this may increase the complexity of queries and management, potentially impacting performance. For more information, refer to <a href="./enable-dynamic-field">Dynamic Field</a>.</p>
+スキーマを定義する際に `enable_dynamic_fields=True` を設定すると、Zilliz Cloud は事前に定義されていないスカラーフィールドの挿入を許可します。ただし、これによりクエリや管理の複雑さが増し、パフォーマンスに影響を与える可能性があります。詳細については、[Dynamic Field](./enable-dynamic-field) を参照してください。
 
 </Admonition>
 
@@ -303,13 +303,36 @@ export schema="{
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"pk", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR).WithDimension(3));
+schema->AddField(milvus::FieldSchema("price", milvus::DataType::FLOAT).WithNullable(true));
+schema->AddField(milvus::FieldSchema("age", milvus::DataType::INT64).WithNullable(true).WithDefaultValue(18));
+schema->AddField(milvus::FieldSchema("broken", milvus::DataType::BOOL).WithNullable(true));
+```
+
+</TabItem>
 </Tabs>
 
-## インデックスパラメータの設定\{#set-index-params}
+## Set index params\{#set-index-params}
 
-インデックス作成は、検索およびクエリのパフォーマンスを向上させます。Zilliz Cloudクラスターでは、ベクトルフィールドに対してはインデックス作成が必須ですが、スカラーフィールドに対しては任意です。
+インデックス作成は、検索およびクエリのパフォーマンス向上に役立ちます。Zilliz Cloud クラスタでは、ベクトルフィールドに対してインデックス作成は必須ですが、スカラーフィールドに対してはオプションです。
 
-次の例では、ベクトルフィールド `embedding` とスカラーフィールド `age` の両方に `AUTOINDEX` インデックスタイプを使用してインデックスを作成しています。このタイプでは、Milvusがデータ型に基づいて最も適したインデックスを自動的に選択します。詳細については、[AUTOINDEX Explained](./autoindex-explained) を参照してください。
+次の例では、ベクトルフィールド `embedding` とスカラーフィールド `age` の両方にインデックスを作成し、どちらも `AUTOINDEX` インデックスタイプを使用しています。このタイプでは、Milvus がデータ型に基づいて最適なインデックスを自動的に選択します。詳細については、[AUTOINDEX の解説](./autoindex-explained) を参照してください。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -406,6 +429,17 @@ export indexParams='[
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("age", "inverted_index", milvus::IndexType::AUTOINDEX),
+    milvus::IndexDesc("embedding", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+```
+
+</TabItem>
 </Tabs>
 
 ## コレクションの作成\{#create-collection}
@@ -472,11 +506,26 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
     \"indexParams\": $indexParams
 }"
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("my_collection")
+                                        .WithIndexes(std::move(indexes))
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -589,6 +638,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "data": [
         {"age": 25, "price": 99.99, "pk": 1, "embedding": [0.1, 0.2, 0.3]},
@@ -597,6 +647,28 @@ curl --request POST \
     ],
     "collectionName": "my_collection"
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::EntityRows data = {{{"age", 25}, {"price", 99.99}, {"pk", 1}, {"embedding", std::vector<float>{0.1, 0.2, 0.3}}},
+                            {{"age", 30}, {"pk", 2}, {"embedding", std::vector<float>{0.4, 0.5, 0.6}}},
+                            {{"age", nullptr}, {"price", nullptr}, {"pk", 3}, {"embedding", std::vector<float>{0.2, 0.3, 0.1}},
+                            {{"age", 45}, {"price", nullptr}, {"pk", 4}, {"embedding", std::vector<float>{0.9, 0.1, 0.4}}},
+                            {{"age", nullptr}, {"price", 59.99}, {"pk", 5}, {"embedding", std::vector<float>{0.8, 0.5, 0.3}},
+                            {{"age", 60}, {"price", nullptr}, {"pk", 6}, {"embedding", std::vector<float>{0.1, 0.6, 0.9}}};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -693,6 +765,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": "age > 30",
@@ -700,6 +773,31 @@ curl --request POST \
 }'
 
 ## {"code":0,"cost":0,"data":[{"age":30,"pk":2,"price":149.5},{"age":35,"pk":3,"price":199.99}]}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("age > 30")
+                       .AddOutputField("age")
+                       .AddOutputField("price")
+                       .AddOutputField("pk");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
 ```
 
 </TabItem>
@@ -804,11 +902,37 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
   "collectionName": "my_collection",
   "filter": "price is null",
   "outputFields": ["age", "price", "pk"]
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("price IS NULL")
+                       .AddOutputField("age")
+                       .AddOutputField("price")
+                       .AddOutputField("pk");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
 ```
 
 </TabItem>
@@ -909,11 +1033,31 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
   "collectionName": "my_collection",
   "filter": "age == 18",
   "outputFields": ["age", "price", "pk"]
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("age == 18")
+                       .AddOutputField("age")
+                       .AddOutputField("price")
+                       .AddOutputField("pk");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -1032,6 +1176,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "data": [
@@ -1046,6 +1191,35 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::vector<float> query_vector = {0.3, -0.6, 0.1};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("embedding")
+                   .WithLimit(5)
+                   .AddOutputField("age")
+                   .AddOutputField("price")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
-この例では、まずクエリベクトルを定義し、検索時にフィルター条件 `25 <= age <= 35` を追加します。これにより、検索結果がクエリベクトルに類似しているだけでなく、指定された年齢範囲にも合致することが保証されます。詳細については、[フィルタリング](./filtering) を参照してください。
+この例では、まずクエリベクトルを定義し、検索時にフィルタ条件 `25 <= age <= 35` を追加します。これにより、検索結果はクエリベクトルと類似しているだけでなく、指定された年齢範囲も満たすことが保証されます。詳細については、[フィルタリング](./filtering) を参照してください。

@@ -11,7 +11,7 @@ notebook: FALSE
 description: "Applications that track time across regions, such as e-commerce systems, collaboration tools, or distributed logging, need precise handling of timestamps with time zones. The `TIMESTAMPTZ` data type in Zilliz Cloud provides this capability by storing timestamps with their associated time zone. | BYOC"
 type: origin
 token: RxUiwJ77WiFKZGkC8rEcLeopnTf
-sidebar_position: 12
+sidebar_position: 13
 keywords: 
   - zilliz
   - vector database
@@ -209,6 +209,7 @@ curl --request POST \
      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create \
      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \
      --header 'Content-Type: application/json' \
+     --header "Request-Timeout: 10" \
      --data '{
        "collectionName": "timestamptz_test123",
        "schema": {
@@ -233,6 +234,31 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true});
+schema->AddField(milvus::FieldSchema("tsz", milvus::DataType::TIMESTAMPTZ));
+schema->AddField(milvus::FieldSchema("vec", milvus::DataType::FLOAT_VECTOR).WithDimension(4));
+
+const std::string collection_name = "timestamptz_test123";
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName(collection_name)
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Step 2: Insert data\{#step-2-insert-data}
 
@@ -372,11 +398,51 @@ data: data,
 <TabItem value='bash'>
 
 ```bash
-curl --request POST \      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert \      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      --header 'Content-Type: application/json' \      --data '{        "collectionName": "timestamptz_test123",        "data": [          { "id": 1, "tsz": "2026-01-14T19:50:00Z", "vec": [0.1, 0.2, 0.3, 0.4] },          { "id": 2, "tsz": "2026-01-14T12:00:00+08:00", "vec": [0.5, 0.6, 0.7, 0.8] },          { "id": 3, "vec": [0.9, 0.0, 0.1, 0.2] }        ]      }'
+curl --request POST \      
+    --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert \      
+    --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      
+    --header 'Content-Type: application/json' \      
+    --header "Request-Timeout: 10" \
+    --data '{        "collectionName": "timestamptz_test123",        "data": [          { "id": 1, "tsz": "2026-01-14T19:50:00Z", "vec": [0.1, 0.2, 0.3, 0.4] },          { "id": 2, "tsz": "2026-01-14T12:00:00+08:00", "vec": [0.5, 0.6, 0.7, 0.8] },          { "id": 3, "vec": [0.9, 0.0, 0.1, 0.2] }        ]      }'
 ```
 
 </TabItem>
 </Tabs>
+
+```c++
+std::string
+pad(int num, int width) {
+    std::ostringstream oss;
+    oss << std::setw(width) << std::setfill('0') << num;
+    return oss.str();
+}
+
+std::string
+formatDateWithTimezone(int year, int month, int day, int hour, int minute, int second,
+                       std::string timezoneOffset = "+08:00") {
+    std::string ts = std::to_string(year) + "-" + pad(month, 2) + "-" + pad(day, 2) + "T" + pad(hour, 2) + ":" +
+                     pad(minute, 2) + ":" + pad(second, 2) + timezoneOffset;
+    return ts;
+}
+
+milvus::EntityRows rows;
+for (auto i = 0; i < 10; i++) {
+    milvus::EntityRow row;
+    row["id"] = i;
+    row["vec"] = std::vector<float>{i/10, (i+1)/10, (i+2)/10, (i+3)/10};
+    std::string ts = formatDateWithTimezone(2025, 01, i + 1, 0, 0, 0);
+    row["tsz"] = ts;
+    rows.emplace_back(std::move(row));
+}
+
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName(collection_name)
+                                .WithRowsData(std::move(data)).
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Step 3: Filtering operations\{#step-3-filtering-operations}
 
@@ -466,11 +532,31 @@ await client.loadCollection({
 <TabItem value='bash'>
 
 ```bash
-curl --request POST \      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/load \      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      --header 'Content-Type: application/json' \      --data '{ "collectionName": "timestamptz_test123" }'
+curl --request POST \      
+    --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/load \      
+    --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      
+    --header 'Content-Type: application/json' \      
+    --header "Request-Timeout: 10" \
+    --data '{ "collectionName": "timestamptz_test123" }'
 ```
 
 </TabItem>
 </Tabs>
+
+```c++
+milvus::IndexDesc index_vector("vec", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE);
+auto status = client->CreateIndex(milvus::CreateIndexRequest()
+                                    .WithCollectionName(collection_name)
+                                    .AddIndex(std::move(index_vector)));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->LoadCollection(milvus::LoadCollectionRequest().WithCollectionName(collection_name));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 </details>
 
@@ -564,6 +650,7 @@ curl --request POST \
      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/query \
      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \
      --header 'Content-Type: application/json' \
+     --header "Request-Timeout: 10" \
      --data '{
        "collectionName": "timestamptz_test123",
        "filter": "tsz != ISO '\''2025-01-03T00:00:00+08:00'\''",
@@ -574,6 +661,28 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+std::string filter = "tsz != ISO '2025-01-03T00:00:00+08:00'";
+auto request = milvus::QueryRequest()
+                       .WithCollectionName(collection_name)
+                       .WithFilter(filter)
+                       .AddOutputField("id")
+                       .AddOutputField("tsz")
+                       .WithLimit(10);
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
 
 In the example above,
 
@@ -657,11 +766,38 @@ console.log(results);
 <TabItem value='bash'>
 
 ```bash
-curl --request POST \      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/query \      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      --header 'Content-Type: application/json' \      --data '{        "collectionName": "timestamptz_test123",        "filter": "tsz + INTERVAL '\''P0D'\'' != ISO '\''2025-01-03T00:00:00+08:00'\''",        "outputFields": ["id", "tsz"],        "limit": 10      }'
+curl --request POST \      
+    --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/query \      
+    --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      
+    --header 'Content-Type: application/json' \      
+    --header "Request-Timeout: 10" \
+    --data '{        "collectionName": "timestamptz_test123",        "filter": "tsz + INTERVAL '\''P0D'\'' != ISO '\''2025-01-03T00:00:00+08:00'\''",        "outputFields": ["id", "tsz"],        "limit": 10      }'
 ```
 
 </TabItem>
 </Tabs>
+
+```c++
+std::string filter = "tsz + INTERVAL 'P0D' != ISO '2025-01-03T00:00:00+08:00'";
+auto request = milvus::QueryRequest()
+                       .WithCollectionName(collection_name)
+                       .WithFilter(filter)
+                       .AddOutputField("id")
+                       .AddOutputField("tsz")
+                       .WithLimit(10);
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
 
 <Admonition type="info" icon="📘" title="Notes">
 
@@ -761,11 +897,43 @@ console.log(results);
 <TabItem value='bash'>
 
 ```bash
-curl --request POST \      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/search \      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      --header 'Content-Type: application/json' \      --data '{        "collectionName": "timestamptz_test123",        "data": [[0.1, 0.2, 0.3, 0.4]],        "limit": 5,        "filter": "tsz > ISO '\''2025-01-05T00:00:00+08:00'\''",        "outputFields": ["id", "tsz"]      }'
+curl --request POST \      
+    --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/search \      
+    --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      
+    --header 'Content-Type: application/json' \      
+    --header "Request-Timeout: 10" \
+    --data '{        "collectionName": "timestamptz_test123",        "data": [[0.1, 0.2, 0.3, 0.4]],        "limit": 5,        "filter": "tsz > ISO '\''2025-01-05T00:00:00+08:00'\''",        "outputFields": ["id", "tsz"]      }'
 ```
 
 </TabItem>
 </Tabs>
+
+```c++
+std::string filter = "tsz > ISO '2025-01-05T00:00:00+08:00'";
+std::vector<float> query_vector = {0.1, 0.2, 0.3, 0.4};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName(collection_name)
+                   .WithFilter(filter)
+                   .WithLimit(5)
+                   .AddOutputField("id")
+                   .AddOutputField("tsz")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
 
 <Admonition type="info" icon="📘" title="Notes">
 

@@ -1,23 +1,23 @@
 ---
-title: "小文字変換 | Cloud"
+title: "小文字 | Cloud"
 slug: /lowercase-filter
 sidebar_key: lowercase-filter
-sidebar_label: "小文字変換"
+sidebar_label: "小文字"
 beta: FALSE
 notebook: FALSE
-description: '`lowercase` フィルターは、トークナイザーによって生成された用語を小文字に変換し、大文字・小文字を区別しない検索を可能にします。例えば、`["High", "Performance", "Vector", "Database"]` を `["high", "performance", "vector", "database"]` に変換できます。 | Cloud'
+description: '`lowercase`フィルタは、トークナイザーによって生成された用語を小文字に変換し、検索で大文字と小文字を区別しないようにします。例えば、`["High", "Performance", "Vector", "Database"]` を `["high", "performance", "vector", "database"]` に変換します。 | Cloud'
 type: origin
 token: AhAhw08MFiB9OpkDjbPcVUTVnlg
 sidebar_position: 1
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
+  - クラウド
+  - コレクション
   - スキーマ
   - アナライザー
   - 組み込みフィルター
-  - lowercase
+  - 小文字
 
 ---
 
@@ -89,15 +89,23 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
-`lowercase` フィルターはトークナイザーによって生成された語彙項（term）に対して動作するため、トークナイザーと組み合わせて使用する必要があります。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {"lowercase"}}
+};
 
-`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud はそのフィールド内のテキストを指定されたアナライザーを使って処理し、効率的なトークン化およびフィルタリングを実現します。詳細については、[使用例](./analyzer-overview#example-use)を参照してください。
+```
+
+`lowercase` フィルターは、トークナイザーによって生成されたトークンに対して動作するため、トークナイザーと組み合わせて使用する必要があります。
+
+`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングを実行できます。詳細については、[使用例](./analyzer-overview#example-use) を参照してください。
 
 ## 例\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
+アナライザー構成をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
 
-### アナライザー設定\{#analyzer-configuration}
+### アナライザー構成\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -145,6 +153,13 @@ analyzerParams := map[string]any{"tokenizer": "standard", "filter": []any{"lower
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {"lowercase"}}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -247,6 +262,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "The Lowercase Filter Ensures Uniformity In Text Processing.";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

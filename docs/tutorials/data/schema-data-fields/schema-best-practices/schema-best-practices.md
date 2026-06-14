@@ -11,7 +11,7 @@ notebook: FALSE
 description: "This chapter covers best practices for schema design related to your dataset. | Cloud"
 type: origin
 token: Gi6KwjOlKiBhdOkxlL3cdobBnLe
-sidebar_position: 19
+sidebar_position: 20
 keywords: 
   - zilliz
   - vector database

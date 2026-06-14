@@ -5,19 +5,19 @@ sidebar_key: ascii-folding-filter
 sidebar_label: "ASCII フォールディング"
 beta: FALSE
 notebook: FALSE
-description: "`asciifolding` フィルターは、基本ラテン Unicode ブロック外の文字をそれらの ASCII 相当文字に変換します。たとえば、`í` を `i` に変換することで、テキスト処理をよりシンプルかつ一貫性のあるものにします。これは特に多言語コンテンツにおいて有効です。| BYOC"
+description: "`asciifolding` フィルターは、Basic Latin Unicode ブロック外の文字を ASCII の同等文字に変換します。例えば、`í` を `i` に変換することで、特に多言語コンテンツのテキスト処理をよりシンプルで一貫性のあるものにします。 | BYOC"
 type: origin
 token: SFLCweOuaiChuVkjazqcqyE7neb
 sidebar_position: 2
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
   - 組み込みフィルター
-  - ascii フォールディング
+  - ASCII フォールディング
 
 ---
 
@@ -25,13 +25,13 @@ import Admonition from '@theme/Admonition';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# ASCII folding
+# ASCII フォールディング
 
-`asciifolding` フィルターは、[Basic Latin Unicode ブロック](https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block))（最初の127文字のASCII文字）外の文字を、それに対応するASCII文字に変換します。例えば、`í` のような文字を `i` に変換することで、テキスト処理をよりシンプルかつ一貫性のあるものにし、特に多言語コンテンツに対して効果的です。
+`asciifolding` フィルターは、[Basic Latin Unicode ブロック](https://en.wikipedia.org/wiki/Basic_Latin_(Unicode_block))（最初の127 ASCII 文字）の外側の文字を、それらの ASCII 相当の文字に変換します。例えば、`í` から `i` のような文字を変換し、テキスト処理をよりシンプルかつ一貫性のあるものにします。特に多言語コンテンツに有効です。
 
 ## 設定\{#configuration}
 
-`asciifolding` フィルターは Zilliz Cloud に組み込まれています。使用するには、`analyzer_params` 内の `filter` セクションでその名前を指定するだけです。
+`asciifolding` フィルターは Zilliz Cloud に組み込まれています。使用するには、`analyzer_params` 内の `filter` セクションに名前を指定するだけです。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -90,15 +90,22 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
-`asciifolding` フィルターはトークナイザーによって生成された語彙項に対して動作するため、トークナイザーと組み合わせて使用する必要があります。Zilliz Cloud で利用可能なトークナイザーの一覧については、[トークナイザー Reference](./analyzer-tokenizers) を参照してください。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {"asciifolding"}}
+};
+```
 
-`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` 型フィールドに適用できます。これにより、Zilliz Cloud はそのフィールド内のテキストを指定されたアナライザーを使って処理し、効率的なトークン化およびフィルタリングを実現します。詳細については、[Example use](./analyzer-overview#example-use) を参照してください。
+`asciifolding` フィルターは、トークナイザーによって生成されたトークンに対して動作するため、トークナイザーと組み合わせて使用する必要があります。Zilliz Cloud で利用可能なトークナイザーの一覧については、[トークナイザーリファレンス](./analyzer-tokenizers) を参照してください。
 
-## 例\{#examples}
+`analyzer_params` を定義した後、コレクションスキーマを定義する際に、それらを `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングを実現できます。詳細については、[使用例](./analyzer-overview#example-use) を参照してください。
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を検証してください。
+## Examples\{#examples}
 
-### アナライザー設定\{#analyzer-configuration}
+アナライザー構成をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認します。
+
+### Analyzer configuration\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -146,6 +153,13 @@ analyzerParams = map[string]any{"tokenizer": "standard", "filter": []any{"asciif
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {"asciifolding"}}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -248,6 +262,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "Café Möller serves crème brûlée and piñatas.";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

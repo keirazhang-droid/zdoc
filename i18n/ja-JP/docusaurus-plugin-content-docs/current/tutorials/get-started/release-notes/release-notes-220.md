@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2023年9月13日） | Cloud"
+title: "リリースノート (2023年9月13日) | Cloud"
 slug: /release-notes-220
 sidebar_key: release-notes-220
 sidebar_label: "2023年9月13日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud のリリースをお知らせします。Zilliz Cloud クラスター間および ElasticSearch からのデータ移行、新しいチケットシステムの稼働、強化されたデータインポート機能など、ユーザーエクスペリエンスを向上させる新機能を多数搭載しています。 | Cloud"
+description: "Zilliz Cloudのリリースを発表できることを嬉しく思います。このリリースには、Zilliz Cloudクラスター間およびElasticSearchからのデータ移行、新しいチケットシステムの稼働、データインポート機能の強化など、ユーザーエクスペリエンスを向上させるための新機能が多数搭載されています。 | Cloud"
 type: origin
 token: GqyhwKVspiYRwDk8OaucNfgJnhd
-sidebar_position: 28
+sidebar_position: 29
 keywords: 
-  - zilliz
+  - Zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

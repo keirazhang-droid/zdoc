@@ -99,6 +99,13 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "jieba"},
+    {"filter", {"cnalphanumonly"}}
+};
+```
+
 ### Configuration\{#configuration}
 
 To apply the `chinese` analyzer to a field, simply set `type` to `chinese` in `analyzer_params`.
@@ -152,6 +159,12 @@ analyzerParams='{
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "chinese"}
+};
+```
 
 <Admonition type="info" icon="📘" title="Notes">
 
@@ -212,6 +225,12 @@ analyzerParams='{"type": "chinese"}'
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "chinese"}
+};
+```
 
 ### Verification using `run_analyzer`\{#verification-using-runanalyzer}
 
@@ -333,6 +352,29 @@ curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/common/run_analyzer" \
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "Milvus 是一个高性能、可扩展的向量数据库！";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Expected output\{#expected-output}
 

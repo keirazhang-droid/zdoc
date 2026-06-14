@@ -102,6 +102,17 @@ analyzerParams='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {"lowercase"}},
+};
+```
+
+</TabItem>
 </Tabs>
 
 ## Configuration\{#configuration}
@@ -153,6 +164,16 @@ analyzerParams = map[string]any{"type": "standard"}
 analyzerParams='{
   "type": "standard"
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+};
 ```
 
 </TabItem>
@@ -227,6 +248,17 @@ analyzerParams='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "standard"},
+    {"stop_words", {"of"}},
+};
+```
+
+</TabItem>
 </Tabs>
 
 After defining `analyzer_params`, you can apply them to a `VARCHAR` field when defining a collection schema. This allows Zilliz Cloud to process the text in that field using the specified analyzer for efficient tokenization and filtering. For more information, refer to [Example use](./analyzer-overview#example-use).
@@ -289,6 +321,17 @@ analyzerParams='{
     "for"
   ]
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "standard"},
+    {"stop_words", {"for"}},
+};
 ```
 
 </TabItem>
@@ -391,6 +434,33 @@ if err != nil {
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "The Milvus vector database is built for scale!";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>

@@ -11,7 +11,7 @@ notebook: FALSE
 description: "When working with large-scale datasets, you often don't need to process all your data to gain insights or test filtering logic. Random sampling provides a solution by allowing you to work with a statistically representative subset of your data, significantly reducing query time and resource consumption. | BYOC"
 type: origin
 token: ByJbwcpoCiBkDckR3VCcC4LTneg
-sidebar_position: 7
+sidebar_position: 8
 keywords: 
   - zilliz
   - vector database
@@ -83,6 +83,14 @@ filter := "RANDOM_SAMPLE(sampling_factor)"
 ```bash
 # restful
 export filterRandomSample='RANDOM_SAMPLE(sampling_factor)'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto filter = "RANDOM_SAMPLE(sampling_factor)";
 ```
 
 </TabItem>
@@ -163,6 +171,15 @@ export filterSampleCorrect='color == "red" AND RANDOM_SAMPLE(0.001)'
 # Incorrect: OR doesn't make logical sense
 export filterSampleIncorrect='color == "red" OR RANDOM_SAMPLE(0.001)'  # ❌ Invalid logic
 # This would mean: "Either red items OR sample everything" - which is meaningless
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto filter_sample_correct = R"(color == "red" AND RANDOM_SAMPLE(0.001))";
+auto filter_sample_incorrect = R"(color == "red" OR RANDOM_SAMPLE(0.001))";
 ```
 
 </TabItem>
@@ -292,6 +309,35 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("product_catalog")
+                       .WithFilter("RANDOM_SAMPLE(0.01)")
+                       .AddOutputField("id")
+                       .AddOutputField("product_name")
+                       .WithLimit(10);
+
+milvus::QueryResponse response;
+status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
 ### Example 2: Combined filtering with random sampling\{#example-2-combined-filtering-with-random-sampling}
@@ -375,6 +421,27 @@ curl --request POST \
   \"outputFields\": [\"product_name\", \"price\", \"rating\"]
 }"
 
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto filter = R"(category == "electronics" AND price > 100 AND RANDOM_SAMPLE(0.005))";
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("product_catalog")
+                       .WithFilter(filter)
+                       .AddOutputField("product_name")
+                       .AddOutputField("price")
+                       .AddOutputField("rating")
+                       .WithLimit(10);
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -473,6 +540,27 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto filter = R"(customer_tier == "premium" AND region == "North America" AND RANDOM_SAMPLE(0.001))"
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("customer_profiles")
+                       .WithFilter(filter)
+                       .AddOutputField("purchase_amount")
+                       .AddOutputField("satisfaction_score")
+                       .AddOutputField("last_purchase_date")
+                       .WithLimit(10);
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
 ### Example 4: Combined with vector search\{#example-4-combined-with-vector-search}
@@ -489,7 +577,7 @@ search_results = client.search(
     data=[[0.1, 0.2, 0.3, 0.4, 0.5]],  # query vector
     # highlight-next-line
     filter='category == "books" AND RANDOM_SAMPLE(0.01)',
-    search_params={"metric_type": "L2", "params": {}},
+    search_params={"params": {}},
     output_fields=["title", "author", "price"],
     limit=10
 )
@@ -570,6 +658,28 @@ for _, resultSet := range resultSets {
 export TOKEN="YOUR_CLUSTER_TOKEN"
 export CLUSTER_ENDPOINT="YOUR_CLUSTER_ENDPOINT"
 
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+std::vector<float> query_vector = {0.1, 0.2, 0.3, 0.4, 0.5};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("product_catalog")
+                   .WithLimit(10)
+                   .WithFilter(R"(category == "books" AND RANDOM_SAMPLE(0.01))")
+                   .AddOutputField("title")
+                   .AddOutputField("author")
+                   .AddOutputField("price")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>

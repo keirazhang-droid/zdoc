@@ -219,6 +219,20 @@ const rerank = {
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto rerank = std::make_shared<milvus::DecayRerank>("restaurant_distance_decay");
+rerank->AddInputFieldName("distance");
+rerank->SetFunction("gauss");
+rerank->SetOrigin(0);
+rerank->SetScale(2000);
+rerank->SetOffset(300);
+rerank->SetDecay(0.5);
+```
+
+</TabItem>
 </Tabs>
 
 ### Apply to standard vector search\{#apply-to-standard-vector-search}
@@ -299,5 +313,30 @@ const result = await milvusClient.search({
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='c++'>
+
+```c++
+auto function_score = std::make_shared<milvus::FunctionScore>();
+function_score->AddFunction(rerank);
+
+auto request = milvus::SearchRequest()
+                   .WithCollectionName(collection_name)
+                   .WithAnnsField("dense")
+                   .WithRerank(function_score)
+                   .WithLimit(10)
+                   .AddOutputField("name")
+                   .AddOutputField("cuisine")
+                   .AddOutputField("distance")
+                   .AddFloatVector(your_query_vector)
+                   .WithConsistencyLevel(milvus::ConsistencyLevel::STRONG);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+</Tabs>

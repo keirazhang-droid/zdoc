@@ -5,7 +5,7 @@ sidebar_key: view-collections
 sidebar_label: "表示"
 beta: FALSE
 notebook: FALSE
-description: "現在接続されているデータベース内のすべてのコレクション名のリストを取得し、特定のコレクションの詳細を確認できます。| BYOC"
+description: "現在接続中のデータベースにあるすべてのコレクションの名前リストを取得し、特定のコレクションの詳細を確認できます。 | BYOC"
 type: origin
 token: VAirw0c7ZiKCSqkjtDscAsC4nAf
 sidebar_position: 4
@@ -127,7 +127,30 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/list" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{}'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::ListCollectionsResponse response;
+status = client->ListCollections(milvus::ListCollectionsRequest(), response);
+for (auto& name : response.CollectionNames()) {
+    std::cout << "\t" << name << std::endl;
+}
 ```
 
 </TabItem>
@@ -204,9 +227,27 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/describe" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup"
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::DescribeCollectionResponse response;
+auto status = client->DescribeCollection(milvus::DescribeCollectionRequest()
+                                            .WithCollectionName("quick_setup"),
+                                         response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::cout << "Collection name: " << response.Desc().CollectionName() << std::endl;
+std::cout << "Collection ID: " << response.Desc().ID() << std::endl;
 ```
 
 </TabItem>  

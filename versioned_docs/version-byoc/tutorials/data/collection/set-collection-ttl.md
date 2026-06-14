@@ -260,11 +260,26 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
     \"params\": $params
 }"
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("my_collection")
+                                        .WithCollectionSchema(schema)
+                                        .AddProperty(milvus::COLLECTION_TTL_SECONDS, "1209600"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -376,12 +391,26 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/alter_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"properties\": {
         \"collection.ttl.seconds\": 1209600
     }
 }"
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->AlterCollectionProperties(milvus::AlterCollectionPropertiesRequest()
+                                                   .WithCollectionName("my_collection")
+                                                   .AddProperty(milvus::COLLECTION_TTL_SECONDS, "1209600"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -468,6 +497,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/drop_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"propertyKeys\": [
@@ -477,9 +507,22 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->DropCollectionProperties(milvus::DropCollectionPropertiesRequest()
+                                                  .WithCollectionName("my_collection")
+                                                  .AddPropertyKey(milvus::COLLECTION_TTL_SECONDS));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
-## Set entity-level TTL | Private Preview\{#set-entity-level-ttl}
+## Set entity-level TTL | PRIVATE\{#set-entity-level-ttl}
 
 Entity-level TTL lets each entity carry its own absolute expiration time. The time is stored in a dedicated `TIMESTAMPTZ` column that you declare in the schema, and you mark that column as the TTL field through the `ttl_field` collection property.
 
@@ -599,6 +642,14 @@ await client.createCollection({
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>
@@ -736,6 +787,14 @@ await client.insert({
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
+```
+
+</TabItem>
 </Tabs>
 
 On every query and vector search, the server auto-injects the TTL filter — you never write one yourself, and expired entities never appear in the results:
@@ -832,6 +891,14 @@ console.log(results.data);
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>
@@ -933,6 +1000,14 @@ await client.upsert({
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>
@@ -1087,6 +1162,14 @@ await client.upsert({
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
+```
+
+</TabItem>
 </Tabs>
 
 ### Drop the TTL setting\{#drop-the-ttl-setting}
@@ -1163,6 +1246,14 @@ await client.dropCollectionProperties({
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>

@@ -72,9 +72,11 @@ This feature is available only to **Dedicated** clusters.
 
 - **During Scaling**: The cluster status changes to “Modifying,” during which no operations can be performed. If multiple scaling tasks are triggered, they will be processed sequentially based on trigger timestamp. Completion time depends on data volume.
 
+- **Billing during scaling:** During a query CU scaling job, Zilliz Cloud continues to bill the cluster based on the previous query CU configuration. The new query CU count is used for billing only after the scaling job is completed successfully. If the scaling job is still in progress or does not complete, billing remains based on the previous query CU configuration.
+
 - **Performance Impact**: Scaling may cause slight service jitter.
 
-- **Backup Limitations**: Dynamic and scheduled scaling settings are not included in [backups](./create-snapshot). After restoring a cluster, reconfigure these settings manually.
+- **Backup Limitations**: Dynamic and scheduled scaling settings are not included in [backups](./create-backup). After restoring a cluster, reconfigure these settings manually.
 
 ## Manual scaling\{#manual-scaling}
 
@@ -143,7 +145,11 @@ curl --request POST \
 
 ## Dynamic scaling\{#dynamic-scaling}
 
-https://zilliverse.feishu.cn/sync/EaQKd6kURsSBc1bD8Loc4RsjnCg
+<Admonition type="info" icon="📘" title="Notes">
+
+This feature is available only to **Dedicated** clusters in an **Enterprise** project.
+
+</Admonition>
 
 Zilliz Cloud supports dynamic scaling to help you maintain performance while eliminating manual intervention. When enabled, the system automatically adjusts the **query CU** resources based on the real-time **CU capacity** metric, ensuring your workload is served efficiently without service disruption.
 
@@ -249,13 +255,17 @@ When a scaling job is in progress, you cluster status will change to "Modifying"
 
 ## FAQ\{#faq}
 
-1. **What are the limitations when scaling down a cluster?**
+**What are the limitations when scaling down a cluster?**
 
-    Clusters with replicas cannot scale down to fewer than 8 CUs.
+Clusters with replicas cannot scale down to fewer than 8 CUs.
 
-    A scale-down request will only succeed if both of the following conditions are met:
+A scale-down request will only succeed if both of the following conditions are met:
 
-    - The current data volume is less than 80% of the new CU size's capacity.
+- The current data volume is less than 80% of the new CU size's capacity.
 
-    - The number of collections and partitions is within the limit allowed by the new CU size.
+- The number of collections and partitions is within the limit allowed by the new CU size.
+
+**When I scale a Dedicated cluster, am I billed based on the old configuration or the new configuration during scaling?**
+
+During [scaling](./scale-cluster), you are billed based on the previous configuration. The new configuration is used for billing only after the scaling job completes successfully. 
 

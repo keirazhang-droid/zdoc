@@ -142,10 +142,34 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/rename" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "newCollectionName": "my_new_collection"
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->RenameCollection(milvus::RenameCollectionRequest()
+                                    .WithCollectionName("my_collection")
+                                    .WithNewCollectionName("my_new_collection"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -174,7 +198,7 @@ All the properties listed in this section apply only to managed collections.
    </tr>
    <tr>
      <td><p><code>ttl_field</code></p></td>
-     <td><p>Name of the <code>TIMESTAMPTZ</code> field that stores each entity's absolute expiration timestamp (<strong>entity-level TTL</strong>). Each entity expires exactly when wall-clock time reaches the value stored in this field; a <code>NULL</code> in the field means the entity never expires. Mutually exclusive with <code>collection.ttl.seconds</code>.</p><p>For details, refer to <a href="./set-collection-ttl#set-entity-level-ttl-or-private-preview">Set entity-level TTL</a>.</p></td>
+     <td><p>Name of the <code>TIMESTAMPTZ</code> field that stores each entity's absolute expiration timestamp (<strong>entity-level TTL</strong>). Each entity expires exactly when wall-clock time reaches the value stored in this field; a <code>NULL</code> in the field means the entity never expires. Mutually exclusive with <code>collection.ttl.seconds</code>.</p><p>For details, refer to <a href="./set-collection-ttl#set-entity-level-ttl-or-private">Set entity-level TTL</a>.</p></td>
    </tr>
    <tr>
      <td><p><code>mmap.enabled</code></p></td>
@@ -267,12 +291,26 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/alter_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "properties": {
         "collection.ttl.seconds": 60
     }
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->AlterCollectionProperties(milvus::AlterCollectionPropertiesRequest()
+                                                   .WithCollectionName("my_collection")
+                                                   .AddProperty(milvus::COLLECTION_TTL_SECONDS, "60"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -327,6 +365,14 @@ client.alter_collection_properties(
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>
@@ -400,6 +446,19 @@ curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/alter_properties" \
       "mmap.enabled": "true"
     }
   }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->AlterCollectionProperties(milvus::AlterCollectionPropertiesRequest()
+                                                   .WithCollectionName("my_collection")
+                                                   .AddProperty(milvus::MMAP_ENABLED, "true"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -477,6 +536,19 @@ curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/alter_properties" \
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->AlterCollectionProperties(milvus::AlterCollectionPropertiesRequest()
+                                                   .WithCollectionName("my_collection")
+                                                   .AddProperty("partitionkey.isolation", "true"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
 ### Example 5: Enable dynamic field\{#example-5-enable-dynamic-field}
@@ -548,6 +620,19 @@ curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/alter_properties" \
       "dynamicfield.enabled": "true"
     }
   }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->AlterCollectionProperties(milvus::AlterCollectionPropertiesRequest()
+                                                   .WithCollectionName("my_collection")
+                                                   .AddProperty("dynamicfield.enabled", "true"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -627,6 +712,19 @@ curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/alter_properties" \
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->AlterCollectionProperties(milvus::AlterCollectionPropertiesRequest()
+                                                   .WithCollectionName("my_collection")
+                                                   .AddProperty("allow_insert_auto_id", "true"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
 ### Example 7: Set collection time zone\{#example-7-set-collection-time-zone}
@@ -699,6 +797,19 @@ curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/alter_properties" \
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->AlterCollectionProperties(milvus::AlterCollectionPropertiesRequest()
+                                                   .WithCollectionName("my_collection")
+                                                   .AddProperty("timezone", "Asia/Shanghai"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
 ## Drop Collection Properties\{#drop-collection-properties}
@@ -760,6 +871,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/drop_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "propertyKeys": [
@@ -769,5 +881,17 @@ curl --request POST \
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='c++'>
+
+```c++
+auto status = client->DropCollectionProperties(milvus::DropCollectionPropertiesRequest()
+                                                  .WithCollectionName("my_collection")
+                                                  .AddPropertyKey(milvus::COLLECTION_TTL_SECONDS));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+</Tabs>

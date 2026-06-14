@@ -11,7 +11,7 @@ notebook: FALSE
 description: "Zilliz Cloud supports advanced operators for querying and filtering JSON fields, making them perfect for managing complex, structured data. These operators enable highly effective querying of JSON documents, allowing you to retrieve entities based on specific elements, values, or conditions within the JSON fields. This section will guide you through using JSON-specific operators in Zilliz Cloud, providing practical examples to illustrate their functionality. | Cloud"
 type: origin
 token: Py6zwu6r4iPMqVkKAYXcUYLEnXg
-sidebar_position: 4
+sidebar_position: 5
 keywords: 
   - zilliz
   - vector database

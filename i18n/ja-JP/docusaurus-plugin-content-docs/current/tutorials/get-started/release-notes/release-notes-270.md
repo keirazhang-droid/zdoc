@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2024年4月3日） | Cloud"
+title: "リリースノート (2024年4月3日) | Cloud"
 slug: /release-notes-270
 sidebar_key: release-notes-270
 sidebar_label: "2024年4月3日"
 beta: FALSE
 notebook: FALSE
-description: "今回のアップデートでは、Zilliz Cloud の強力なツールと機能強化が導入されました。オブジェクトストレージなどからの簡単なデータ取り込みを実現する新しい Connectors、検索の関連性を向上させる Rerankers、システム状態の詳細な分析を可能にする Metrics Monitoring API、および AWS S3、Google Cloud Storage、Azure Blob Storage からベクトルデータベースインスタンスへの直接インポートを可能にする Cross Cloud Data Import 機能です。これらの機能が組み合わさることで、データの取り込み、検索の精度、運用の可視性が向上し、クラウド上でのベクトルデータベースの管理が効率化されます。 | Cloud"
+description: "今回のアップデートでは、Zilliz Cloud に強力なツールと拡張機能が導入されました。新たなコネクターにより、オブジェクトストレージなどのソースからの簡単なデータ取り込みが可能になり、Reranker により検索の関連性が向上し、メトリクスモニタリング API による詳細なシステム状態分析、そして Cross Cloud データインポート機能により、AWS S3、Google Cloud Storage、Azure Blob Storage からベクトルデータベースインスタンスへの直接インポートが可能になります。これらの機能により、データ取り込み、検索精度、運用洞察が向上し、クラウド上でのベクトルデータベース管理が効率化されます。 | Cloud"
 type: origin
 token: S7PMwgqGOiURCpkTFT4cTnTjnAc
-sidebar_position: 22
+sidebar_position: 23
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

@@ -8,7 +8,7 @@ last_modified: FALSE
 deprecate_since: FALSE
 beta: FALSE
 notebook: FALSE
-description: "The `NGRAM` index in Zilliz Cloud is built to accelerate `LIKE` queries on `VARCHAR` fields or specific JSON paths within `JSON` fields. Before building the index, Zilliz Cloud splits text into short, overlapping substrings of a fixed length n, known as n-grams. For example, with n = 3, the word \"Milvus\" is split into 3-grams \"Mil\", \"ilv\", \"lvu\", and \"vus\". These n-grams are then stored in an inverted index that maps each gram to the document IDs in which it appears. At query time, this index allows Zilliz Cloud to quickly narrow the search to a small set of candidates, resulting in much faster query execution. | Cloud"
+description: "The `NGRAM` index in Zilliz Cloud accelerates `LIKE` queries and eligible regex filters on `VARCHAR` fields or specific JSON paths within `JSON` fields. Before building the index, Zilliz Cloud splits text into short, overlapping substrings of a fixed length n, known as n-grams. For example, with n = 3, the word \"Zilliz Cloud\" is split into 3-grams \"Mil\", \"ilv\", \"lvu\", and \"vus\". These n-grams are then stored in an inverted index that maps each gram to the document IDs in which it appears. At query time, this index allows Zilliz Cloud to quickly narrow the search to a small set of candidates before verifying the original filter condition. | Cloud"
 type: origin
 token: Q0wpw4xZiimaUsk4GvScAg2un1d
 sidebar_position: 3
@@ -27,9 +27,9 @@ import Admonition from '@theme/Admonition';
 
 # NGRAM
 
-The `NGRAM` index in Zilliz Cloud is built to accelerate `LIKE` queries on `VARCHAR` fields or specific JSON paths within `JSON` fields. Before building the index, Zilliz Cloud splits text into short, overlapping substrings of a fixed length *n*, known as *n-grams*. For example, with *n = 3*, the word *"Milvus"* is split into 3-grams: *"Mil"*, *"ilv"*, *"lvu"*, and *"vus"*. These n-grams are then stored in an inverted index that maps each gram to the document IDs in which it appears. At query time, this index allows Zilliz Cloud to quickly narrow the search to a small set of candidates, resulting in much faster query execution.
+The `NGRAM` index in Zilliz Cloud accelerates `LIKE` queries and eligible regex filters on `VARCHAR` fields or specific JSON paths within `JSON` fields. Before building the index, Zilliz Cloud splits text into short, overlapping substrings of a fixed length *n*, known as *n-grams*. For example, with *n = 3*, the word *"Zilliz Cloud"* is split into 3-grams: *"Mil"*, *"ilv"*, *"lvu"*, and *"vus"*. These n-grams are then stored in an inverted index that maps each gram to the document IDs in which it appears. At query time, this index allows Zilliz Cloud to quickly narrow the search to a small set of candidates before verifying the original filter condition.
 
-Use it when you need fast prefix, suffix, infix, or wildcard filtering such as:
+Use it when you need fast prefix, suffix, infix, wildcard, or eligible regex filtering such as:
 
 - `name LIKE "data%"`
 
@@ -37,9 +37,13 @@ Use it when you need fast prefix, suffix, infix, or wildcard filtering such as:
 
 - `path LIKE "%json"`
 
+- `message =~ "error.*timeout"`
+
+- `url =~ "/api/v[0-9]+/users"`
+
 <Admonition type="info" icon="📘" title="Notes">
 
-For details on filter expression syntax, refer to [Basic Operators](./basic-filtering-operators#range-operators).
+For details on `LIKE` and regex filter expression syntax, refer to [Pattern Matching](./undefined).
 
 </Admonition>
 
@@ -57,69 +61,69 @@ During data ingestion, Zilliz Cloud builds the NGRAM index by performing two mai
 
 1. **Decompose text into n-grams**: Zilliz Cloud slides a window of *n* across each string in the target field and extracts overlapping substrings, or *n-grams*. The length of these substrings falls within a configurable range, `[min_gram, max_gram]`.
 
-    - `min_gram`: The shortest n-gram to generate. This also defines the minimum query substring length that can benefit from the index.
+- `min_gram`: The shortest n-gram to generate. This also defines the minimum query substring length that can benefit from the index.
 
-    - `max_gram`: The longest n-gram to generate. At query time, it is also used as the maximum window size when splitting long query strings.
+- `max_gram`: The longest n-gram to generate. At query time, it is also used as the maximum window size when splitting long query strings.
 
-    For example, with `min_gram=2` and `max_gram=3`, the string `"AI database"` is broken down as follows:
+For example, with `min_gram=2` and `max_gram=3`, the string `"AI database"` is broken down as follows:
 
-    ![QZqlwniNDhE82ZbzE09cd7uHnWd](https://zdoc-images.s3.us-west-2.amazonaws.com/QZqlwniNDhE82ZbzE09cd7uHnWd.png)
+![Build Ngram Index](https://milvus-docs.s3.us-west-2.amazonaws.com/assets/build-ngram-index.png)
 
-    - **2-grams:** `AI`, `I_`, `_d`, `da`, `at`, ...
+- **2-grams:** `AI`, `I_`, `_d`, `da`, `at`, ...
 
-    - **3-grams:** `AI_`, `I_d`, `_da`, `dat`, `ata`, ...
+- **3-grams:** `AI_`, `I_d`, `_da`, `dat`, `ata`, ...
 
-    <Admonition type="info" icon="📘" title="Notes">
+<div class="alert note">
 
-    - For a range `[min_gram, max_gram]`, Zilliz Cloud generates all n-grams for every length between the two values (inclusive). For example, with `[2,4]` and the word `"text"`, Zilliz Cloud generates:
+- For a range `[min_gram, max_gram]`, Zilliz Cloud generates all n-grams for every length between the two values (inclusive). For example, with `[2,4]` and the word `"text"`, Zilliz Cloud generates:
 
-        - **2-grams:** `te`, `ex`, `xt`
+- **2-grams:** `te`, `ex`, `xt`
 
-        - **3-grams:** `tex`, `ext`
+- **3-grams:** `tex`, `ext`
 
-        - **4-grams:** `text`
+- **4-grams:** `text`
 
-    - N-gram decomposition is character-based and language-agnostic. For example, in Chinese, `"向量数据库"` with `min_gram = 2` is decomposed into: `"向量"`, `"量数"`, `"数据"`, `"据库"`.
+- N-gram decomposition is character-based and language-agnostic. For example, in Chinese, `"向量数据库"` with `min_gram = 2` is decomposed into: `"向量"`, `"量数"`, `"数据"`, `"据库"`.
 
-    - Spaces and punctuation are treated as characters during decomposition.
+- Spaces and punctuation are treated as characters during decomposition.
 
-    - Decomposition preserves original case, and matching is case-sensitive. For example, `"Database"` and `"database"` will generate different n-grams and require exact case matching during queries.
+- Decomposition preserves original case, and matching is case-sensitive. For example, `"Database"` and `"database"` will generate different n-grams and require exact case matching during queries.
 
-    </Admonition>
+</div>
 
 1. **Build an inverted index**: An **inverted index** is created that maps each generated n-gram to a list of the document IDs containing it.
 
-    For instance, if the 2-gram `"AI"` appears in documents with IDs 1, 5, 6, 8, and 9, the index records `{"AI": [1, 5, 6, 8, 9]}`. This index is then used at query time to quickly narrow the search scope.
+For instance, if the 2-gram `"AI"` appears in documents with IDs 1, 5, 6, 8, and 9, the index records `{"AI": [1, 5, 6, 8, 9]}`. This index is then used at query time to quickly narrow the search scope.
 
-    ![BVPlwaN7Lh7UZibGopwcAcYQn1d](https://zdoc-images.s3.us-west-2.amazonaws.com/BVPlwaN7Lh7UZibGopwcAcYQn1d.png)
+![Build Ngram Index 2](https://milvus-docs.s3.us-west-2.amazonaws.com/assets/build-ngram-index-2.png)
 
-    <Admonition type="info" icon="📘" title="Notes">
+<div class="alert note">
 
-    A wider `[min_gram, max_gram]` range creates more grams and larger mapping lists. If memory is tight, consider mmap mode for very large posting lists. For details, refer to [Use mmap](./use-mmap).
+A wider `[min_gram, max_gram]` range creates more grams and larger mapping lists. If memory is tight, consider mmap mode for very large posting lists. For details, refer to [Use mmap](./use-mmap).
 
-    </Admonition>
+</div>
 
 ### Phase 2: Accelerate queries\{#phase-2-accelerate-queries}
 
-When a `LIKE` filter is executed, Zilliz Cloud uses the NGRAM index to accelerate the query in the following steps:
+When a `LIKE` filter or an eligible regex filter is executed, Zilliz Cloud uses the NGRAM index to accelerate the query in the following steps:
 
-![XKwRwOPv6hqzpTb3ue8cbM8WnGe](https://zdoc-images.s3.us-west-2.amazonaws.com/XKwRwOPv6hqzpTb3ue8cbM8WnGe.png)
+![Accelerate Queries](https://milvus-docs.s3.us-west-2.amazonaws.com/assets/accelerate-queries.png)
 
-1. **Extract the query term:** The contiguous substring without wildcards is extracted from the `LIKE` expression (e.g., `"%database%"` becomes `"database"`).
+1. **Extract the query term:** The contiguous substring without wildcards is extracted from the `LIKE` expression (e.g., `"%database%"` becomes `"database"`). For regex filters, Zilliz Cloud extracts fixed literal substrings from the regex pattern when possible. For example, `message =~ "error.*timeout"` contains the literals `error` and `timeout`.
 
 1. **Decompose the query term:** The query term is decomposed into *n-grams* based on its length (`L`) and the `min_gram` and `max_gram` settings.
 
-    - If `L < min_gram`, the index cannot be used, and the query falls back to a full scan.
+- If `L < min_gram`, the index cannot be used, and the query falls back to a full scan.
 
-    - If `min_gram ≤ L ≤ max_gram`, the entire query term is treated as a single n-gram, and no further decomposition is necessary.
+- If `min_gram ≤ L ≤ max_gram`, the entire query term is treated as a single n-gram, and no further decomposition is necessary.
 
-    - If `L > max_gram`, the query term is broken down into overlapping grams using a window size equal to `max_gram`.
+- If `L > max_gram`, the query term is broken down into overlapping grams using a window size equal to `max_gram`.
 
-    For example, if the `max_gram` is set to `3` and the query term is `"database"`, which has a length of **8**, it is decomposed into 3-gram substrings like `"dat"`, `"ata"`, `"tab"`, and so on.
+For example, if the `max_gram` is set to `3` and the query term is `"database"`, which has a length of **8**, it is decomposed into 3-gram substrings like `"dat"`, `"ata"`, `"tab"`, and so on.
 
 1. **Look for each gram & intersect**: Zilliz Cloud looks up each of the query grams in the inverted index and then intersects the resulting document ID lists to find a small set of candidate documents. These candidates contain all the grams from the query.
 
-1. **Verify and return results:** The original `LIKE` filter is then applied as a final check on only the small candidate set to find the exact matches.
+1. **Verify and return results:** The original `LIKE` or regex filter is then applied as a final check on only the small candidate set to find the exact matches.
 
 ## Create an NGRAM index\{#create-an-ngram-index}
 
@@ -212,47 +216,42 @@ For the NGRAM index to be applied:
 - The query must target a `VARCHAR` field (or JSON path) that has an `NGRAM` index.
 
 - The literal part of the `LIKE` pattern must be at least `min_gram` characters long.
-*(For example, if your shortest expected query term is 2 characters, set min_gram=2 when creating the index.)*
+
+    *(For example, if your shortest expected query term is 2 characters, set min_gram=2 when creating the index.)*
 
 Supported query types:
 
 - **Prefix match**
 
-    ```python
-    # Match any string that starts with the substring "database"
-    filter = 'text LIKE "database%"'
-    ```
+```python # Match any string that starts with the substring "database" filter = 'text LIKE "database%"'` ``
 
 - **Suffix match**
 
-    ```python
-    # Match any string that ends with the substring "database"
-    filter = 'text LIKE "%database"'
-    ```
+```python # Match any string that ends with the substring "database" filter = 'text LIKE "%database"'` ``
 
 - **Infix match**
 
-    ```python
-    # Match any string that contains the substring "database" anywhere
-    filter = 'text LIKE "%database%"'
-    ```
+```python # Match any string that contains the substring "database" anywhere filter = 'text LIKE "%database%"'` ``
 
 - **Wildcard match**
 
-    Zilliz Cloud supports both `%` (zero or more characters) and `_` (exactly one character).
+Zilliz Cloud supports both `%` (zero or more characters) and `_` (exactly one character).
 
-    ```python
-    # Match any string where "st" appears first, and "um" appears later in the text 
-    filter = 'text LIKE "%st%um%"'
-    ```
+```python # Match any string where "st" appears first, and "um" appears later in the text filter = 'text LIKE "%st%um%"'` ``
 
 - **JSON path queries**
 
-    ```python
-    filter = 'json_field["body"] LIKE "%database%"'
-    ```
+```python filter = 'json_field["body"] LIKE "%database%"'` ``
 
-For more information on filter expression syntax, refer to [Basic Operators](./basic-filtering-operators).
+- **Regex filter**
+
+```python # Match log messages that contain "error" followed later by "timeout" filter = 'text =~ "error.*timeout"'` ``
+
+- **Regex filter on a JSON path**
+
+```python filter = 'json_field["body"] =~ "error.*timeout"'` ``
+
+For more information on filter expression syntax, refer to [Pattern Matching](./undefined).
 
 ## Drop an index\{#drop-an-index}
 
@@ -274,6 +273,12 @@ client.drop_index(
 ## Usage notes\{#usage-notes}
 
 - **Field types**: Supported on `VARCHAR` and `JSON` fields. For JSON, provide both `params.json_path` and `params.json_cast_type="varchar"`.
+
+- **Regex acceleration**: `NGRAM` accelerates regex filters only when Zilliz Cloud can extract fixed literal substrings from the regex pattern. Patterns such as `[a-z]+` may fall back to scanning because they do not contain fixed literals.
+
+- **Case-insensitive regex**: Regex patterns with `(?i)` are supported, but they may skip `NGRAM` optimization because the index preserves original case.
+
+- **Verification step**: For regex filters, `NGRAM` produces candidates and Zilliz Cloud verifies them with the full RE2 regex pattern, so index acceleration does not change match results.
 
 - **Unicode**: NGRAM decomposition is character-based and language-agnostic and includes whitespace and punctuation.
 

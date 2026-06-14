@@ -11,7 +11,7 @@ notebook: FALSE
 description: "You can alter the properties of a collection field to change column constraints or enforce stricter data integrity rules. | BYOC"
 type: origin
 token: PLjFwlcT8ilFBakYXyfcg6S2n7d
-sidebar_position: 17
+sidebar_position: 18
 keywords: 
   - zilliz
   - vector database
@@ -29,7 +29,9 @@ import TabItem from '@theme/TabItem';
 
 # Alter Collection Field
 
-You can alter the properties of a collection field to change column constraints or enforce stricter data integrity rules. 
+You can alter the properties of a collection field to change column constraints or enforce stricter data integrity rules.
+
+This page covers field property changes, not schema-shape changes such as adding or dropping fields. To add scalar fields or drop fields from an existing collection, refer to [Alter Collection Schema](./add-fields-to-an-existing-collection).
 
 <Admonition type="info" icon="📘" title="Notes">
 
@@ -145,17 +147,38 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/collections/fields/alter_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
---data "{
+--header "Request-Timeout: 10" \
+--data '{
     "collectionName": "my_collection",
     "field_name": "varchar",
     "properties": {
         "max_length": "1024"
     }
-}"
+}'
 ```
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->AlterCollectionFieldProperties(milvus::AlterCollectionFieldPropertiesRequest()
+                    .WithCollectionName("my_collection")
+                    .WithFieldName("varchar")
+                    .AddProperty("max_length", "1024"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ## Alter ARRAY field\{#alter-array-field}
 
@@ -225,17 +248,28 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/collections/fields/alter_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
---data "{
+--header "Request-Timeout: 10" \
+--data '{
     "collectionName": "my_collection",
     "field_name": "array",
     "properties": {
         "max_capacity": "64"
     }
-}"
+}'
 ```
 
 </TabItem>
 </Tabs>
+
+```c++
+auto status = client->AlterCollectionFieldProperties(milvus::AlterCollectionFieldPropertiesRequest()
+                                                .WithCollectionName("my_collection")
+                                                .WithFieldName("array")
+                                                .AddProperty("max_capacity", "64"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ## Alter field-level mmap settings\{#alter-field-level-mmap-settings}
 
@@ -303,15 +337,25 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/collections/fields/alter_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
---data "{
+--header "Request-Timeout: 10" \
+--data '{
     "collectionName": "my_collection",
     "field_name": "doc_chunk",
     "properties": {
         "mmap.enabled": True
     }
-}"
+}'
 ```
 
 </TabItem>
 </Tabs>
 
+```c++
+auto status = client->AlterCollectionFieldProperties(milvus::AlterCollectionFieldPropertiesRequest()
+                                                    .WithCollectionName("my_collection")
+                                                    .WithFieldName("doc_chunk")
+                                                    .AddProperty("mmap.enabled", "true"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```

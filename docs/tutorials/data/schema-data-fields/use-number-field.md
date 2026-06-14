@@ -11,7 +11,7 @@ notebook: FALSE
 description: "A boolean or number field is a scalar field that stores boolean or numeric values. These values can be one of two possible values or whole numbers (integers) and decimal numbers (floating-point numbers). They are typically used to represent quantities, measurements, or any data that needs to be logically or mathematically processed. | Cloud"
 type: origin
 token: EwArwXCOPip15hkSvvpciAMJnSe
-sidebar_position: 7
+sidebar_position: 8
 keywords: 
   - zilliz
   - vector database
@@ -306,6 +306,29 @@ export schema="{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"pk", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR).WithDimension(3));
+schema->AddField(milvus::FieldSchema("price", milvus::DataType::FLOAT).WithNullable(true));
+schema->AddField(milvus::FieldSchema("age", milvus::DataType::INT64).WithNullable(true).WithDefaultValue(18));
+schema->AddField(milvus::FieldSchema("broken", milvus::DataType::BOOL).WithNullable(true));
+```
+
+</TabItem>
 </Tabs>
 
 ## Set index params\{#set-index-params}
@@ -409,6 +432,17 @@ export indexParams='[
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("age", "inverted_index", milvus::IndexType::AUTOINDEX),
+    milvus::IndexDesc("embedding", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+```
+
+</TabItem>
 </Tabs>
 
 ## Create collection\{#create-collection}
@@ -475,11 +509,26 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
     \"indexParams\": $indexParams
 }"
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("my_collection")
+                                        .WithIndexes(std::move(indexes))
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -592,6 +641,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "data": [
         {"age": 25, "price": 99.99, "pk": 1, "embedding": [0.1, 0.2, 0.3]},
@@ -600,6 +650,28 @@ curl --request POST \
     ],
     "collectionName": "my_collection"
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+milvus::EntityRows data = {{{"age", 25}, {"price", 99.99}, {"pk", 1}, {"embedding", std::vector<float>{0.1, 0.2, 0.3}}},
+                            {{"age", 30}, {"pk", 2}, {"embedding", std::vector<float>{0.4, 0.5, 0.6}}},
+                            {{"age", nullptr}, {"price", nullptr}, {"pk", 3}, {"embedding", std::vector<float>{0.2, 0.3, 0.1}},
+                            {{"age", 45}, {"price", nullptr}, {"pk", 4}, {"embedding", std::vector<float>{0.9, 0.1, 0.4}}},
+                            {{"age", nullptr}, {"price", 59.99}, {"pk", 5}, {"embedding", std::vector<float>{0.8, 0.5, 0.3}},
+                            {{"age", 60}, {"price", nullptr}, {"pk", 6}, {"embedding", std::vector<float>{0.1, 0.6, 0.9}}};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -696,6 +768,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": "age > 30",
@@ -703,6 +776,31 @@ curl --request POST \
 }'
 
 ## {"code":0,"cost":0,"data":[{"age":30,"pk":2,"price":149.5},{"age":35,"pk":3,"price":199.99}]}
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("age > 30")
+                       .AddOutputField("age")
+                       .AddOutputField("price")
+                       .AddOutputField("pk");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
 ```
 
 </TabItem>
@@ -807,11 +905,37 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
   "collectionName": "my_collection",
   "filter": "price is null",
   "outputFields": ["age", "price", "pk"]
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("price IS NULL")
+                       .AddOutputField("age")
+                       .AddOutputField("price")
+                       .AddOutputField("pk");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
 ```
 
 </TabItem>
@@ -912,11 +1036,31 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
   "collectionName": "my_collection",
   "filter": "age == 18",
   "outputFields": ["age", "price", "pk"]
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("age == 18")
+                       .AddOutputField("age")
+                       .AddOutputField("price")
+                       .AddOutputField("pk");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -1035,6 +1179,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "data": [
@@ -1046,6 +1191,35 @@ curl --request POST \
 }'
 
 ## {"code":0,"cost":0,"data":[{"age":35,"distance":-0.19054288,"id":3,"price":199.99},{"age":30,"distance":-0.20163085,"id":2,"price":149.5},{"age":25,"distance":-0.2364331,"id":1,"price":99.99}]}
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+std::vector<float> query_vector = {0.3, -0.6, 0.1};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("embedding")
+                   .WithLimit(5)
+                   .AddOutputField("age")
+                   .AddOutputField("price")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
 ```
 
 </TabItem>

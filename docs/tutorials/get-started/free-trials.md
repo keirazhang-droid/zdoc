@@ -11,7 +11,7 @@ notebook: FALSE
 description: "Zilliz Cloud offers both free cluster and free trial to help you evaluate or test the powerful vector database features and estimate costs of using Zilliz Cloud. To start, simply register an account on Zilliz Cloud. No payment information is required. | Cloud"
 type: origin
 token: LMfdwRwKIiJtywkwbHVcGnOFnRf
-sidebar_position: 12
+sidebar_position: 13
 keywords: 
   - zilliz
   - vector database
@@ -23,6 +23,8 @@ keywords:
 
 import Admonition from '@theme/Admonition';
 
+
+import Procedures from '@site/src/components/Procedures';
 
 # Try Zilliz Cloud For Free
 
@@ -50,21 +52,31 @@ When you sign up for Zilliz Cloud with a work email, your organization will rece
 
 After the trial, your organization will be frozen. During this time, your Serverless and Dedicated clusters will be moved to the [recycle bin](./use-recycle-bin), and you won't have access to features exclusive to these clusters (e.g., Backup and restore, alerts, etc.).
 
-To unfreeze your organization, simply [add a payment method](./payment-billing). This will allow you to restore deleted data from the recycle bin. If you don't add a payment method within 30 days of freezing, your Serverless and Dedicated clusters will be permanently deleted, but your organization will still be preserved.
+To unfreeze your organization, simply [add a payment method](./billing-management). This will allow you to restore deleted data from the recycle bin. If you don't add a payment method within 30 days of freezing, your Serverless and Dedicated clusters will be permanently deleted, but your organization will still be preserved.
 
 ### Earn credits and extend credit expiration\{#earn-credits-and-extend-credit-expiration}
 
-When you register with a work email, you’ll receive &#36;100 in free credits. You can earn an extra &#36;100 by [adding a payment method](./payment-billing) on Zilliz Cloud. Plus, adding a payment method extends the credit expiration to **1 year**.
+When you register with a work email, you’ll receive &#36;100 in free credits. You can earn an extra &#36;100 by [adding a payment method](./billing-management) on Zilliz Cloud. Plus, adding a payment method extends the credit expiration to **1 year**.
 
 If you need additional credits or want to extend your trial period, please [contact sales](https://zilliz.com/contact-sales).
 
 ### View credit balance\{#view-credit-balance}
 
-You can quickly check your remaining credits and their expiration at the bottom of the left navigation pane. 
+To view your credit balance:
 
-Alternatively, navigate to the **Credits** section on the **Billing Overview** page.
+![FWMbwmjNKh6Qt3btRCyc4KKSnZf](https://zdoc-images.s3.us-west-2.amazonaws.com/FWMbwmjNKh6Qt3btRCyc4KKSnZf.png)
 
-![view-credit-balance](https://zdoc-images.s3.us-west-2.amazonaws.com/view-credit-balance.png "view-credit-balance")
+<Procedures>
+
+1. Navigate to your organization on Zilliz Cloud .
+
+1. Go to **Billing**.
+
+1. Check the **Credits** section for your remaining balance.
+
+</Procedures>
+
+## Monitor credit alerts\{#monitor-credit-alerts}
 
 <Admonition type="info" icon="📘" title="Notes">
 

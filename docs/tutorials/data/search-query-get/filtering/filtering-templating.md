@@ -11,7 +11,7 @@ notebook: FALSE
 description: "In Zilliz Cloud, complex filter expressions with numerous elements, especially those involving non-ASCII characters like CJK characters, can significantly affect query performance. To address this, Zilliz Cloud introduces a filter expression templating mechanism designed to improve efficiency by reducing the time spent parsing complex expressions. This page explains using filter expression templating in search, query, and delete operations. | Cloud"
 type: origin
 token: TumJwDYrhiDYcUkKsUIcuSnbnCf
-sidebar_position: 3
+sidebar_position: 4
 keywords: 
   - zilliz
   - vector database
@@ -66,7 +66,7 @@ res = client.search(
     filter=expr,
     limit=10,
     output_fields=["age", "city"],
-    search_params={"metric_type": "COSINE", "params": {"search_list": 100}},
+    search_params={"params": {"search_list": 100}},
     filter_params=filter_params,
 )
 ```
@@ -105,6 +105,32 @@ res = client.delete(
 ```
 
 This approach improves the performance of delete operations, especially when dealing with complex filter conditions.
+
+## Regex filter templates\{#regex-filter-templates}
+
+You can use filter expression templating with regex filters. This is useful when the regex pattern is provided at request time.
+
+```python
+expr = "message =~ {pattern}"
+filter_params = {"pattern": "E[0-9]{4}"}
+res = client.query(
+    "hello_milvus",
+    filter=expr,
+    output_fields=["message"],
+    filter_params=filter_params,
+)
+```
+
+You can also use template parameters with `!~`:
+
+```python
+expr = "message !~ {pattern}"
+filter_params = {"pattern": "^DEBUG"}
+```
+
+The template value must be a string containing a valid RE2 regex pattern. Zilliz Cloud validates the pattern before executing the filter.
+
+Filter templates pass the regex pattern as a value instead of concatenating it into the filter expression. This reduces expression parsing overhead and avoids accidentally changing the filter structure when the pattern contains quotes or operators.
 
 ## Conclusion\{#conclusion}
 

@@ -11,7 +11,7 @@ notebook: FALSE
 description: "Zilliz Cloud supports a set of operators for spatial filtering on `GEOMETRY` fields, which are essential for managing and analyzing geometric data. These operators allow you to retrieve entities based on the geometric relationships between objects. | Cloud"
 type: origin
 token: SOgiwzPxpisy8MkhtuecZqFbnaf
-sidebar_position: 8
+sidebar_position: 9
 keywords: 
   - zilliz
   - vector database

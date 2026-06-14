@@ -5,19 +5,19 @@ sidebar_key: stemmer-filter
 sidebar_label: "ステマー"
 beta: FALSE
 notebook: FALSE
-description: "`stemmer` フィルターは、単語を基本形または語根（ステミングと呼ばれます）に還元し、異なる活用形を持つ類似の意味の単語を容易にマッチングできるようにします。`stemmer` フィルターは複数の言語をサポートしており、さまざまな言語コンテキストで効果的な検索とインデックス作成を可能にします。 | Cloud"
+description: "`stemmer` フィルターは単語を基本形や語幹に減らす（ステミング）ことで、異なる活用形を持つ類似した意味の単語をマッチしやすくします。`stemmer` フィルターは複数の言語に対応しており、さまざまな言語コンテキストで効果的な検索とインデックス作成を可能にします。 | Cloud"
 type: origin
 token: JksSwTwJPidjsnk18Olc2TjWnZe
 sidebar_position: 9
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
   - 組み込みフィルター
-  - stemmer
+  - ステマー
 
 ---
 
@@ -110,26 +110,38 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
-`stemmer` フィルターは、以下の設定可能なパラメータを受け入れます。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {
+            {"type", "stemmer"},
+            {"language", "english"}
+        }
+    }}
+};
+```
+
+`stemmer` フィルターは、以下の設定可能なパラメーターを受け入れます。
 
 <table>
    <tr>
-     <th><p>パラメータ</p></th>
+     <th><p>パラメーター</p></th>
      <th><p>説明</p></th>
    </tr>
    <tr>
      <td><p><code>language</code></p></td>
-     <td><p>ステミング処理に使用する言語を指定します。サポートされている言語には、<code>"arabic"</code>、<code>"danish"</code>、<code>"dutch"</code>、<code>"english"</code>、<code>"finnish"</code>、<code>"french"</code>、<code>"german"</code>、<code>"greek"</code>、<code>"hungarian"</code>、<code>"italian"</code>、<code>"norwegian"</code>、<code>"portuguese"</code>、<code>"romanian"</code>、<code>"russian"</code>、<code>"spanish"</code>、<code>"swedish"</code>、<code>"tamil"</code>、<code>"turkish"</code> が含まれます。</p></td>
+     <td><p>ステミングプロセスの言語を指定します。サポートされている言語は次のとおりです: <code>"arabic"</code>, <code>"danish"</code>, <code>"dutch"</code>, <code>"english"</code>, <code>"finnish"</code>, <code>"french"</code>, <code>"german"</code>, <code>"greek"</code>, <code>"hungarian"</code>, <code>"italian"</code>, <code>"norwegian"</code>, <code>"portuguese"</code>, <code>"romanian"</code>, <code>"russian"</code>, <code>"spanish"</code>, <code>"swedish"</code>, <code>"tamil"</code>, <code>"turkish"</code></p></td>
    </tr>
 </table>
 
-`stemmer` フィルターはトークナイザーによって生成された語彙項（term）に対して動作するため、トークナイザーと組み合わせて使用する必要があります。
+`stemmer` フィルターは、トークナイザーによって生成された用語に対して動作するため、トークナイザーと組み合わせて使用する必要があります。
 
-`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` 型フィールドに適用できます。これにより、Zilliz Cloud はそのフィールドのテキストを指定されたアナライザーを使用して効率的にトークン化およびフィルタリング処理を行います。詳細については、[Example use](./analyzer-overview#example-use) を参照してください。
+`analyzer_params` を定義した後、コレクションスキーマを定義するときに `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングを行えます。詳細については、[使用例](./analyzer-overview#example-use) を参照してください。
 
 ## 例\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を検証してください。
+アナライザー設定をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
 
 ### アナライザー設定\{#analyzer-configuration}
 
@@ -203,6 +215,18 @@ analyzerParams='{
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {
+            {"type", "stemmer"},
+            {"language", "english"}
+        }
+    }}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -302,6 +326,29 @@ not support yet
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "running runs looked ran runner";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

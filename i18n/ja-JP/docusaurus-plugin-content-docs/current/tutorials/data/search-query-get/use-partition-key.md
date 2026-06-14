@@ -2,18 +2,18 @@
 title: "パーティションキーの使用 | Cloud"
 slug: /use-partition-key
 sidebar_key: use-partition-key
-sidebar_label: "パーティションキー（ネームスペース）"
+sidebar_label: "パーティションキー（名前空間）"
 beta: FALSE
 notebook: FALSE
-description: "パーティションキーは、コレクションのネームスペースとして機能することで論理的なデータ分離を実現する検索最適化ソリューションです。特定のスカラフィールド（テナント ID やプロジェクト名など）をパーティションキーとして指定することで、単一のコレクション内でデータを個別のネームスペースに効果的に分割できます。これにより、フィルタリング条件を通じて検索リクエストを特定のネームスペースに限定でき、検索範囲を大幅に狭めて全体の効率を向上させることができます。この記事では、このネームスペースベースの最適化の実装方法と、パーティションキーを使用する際の考慮事項について紹介します。 | Cloud"
+description: "パーティションキーは、コレクションの名前空間として機能することで論理的なデータ分離を可能にする検索最適化ソリューションです。特定のスカラーフィールド（テナントIDやプロジェクト名など）をパーティションキーとして指定することで、単一のコレクション内でデータを異なる名前空間に効果的に分割できます。これにより、フィルタリング条件を介して検索リクエストを特定の名前空間に限定でき、検索範囲を大幅に狭め、全体的な効率を向上させます。この記事では、この名前空間ベースの最適化を実装する方法と、パーティションキーを使用する際の考慮事項について紹介します。 | Cloud"
 type: origin
 token: QWqiwrgJViA5AJkv64VcgQX2nKd
-sidebar_position: 18
+sidebar_position: 19
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
+  - クラウド
+  - コレクション
   - データ
   - 検索最適化
   - パーティションキー
@@ -26,41 +26,41 @@ import TabItem from '@theme/TabItem';
 
 # パーティションキーの使用
 
-**パーティションキー**は、コレクションの**ネームスペース**として機能することで論理的なデータ分離を可能にする検索最適化ソリューションです。特定のスカラフィールド（テナント ID やプロジェクト名など）をパーティションキーとして指定することで、単一のコレクション内でデータを異なるネームスペースに効果的にセグメント化できます。これにより、フィルタリング条件を通じて検索リクエストを特定のネームスペースに限定でき、検索範囲を大幅に狭めて全体の効率を向上させることができます。本記事では、このネームスペースベースの最適化の実装方法と、パーティションキーを使用する際の考慮事項について説明します。
+**パーティションキー** は、コレクションの **namespace** として機能することで、論理的なデータ分離を実現する検索最適化ソリューションです。特定のスカラーフィールド（テナントIDやプロジェクト名など）をパーティションキーとして指定することで、単一のコレクション内でデータを異なるnamespaceに効果的に分割できます。これにより、フィルタリング条件を介して検索リクエストを特定のnamespaceにスコープすることができ、検索範囲を大幅に絞り込み、全体的な効率を向上させることができます。この記事では、このnamespaceベースの最適化を実装する方法と、パーティションキーの使用に関する考慮事項を紹介します。
 
 ## 概要\{#overview}
 
-Zilliz Cloud では、パーティションを使用してデータの分離を実装し、検索範囲を特定のパーティションに制限することで検索パフォーマンスを向上させることができます。パーティションを手動で管理することを選択した場合、コレクション内に最大 1,024 個のパーティションを作成でき、特定のルールに基づいてこれらのパーティションにエンティティを挿入することで、特定の数のパーティション内での検索に制限して検索範囲を狭めることができます。
+Zilliz Cloud では、パーティションを使用してデータの分離を実装し、検索範囲を特定のパーティションに制限することで検索パフォーマンスを向上させることができます。パーティションを手動で管理することを選択した場合、コレクション内に最大1,024個のパーティションを作成でき、特定のルールに基づいてこれらのパーティションにエンティティを挿入することで、特定の数のパーティション内で検索を制限することで検索範囲を絞り込むことができます。
 
-Zilliz Cloud は、コレクション内で作成できるパーティション数の制限を克服するために、データ分離においてパーティションを再利用できるようパーティションキーを導入しました。コレクションを作成する際、スカラフィールドをパーティションキーとして使用できます。コレクションの準備が整うと、Zilliz Cloud はコレクション内に指定された数のパーティションを作成します。挿入されたエンティティを受信すると、Zilliz Cloud はそのエンティティのパーティションキー値を使用してハッシュ値を計算し、そのハッシュ値とコレクションの `partitions_num` プロパティに基づいて剰余演算を実行してターゲットパーティション ID を取得し、エンティティをターゲットパーティションに保存します。
+Zilliz Cloud は、コレクション内に作成できるパーティション数の制限を克服するために、データ分離においてパーティションを再利用するためのパーティションキーを導入しています。コレクションを作成する際に、スカラーフィールドをパーティションキーとして使用できます。コレクションの準備が整うと、Zilliz Cloud はコレクション内に指定された数のパーティションを作成します。エンティティの挿入を受け取ると、Zilliz Cloud はエンティティのパーティションキー値を使用してハッシュ値を計算し、ハッシュ値とコレクションの `partitions_num` プロパティに基づいてモジュロ演算を実行してターゲットパーティションIDを取得し、エンティティをターゲットパーティションに保存します。
 
 ![IXXIwZdOYhRFXmbTMdwcaN6fnPe](https://zdoc-images.s3.us-west-2.amazonaws.com/IXXIwZdOYhRFXmbTMdwcaN6fnPe.png)
 
-以下の図は、パーティションキー機能が有効または無効になっているコレクションにおいて、Zilliz Cloud が検索リクエストをどのように処理するかを示しています。
+次の図は、パーティションキー機能の有無に関わらず、Zilliz Cloud がコレクション内の検索リクエストをどのように処理するかを示しています。
 
-- パーティションキーが無効になっている場合、Zilliz Cloud はコレクション内でクエリベクトルに最も類似したエンティティを検索します。どのパーティションに最も関連性の高い結果が含まれているかが分かっている場合は、検索範囲を狭めることができます。
+- パーティションキーが無効な場合、Zilliz Cloud はコレクション内でクエリベクトルと最も類似したエンティティを検索します。どのパーティションに最も関連性の高い結果が含まれているかを知っていれば、検索範囲を絞り込むことができます。
 
-- パーティションキーが有効になっている場合、Zilliz Cloud は検索フィルタで指定されたパーティションキー値に基づいて検索範囲を決定し、一致するパーティション内のエンティティのみをスキャンします。
+- パーティションキーが有効な場合、Zilliz Cloud は検索フィルターで指定されたパーティションキー値に基づいて検索範囲を決定し、一致するパーティション内のエンティティのみをスキャンします。
 
 ![RTaqwdaWXhRWPTb4uJTc9Uknn5c](https://zdoc-images.s3.us-west-2.amazonaws.com/RTaqwdaWXhRWPTb4uJTc9Uknn5c.png)
 
 ## パーティションキーの使用\{#use-partition-key}
 
-パーティションキーを使用するには、以下を行う必要があります。
+パーティションキーを使用するには、以下が必要です。
 
-- [パーティションキーの設定](./use-partition-key#set-partition-key)
+- [パーティションキーの設定](./use-partition-key#set-partition-key)、
 
-- [作成するパーティション数の設定](./use-partition-key#set-partition-numbers)（オプション）
+- [作成するパーティション数の設定](./use-partition-key#set-partition-numbers)（オプション）、および
 
-- [パーティションキーに基づくフィルタリング条件の作成](./use-partition-key#create-filtering-condition)
+- [パーティションキーに基づくフィルタリング条件の作成](./use-partition-key#create-filtering-condition)。
 
 ### パーティションキーの設定\{#set-partition-key}
 
-スカラフィールドをパーティションキーとして指定するには、スカラフィールドを追加する際にその `is_partition_key` 属性を `true` に設定する必要があります。
+スカラーフィールドをパーティションキーとして指定するには、スカラーフィールドを追加する際にその `is_partition_key` 属性を `true` に設定する必要があります。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>スカラフィールドをパーティションキーとして設定する場合、そのフィールド値は空または null にできません。</p>
+スカラーフィールドをパーティションキーとして設定すると、フィールド値を空またはnullにすることはできません。
 
 </Admonition>
 
@@ -251,6 +251,28 @@ export schema='{
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, true});
+schema->AddField(milvus::FieldSchema("vector", milvus::DataType::FLOAT_VECTOR).WithDimension(5));
+schema->AddField(milvus::FieldSchema("my_varchar", milvus::DataType::VARCHAR).WithPartitionKey(true).WithMaxLength(512));
+
+```
+
+</TabItem>
 </Tabs>
 
 ### Set Partition Numbers\{#set-partition-numbers}
@@ -328,11 +350,26 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
     \"params\": $params
 }"
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                          .WithCollectionName("my_collection")
+                                          .WithCollectionSchema(schema)
+                                          .WithNumPartitions(128));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -406,27 +443,36 @@ export filter='partition_key in ["x", "y", "z"] && <other conditions>'
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+const auto filter = R"(partition_key == 'x' && <other conditions>)";
+const auto filter = R"(partition_key in ['x', 'y', 'z'] && <other conditions>)";
+```
+
+</TabItem>
 </Tabs>
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p><code>partition_key</code> は、パーティションキーとして指定されたフィールドの名前に置き換える必要があります。</p>
+`partition_key` は、パーティションキーとして指定されたフィールドの名前に置き換える必要があります。
 
 </Admonition>
 
-## Use パーティションキー Isolation\{#use-partition-key-isolation}
+## パーティションキー分離を使用する\{#use-partition-key-isolation}
 
-マルチテナントシナリオでは、テナント識別子に関連するスカラー型フィールドをパーティションキーとして指定し、このスカラー型フィールド内の特定の値に基づくフィルターを作成できます。同様のシナリオにおいて検索パフォーマンスをさらに向上させるため、Zilliz Cloud は パーティションキー Isolation（パーティションキー分離）機能を導入しています。
+マルチテナンシーのシナリオでは、テナントIDに関連するスカラーフィールドをパーティションキーとして指定し、このスカラーフィールドの特定の値に基づいてフィルタを作成できます。このようなシナリオでの検索パフォーマンスをさらに向上させるため、Zilliz Cloud はパーティションキー分離機能を導入しています。
 
 ![BVotwv5BvhBWXXbvotUccowZnng](https://zdoc-images.s3.us-west-2.amazonaws.com/BVotwv5BvhBWXXbvotUccowZnng.png)
 
-上図に示すように、Zilliz Cloud はパーティションキーの値に基づいてエンティティをグループ化し、各グループごとに個別のインデックスを作成します。検索リクエストを受信すると、Zilliz Cloud はフィルタリング条件で指定されたパーティションキーの値に基づいて対応するインデックスを特定し、そのインデックスに含まれるエンティティ内でのみ検索範囲を限定します。これにより、検索時に無関係なエンティティをスキャンすることを回避し、検索パフォーマンスを大幅に向上させます。
+上図に示すように、Zilliz Cloud はパーティションキーの値に基づいてエンティティをグループ化し、これらの各グループに対して個別のインデックスを作成します。検索リクエストを受信すると、Zilliz Cloud はフィルタ条件で指定されたパーティションキーの値に基づいてインデックスを特定し、検索範囲をそのインデックスに含まれるエンティティ内に制限します。これにより、検索時に無関係なエンティティをスキャンする必要がなくなり、検索パフォーマンスが大幅に向上します。
 
-パーティションキー Isolation を有効にした場合、パーティションキーに基づくフィルターには必ず1つの特定の値のみを含める必要があります。そうすることで、Zilliz Cloud は一致するインデックスに含まれるエンティティ内でのみ検索範囲を限定できます。
+パーティションキー分離を有効にした後は、パーティションキーに基づくフィルタに特定の値を1つだけ含める必要があります。これにより、Zilliz Cloud は一致するインデックスに含まれるエンティティ内に検索範囲を制限できます。
 
-### Enable パーティションキー Isolation\{#enable-partition-key-isolation}
+### パーティションキー分離を有効にする\{#enable-partition-key-isolation}
 
-以下のコード例は、パーティションキー Isolation を有効にする方法を示しています。
+以下のコード例は、パーティションキー分離を有効にする方法を示しています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -501,6 +547,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
@@ -509,6 +556,20 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                          .WithCollectionName("my_collection")
+                                          .WithCollectionSchema(schema)
+                                          .AddProperty("partitionkey.isolation", "true"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
-パーティションキー分離を有効にした後でも、[パーティション数の設定](./use-partition-key#set-partition-numbers)で説明されているように、パーティションキーとパーティション数を設定できます。ただし、パーティションキーに基づくフィルターには、特定のパーティションキー値を1つだけ含める必要があります。
+パーティションキー分離を有効にした後も、[パーティション数の設定](./use-partition-key#set-partition-numbers) で説明されているように、パーティションキーとパーティション数を設定できます。パーティションキーに基づくフィルターには、1 つの特定のパーティションキー値のみを含める必要があることに注意してください。

@@ -11,7 +11,7 @@ notebook: FALSE
 description: "In this release, Zilliz Cloud introduces several powerful enhancements aimed at improving operational efficiency, flexibility, and user experience. These include support for cluster-level scheduled auto-scaling, schema evolution via the new Merge Data API, the introduction of stage — a cloud-native data layer for streamlined data ingestion, partial restore from cluster-level backups with cross-database selection, and UI support for JSON Path indexes. Together, these features enable users to manage complex workloads more effectively, reduce maintenance overhead, and speed up development cycles in the GenAI era. | Cloud"
 type: origin
 token: WBONwyqFAi02DTkCG41c93wCn6e
-sidebar_position: 10
+sidebar_position: 11
 keywords: 
   - zilliz
   - vector database
@@ -89,7 +89,7 @@ You can now selectively restore specific **databases** and **collections** from 
 
 ![Sd5PbeR5poupNlx6nM6cCrdxnTd](https://zdoc-images.s3.us-west-2.amazonaws.com/sd5pber5poupnlx6nm6ccrdxntd.png "Sd5PbeR5poupNlx6nM6cCrdxnTd")
 
-For details, refer to [Restore a Partial Cluster](./restore-from-snapshot#restore-a-partial-cluster).
+For details, refer to [Restore a Partial Cluster](./restore-from-backup-files#restore-a-partial-cluster).
 
 ## Create JSON Path Indexes on Zilliz Cloud Console\{#create-json-path-indexes-on-zilliz-cloud-console}
 

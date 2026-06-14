@@ -386,7 +386,7 @@ You can also check the details of a specific managed volume.
 
 - **Via SDKs**
 
-    <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"}]}>
+    <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"cURL","value":"bash"}]}>
     <TabItem value='python'>
 
     ```python
@@ -453,7 +453,8 @@ You can also check the details of a specific managed volume.
     ```
 
     </TabItem>
-    </Tabs>
+
+    <TabItem value='bash'>
 
     ```bash
     export BASE_URL="https://api.cloud.zilliz.com"
@@ -475,6 +476,9 @@ You can also check the details of a specific managed volume.
     #    }
     #}
     ```
+
+    </TabItem>
+    </Tabs>
 
 - **Via web console**
 
@@ -808,7 +812,7 @@ When you create a managed volume, you can choose either a **free trial** or **pa
 
 - Using a pay-as-you-go volume incurs charges.
 
-    - You will only be charged when the managed volume is running.
+    - You will only be charged when the managed volume is available.
 
     - For list prices, see [Pricing Guide](http://zilliz.com/pricing/pricing-guide).
 

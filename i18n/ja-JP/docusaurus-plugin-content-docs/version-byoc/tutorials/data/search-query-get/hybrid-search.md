@@ -1,18 +1,18 @@
 ---
-title: "マルチベクトルハイブリッド検索 | BYOC"
+title: "マルチベクターハイブリッド検索 | BYOC"
 slug: /hybrid-search
 sidebar_key: hybrid-search
 sidebar_label: "ハイブリッド検索"
 beta: FALSE
 notebook: FALSE
-description: "多くのアプリケーションでは、タイトルや説明など豊富な情報、あるいはテキスト、画像、音声などの複数のモダリティを用いてオブジェクトを検索できます。例えば、テキストと画像を含むツイートは、テキストまたは画像のいずれかが検索クエリの意味と一致する場合に検索対象となります。ハイブリッド検索は、これらの多様なフィールドにわたる検索を組み合わせることで、検索体験を向上させます。Zilliz Cloud は、複数のベクトルフィールドでの検索を可能にし、複数の近似最近傍（ANN）検索を同時に実行することでこれをサポートしています。マルチベクトルハイブリッド検索は、テキストと画像の両方を検索したい場合、同じオブジェクトを記述する複数のテキストフィールドを検索したい場合、または検索品質を向上させるために疎ベクトルと密ベクトルの両方を使用したい場合に特に有用です。 | BYOC"
+description: "多くのアプリケーションでは、タイトルや説明文などの豊富な情報、またはテキスト、画像、音声などの複数のモダリティを使用してオブジェクトを検索できます。例えば、テキストと画像を含むツイートは、テキストまたは画像のいずれかが検索クエリのセマンティックに一致する場合に検索されます。ハイブリッド検索は、これらの多様なフィールドにわたる検索を組み合わせることで、検索体験を向上させます。Zilliz Cloud は、複数のベクトルフィールドで検索を許可し、複数の近似最近傍 (ANN) 検索を同時に実行することでこれをサポートします。マルチベクターハイブリッド検索は、テキストと画像の両方を検索したい場合、同じオブジェクトを記述する複数のテキストフィールド、または検索品質を向上させるために密ベクトルと疎ベクトルを組み合わせたい場合に特に便利です。 | BYOC"
 type: origin
 token: WTsmwWdgOiKnwpkdZdScp093njh
 sidebar_position: 7
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - クラウド
+  - cloud
   - コレクション
   - データ
   - ハイブリッド検索
@@ -26,49 +26,49 @@ import TabItem from '@theme/TabItem';
 
 # マルチベクトルハイブリッド検索
 
-多くのアプリケーションでは、オブジェクトをタイトルや説明といった豊富な情報セット、またはテキスト・画像・音声などの複数のモダリティ（形式）で検索できます。例えば、テキストと画像を含むツイートは、検索クエリの意味にテキストまたは画像のいずれかが一致する場合に検索対象となります。ハイブリッド検索は、これらの多様なフィールドにまたがる検索を組み合わせることで、検索体験を向上させます。Zilliz Cloud では、複数のベクトルフィールドに対して同時に Approximate Nearest Neighbor (ANN) 検索を実行できるため、このような検索をサポートしています。マルチベクトルハイブリッド検索は、テキストと画像の両方を検索したい場合や、同一オブジェクトを記述する複数のテキストフィールドを検索したい場合、あるいは検索品質を向上させるために密ベクトルと疎ベクトルの両方を使用したい場合に特に有効です。
+多くのアプリケーションでは、オブジェクトはタイトルや説明文といった豊富な情報セット、またはテキスト、画像、音声などの複数のモダリティを使って検索できます。例えば、テキストと画像を含むツイートは、テキストまたは画像のいずれかが検索クエリのセマンティクスと一致する場合に検索されるべきです。ハイブリッド検索は、これらの多様なフィールドにわたる検索を組み合わせることで、検索体験を向上させます。Zilliz Cloud は、複数のベクトルフィールドでの検索を可能にし、複数の近似最近傍（ANN）検索を同時に実行することでこれをサポートします。マルチベクトルハイブリッド検索は、テキストと画像の両方を検索したい場合、同じオブジェクトを説明する複数のテキストフィールドを検索したい場合、または検索品質を向上させるために密ベクトルと疎ベクトルの両方を検索したい場合に特に有用です。
 
 ![Qx7UwgI6jhrku8bAxZqcYxZMnSe](https://zdoc-images.s3.us-west-2.amazonaws.com/Qx7UwgI6jhrku8bAxZqcYxZMnSe.png)
 
-マルチベクトルハイブリッド検索は、異なる検索手法を統合するか、またはさまざまなモダリティに由来する埋め込み表現（embeddings）を組み合わせます。
+マルチベクトルハイブリッド検索は、異なる検索方法を統合したり、さまざまなモダリティからの埋め込みを横断したりします：
 
-- **疎密ベクトル検索（疎密ベクトル検索）**: [密ベクトル（Dense Vector）](./use-dense-vector) はセマンティック（意味的）な関係性を捉えるのに優れており、一方で[疎ベクトル（Sparse Vector）](./use-sparse-vector) はキーワードの正確な一致に非常に効果的です。ハイブリッド検索はこれらのアプローチを組み合わせることで、広範な概念的理解と正確な用語の関連性の両方を提供し、検索結果を改善します。各手法の強みを活用することで、個別のアプローチが抱える限界を克服し、複雑なクエリに対してより優れたパフォーマンスを実現します。セマンティック検索と全文検索を組み合わせたハイブリッド検索の詳細な[ガイド](https://milvus.io/docs/full_text_search_with_milvus.md)もご参照ください。
+- **疎密ベクトル検索**: [密ベクトル](./use-dense-vector) はセマンティックな関係性を捉えるのに優れており、[疎ベクトル](./use-sparse-vector) は正確なキーワードマッチングに非常に効果的です。ハイブリッド検索はこれらのアプローチを組み合わせることで、広範な概念的な理解と正確な用語の関連性の両方を提供し、検索結果を改善します。それぞれの方法の強みを活用することで、ハイブリッド検索は個別のアプローチの限界を克服し、複雑なクエリに対してより良いパフォーマンスを提供します。セマンティック検索と全文検索を組み合わせたハイブリッド検索の詳細な[ガイド](https://milvus.io/docs/full_text_search_with_milvus.md)はこちらです。
 
-- **マルチモーダルベクトル検索（マルチモーダルベクトル検索）**: マルチモーダルベクトル検索は、テキスト・画像・音声などさまざまなデータタイプにまたがって検索を行う強力な手法です。このアプローチの主な利点は、異なるモダリティをシームレスかつ一貫した検索体験に統合できることです。例えば商品検索では、ユーザーがテキストクエリを入力して、テキストと画像の両方で記述された商品を見つけたい場合があります。ハイブリッド検索手法を通じてこれらのモダリティを組み合わせることで、検索精度を高めたり、検索結果をより豊かにしたりできます。
+- **マルチモーダルベクトル検索**: マルチモーダルベクトル検索は、テキスト、画像、音声などのさまざまなデータ型を横断して検索できる強力な手法です。このアプローチの主な利点は、異なるモダリティをシームレスで統一された検索体験に統合できることです。例えば、商品検索では、ユーザーがテキストクエリを入力して、テキストと画像の両方で説明された商品を見つけることがあります。ハイブリッド検索方法を通じてこれらのモダリティを組み合わせることで、検索精度を向上させたり、検索結果を充実させたりすることができます。
 
 ## 例\{#example}
 
-ここでは、各商品にテキストによる説明と画像が含まれているという実世界のユースケースを考えてみましょう。利用可能なデータに基づき、以下の3種類の検索が可能です。
+各商品にテキストの説明と画像が含まれる実世界のユースケースを考えてみましょう。利用可能なデータに基づいて、3種類の検索を実行できます：
 
-- **セマンティックテキスト検索（Semantic Text Search）**: 商品のテキスト説明に対して密ベクトルを用いてクエリを実行します。テキスト埋め込みは、[BERT](https://zilliz.com/learn/explore-colbert-token-level-embedding-and-ranking-model-for-similarity-search?_gl=1*d243m9*_gcl_au*MjcyNTAwMzUyLjE3NDMxMzE1MjY.*_ga*MTQ3OTI4MDc5My4xNzQzMTMxNTI2*_ga_KKMVYG8YF2*MTc0NTkwODU0Mi45NC4xLjE3NDU5MDg4MzcuMC4wLjA.#A-Quick-Recap-of-BERT) や [Transformers](https://zilliz.com/learn/NLP-essentials-understanding-transformers-in-AI?_gl=1*d243m9*_gcl_au*MjcyNTAwMzUyLjE3NDMxMzE1MjY.*_ga*MTQ3OTI4MDc5My4xNzQzMTMxNTI2*_ga_KKMVYG8YF2*MTc0NTkwODU0Mi45NC4xLjE3NDU5MDg4MzcuMC4wLjA.) といったモデル、または [OpenAI](https://zilliz.com/learn/guide-to-using-openai-text-embedding-models) のようなサービスを使って生成できます。
+- **セマンティックテキスト検索**: これは、密ベクトルを使用して商品のテキスト説明をクエリすることを含みます。テキスト埋め込みは、[BERT](https://zilliz.com/learn/explore-colbert-token-level-embedding-and-ranking-model-for-similarity-search?_gl=1*d243m9*_gcl_au*MjcyNTAwMzUyLjE3NDMxMzE1MjY.*_ga*MTQ3OTI4MDc5My4xNzQzMTMxNTI2*_ga_KKMVYG8YF2*MTc0NTkwODU0Mi45NC4xLjE3NDU5MDg4MzcuMC4wLjA.#A-Quick-Recap-of-BERT) や [Transformers](https://zilliz.com/learn/NLP-essentials-understanding-transformers-in-AI?_gl=1*d243m9*_gcl_au*MjcyNTAwMzUyLjE3NDMxMzE1MjY.*_ga*MTQ3OTI4MDc5My4xNzQzMTMxNTI2*_ga_KKMVYG8YF2*MTc0NTkwODU0Mi45NC4xLjE3NDU5MDg4MzcuMC4wLjA.) などのモデル、または [OpenAI](https://zilliz.com/learn/guide-to-using-openai-text-embedding-models) などのサービスを使用して生成できます。
 
-- **全文検索（全文検索）**: 商品のテキスト説明に対して、疎ベクトルを用いたキーワードマッチでクエリを実行します。この目的には、[BM25](https://zilliz.com/learn/mastering-bm25-a-deep-dive-into-the-algorithm-and-application-in-milvus) アルゴリズムや、[BGE-M3](https://zilliz.com/learn/bge-m3-and-splade-two-machine-learning-models-for-generating-sparse-embeddings?_gl=1*1cde1oq*_gcl_au*MjcyNTAwMzUyLjE3NDMxMzE1MjY.*_ga*MTQ3OTI4MDc5My4xNzQzMTMxNTI2*_ga_KKMVYG8YF2*MTc0NTkwODU0Mi45NC4xLjE3NDU5MDg4MzcuMC4wLjA.#BGE-M3) や [SPLADE](https://zilliz.com/learn/bge-m3-and-splade-two-machine-learning-models-for-generating-sparse-embeddings?_gl=1*ov2die*_gcl_au*MjcyNTAwMzUyLjE3NDMxMzE1MjY.*_ga*MTQ3OTI4MDc5My4xNzQzMTMxNTI2*_ga_KKMVYG8YF2*MTc0NTkwODU0Mi45NC4xLjE3NDU5MDg4MzcuMC4wLjA.#SPLADE) といった疎埋め込みモデルを利用できます。
+- **全文検索**: ここでは、疎ベクトルを使用したキーワードマッチングで商品のテキスト説明をクエリします。[BM25](https://zilliz.com/learn/mastering-bm25-a-deep-dive-into-the-algorithm-and-application-in-milvus) などのアルゴリズムや、[BGE-M3](https://zilliz.com/learn/bge-m3-and-splade-two-machine-learning-models-for-generating-sparse-embeddings?_gl=1*1cde1oq*_gcl_au*MjcyNTAwMzUyLjE3NDMxMzE1MjY.*_ga*MTQ3OTI4MDc5My4xNzQzMTMxNTI2*_ga_KKMVYG8YF2*MTc0NTkwODU0Mi45NC4xLjE3NDU5MDg4MzcuMC4wLjA.#BGE-M3) や [SPLADE](https://zilliz.com/learn/bge-m3-and-splade-two-machine-learning-models-for-generating-sparse-embeddings?_gl=1*ov2die*_gcl_au*MjcyNTAwMzUyLjE3NDMxMzE1MjY.*_ga*MTQ3OTI4MDc5My4xNzQzMTMxNTI2*_ga_KKMVYG8YF2*MTc0NTkwODU0Mi45NC4xLjE3NDU5MDg4MzcuMC4wLjA.#SPLADE) などの疎埋め込みモデルをこの目的に利用できます。
 
-- **マルチモーダル画像検索（Multimodal Image Search）**: テキストクエリを用いて画像に対して密ベクトルで検索を実行します。画像埋め込みは、[CLIP](https://zilliz.com/learn/exploring-openai-clip-the-future-of-multimodal-ai-learning) のようなモデルを使って生成できます。
+- **マルチモーダル画像検索**: この方法は、密ベクトルを使用したテキストクエリで画像を検索します。画像埋め込みは、[CLIP](https://zilliz.com/learn/exploring-openai-clip-the-future-of-multimodal-ai-learning) などのモデルで生成できます。
 
-本ガイドでは、上記の検索手法を組み合わせたマルチモーダルハイブリッド検索の例を紹介します。具体的には、商品の生のテキスト説明と画像埋め込みを用いて、マルチベクトルデータの保存方法と、リランキング戦略を用いたハイブリッド検索の実行方法を解説します。
+このガイドでは、商品の生のテキスト説明と画像埋め込みが与えられた場合に、上記の検索方法を組み合わせたマルチモーダルハイブリッド検索の例を説明します。マルチベクトルデータの保存方法と、リランキング戦略を用いたハイブリッド検索の実行方法を示します。
 
 ## 複数のベクトルフィールドを持つコレクションの作成\{#create-a-collection-with-multiple-vector-fields}
 
-コレクションの作成プロセスには、以下の3つの重要なステップがあります：コレクションスキーマの定義、インデックスパラメータの設定、そしてコレクションの作成です。
+コレクションの作成プロセスには、コレクションスキーマの定義、インデックスパラメータの設定、コレクションの作成という3つの重要なステップがあります。
 
 ### スキーマの定義\{#define-schema}
 
-マルチベクトルハイブリッド検索を行うには、コレクションスキーマ内に複数のベクトルフィールドを定義する必要があります。コレクションに定義可能なベクトルフィールド数の制限については、[Zilliz Cloud 制限s](./limits#fields) を参照してください。
+マルチベクトルハイブリッド検索では、コレクションスキーマ内に複数のベクトルフィールドを定義する必要があります。コレクションで許可されるベクトルフィールドの数に関する制限の詳細については、[Zilliz Cloud 制限s](./limits#fields) を参照してください。
 
-この例では、スキーマに以下のフィールドを含めます。
+この例では、スキーマに以下のフィールドを組み込みます：
 
-- `id`: テキストIDを格納する主キーとして使用します。データ型は `INT64` です。
+- `id`: テキストIDを保存するための主キーとして機能します。このフィールドのデータ型は `INT64` です。
 
-- `text`: テキストコンテンツを格納するために使用します。データ型は最大長1000バイトの `VARCHAR` です。`enable_analyzer` オプションを `True` に設定することで、全文検索を可能にします。
+- `text`: テキストコンテンツを保存するために使用されます。このフィールドのデータ型は `VARCHAR` で、最大長は1000バイトです。全文検索を可能にするために、`enable_analyzer` オプションが `True` に設定されています。
 
-- `text_dense`: テキストの密ベクトルを格納するために使用します。データ型はベクトル次元768の `FLOAT_VECTOR` です。
+- `text_dense`: テキストの密ベクトルを保存するために使用されます。このフィールドのデータ型は `FLOAT_VECTOR` で、ベクトル次元は768です。
 
-- `text_sparse`: テキストの疎ベクトルを格納するために使用します。データ型は `SPARSE_FLOAT_VECTOR` です。
+- `text_sparse`: テキストの疎ベクトルを保存するために使用されます。このフィールドのデータ型は `SPARSE_FLOAT_VECTOR` です。
 
-- `image_dense`: 商品画像の密ベクトルを格納するために使用します。データ型はベクトル次元512の `FLOAT_VETOR` です。
+- `image_dense`: 商品画像の密ベクトルを保存するために使用されます。このフィールドのデータ型は `FLOAT_VETOR` で、ベクトル次元は512です。
 
-ここでは、テキストフィールドに対して組み込みの BM25 アルゴリズムを用いて全文検索を実行するため、Milvus の `Function` をスキーマに追加する必要があります。詳細については、[全文検索（Full Text Search）](./full-text-search) を参照してください。
+テキストフィールドで全文検索を実行するために組み込みのBM25アルゴリズムを使用するため、スキーマに Milvus の `Function` を追加する必要があります。詳細については、[Full Text Search](./full-text-search) を参照してください。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -332,15 +332,40 @@ export schema='{
 </TabItem>
 </Tabs>
 
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::FunctionPtr function = std::make_shared<milvus::Function>("text_bm25_emb", milvus::FunctionType::BM25, "text bm25 function");
+function->AddInputFieldName("text");
+function->AddOutputFieldName("text_sparse");
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("text", milvus::DataType::VARCHAR).WithMaxLength(1000).EnableAnalyzer(true));
+schema->AddField(milvus::FieldSchema("text_dense", milvus::DataType::FLOAT_VECTOR).WithDimension(768));
+schema->AddField(milvus::FieldSchema("text_dense", milvus::DataType::FLOAT_VECTOR).WithDimension(768));
+schema->AddField({"text_sparse", milvus::DataType::SPARSE_FLOAT_VECTOR});
+schema->AddField(milvus::FieldSchema("image_dense", milvus::DataType::FLOAT_VECTOR).WithDimension(512));
+
+```
+
 ### インデックスの作成\{#create-index}
 
-コレクションスキーマを定義した後、次のステップはベクトルインデックスを設定し、類似性メトリックを指定することです。以下の例では：
+コレクションスキーマを定義した後、次のステップはベクトルインデックスを構成し、類似性メトリックを指定することです。以下の例では：
 
-- `text_dense_index`: テキスト密ベクトルフィールドに対して、`AUTOINDEX`タイプで`IP`メトリックタイプのインデックスを作成しています。
+- `text_dense_index`: テキスト密ベクトルフィールドに対して、`IP` メトリックタイプの `AUTOINDEX` タイプのインデックスが作成されます。
 
-- `text_sparse_index`: テキスト疎ベクトルフィールドに対して、`SPARSE_INVERTED_INDEX`タイプで`BM25`メトリックタイプのインデックスを使用しています。
+- `text_sparse_index`: テキスト疎ベクトルフィールドに対して、`BM25` メトリックタイプの type`SPARSE_INVERTED_INDEX`with インデックスが使用されます。
 
-- `image_dense_index`: 画像密ベクトルフィールドに対して、`AUTOINDEX`タイプで`IP`メトリックタイプのインデックスを作成しています。
+- `image_dense_index`: 画像密ベクトルフィールドに対して、`IP` メトリックタイプの `AUTOINDEX` タイプのインデックスが作成されます。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -483,9 +508,17 @@ export indexParams='[
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("text_dense", "text_dense_index", milvus::IndexType::AUTOINDEX, milvus::MetricType::IP),
+    milvus::IndexDesc("text_sparse", "text_sparse_index", milvus::IndexType::SPARSE_INVERTED_INDEX, milvus::MetricType::BM25),
+    milvus::IndexDesc("image_dense", "image_dense_index", milvus::IndexType::AUTOINDEX, milvus::MetricType::IP),
+};
+```
+
 ### コレクションの作成\{#create-collection}
 
-前の2つの手順で設定したコレクションスキーマとインデックスを使用して、`demo` という名前のコレクションを作成します。
+前の2つの手順で構成したコレクションスキーマとインデックスを使用して、`demo` という名前のコレクションを作成します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -549,6 +582,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
@@ -559,21 +593,29 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-## Insert data\{#insert-data}
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("my_collection")
+                                        .WithCollectionSchema(schema)
+                                        .WithIndexes(std::move(indexes));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 
-このセクションでは、前述のスキーマに基づいてデータを `my_collection` コレクションに挿入します。挿入時には、自動生成される値を持つフィールドを除き、すべてのフィールドに正しい形式でデータを提供する必要があります。この例では、以下のようになります：
+```
 
-- `id`: 商品IDを表す整数
+## データの挿入\{#insert-data}
 
-- `text`: 商品説明を含む文字列
+ここでは、先に定義したスキーマに基づいて、`my_collection` コレクションにデータを挿入します。挿入時には、自動生成値を持つフィールドを除き、すべてのフィールドに正しい形式でデータを指定する必要があります。この例では：
 
-- `text_dense`: テキスト説明のdense embedding（密ベクトル）を表す768個の浮動小数点値のリスト
+- `id`：製品IDを表す整数
+- `text`：製品説明を含む文字列
+- `text_dense`：テキスト説明の密埋め込みを表す768個の浮動小数点値のリスト
+- `image_dense`：製品画像の密埋め込みを表す512個の浮動小数点値のリスト
 
-- `image_dense`: 商品画像のdense embeddingを表す512個の浮動小数点値のリスト
+各フィールドの密埋め込みを生成するために、同じモデルまたは異なるモデルを使用しても構いません。この例では、2つの密埋め込みは異なる次元を持ち、異なるモデルによって生成されたことを示しています。後で各検索を定義する際は、対応するモデルを使用して適切なクエリ埋め込みを生成してください。
 
-各フィールドのdense embeddingを生成するために、同じモデルまたは異なるモデルを使用できます。この例では、2つのdense embeddingが異なる次元を持っているため、異なるモデルによって生成されたことを示唆しています。後述の検索を定義する際には、対応するモデルを使用して適切なクエリembeddingを生成してください。
-
-この例では、テキストフィールドからスパース埋め込み（疎ベクトル）を生成するために組み込みのBM25関数を使用しているため、疎ベクトルを手動で提供する必要はありません。ただし、BM25を使用しない場合は、事前にスパース埋め込みを計算し、自分で提供する必要があります。
+この例では、組み込みのBM25関数を使用してテキストフィールドからスパース埋め込みを生成するため、手動で疎ベクトルを指定する必要はありません。ただし、BM25を使用しない場合は、スパース埋め込みを自分で事前計算して指定する必要があります。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -706,6 +748,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "data": [
         {"id": 0, "text": "Red cotton t-shirt with round neck" , "text_dense": [0.3580376395471989, -0.6023495712049978, 0.18414012509913835, ...], "image_dense": [0.6366019600530924, -0.09323198122475052, ...]},
@@ -719,27 +762,56 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+#include <random>
+
+std::vector<float>
+GenerateFloatVector(int dimension) {
+    std::random_device rd;
+    std::mt19937 ran(rd());
+    std::uniform_real_distribution<float> float_gen(0.0, 1.0);
+    std::vector<float> vector(dimension);
+    for (auto d = 0; d < dimension; ++d) {
+        vector[d] = float_gen(ran);
+    }
+    return vector;
+}
+
+milvus::EntityRows data = {
+    {{"id", 0}, {"text", "Red cotton t-shirt with round neck"}, {"text_dense", GenerateFloatVector(768)}, {"image_dense", GenerateFloatVector(512)}},
+    {{"id", 0}, {"text", "Wireless noise-cancelling over-ear headphones"}, {"text_dense", GenerateFloatVector(768)}, {"image_dense", GenerateFloatVector(512)}},
+    {{"id", 0}, {"text", "Stainless steel water bottle, 500ml"}, {"text_dense", GenerateFloatVector(768)}, {"image_dense", GenerateFloatVector(512)}}
+};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 ## ハイブリッド検索の実行\{#perform-hybrid-search}
 
-### ステップ 1: 複数の AnnSearchRequest インスタンスを作成する\{#step-1-create-multiple-annsearchrequest-instances}
+### ステップ1: 複数の AnnSearchRequest インスタンスを作成する\{#step-1-create-multiple-annsearchrequest-instances}
 
-ハイブリッド検索は、`hybrid_search()` 関数内で複数の `AnnSearchRequest` を作成することで実装されます。各 `AnnSearchRequest` は特定のベクトルフィールドに対する基本的な ANN 検索リクエストを表します。したがって、ハイブリッド検索を実行する前に、各ベクトルフィールドに対して `AnnSearchRequest` を作成する必要があります。
+ハイブリッド検索は、`hybrid_search()` 関数内で複数の `AnnSearchRequest` を作成することで実装されます。各 `AnnSearchRequest` は、特定のベクトルフィールドに対する基本的なANN検索リクエストを表します。したがって、ハイブリッド検索を実行する前に、各ベクトルフィールドに対して `AnnSearchRequest` を作成する必要があります。
 
-さらに、`AnnSearchRequest` の `expr` パラメータを設定することで、ハイブリッド検索のフィルタリング条件を指定できます。詳細については、[Filtered Search](./filtered-search) および [Filtering Explained](./filtering-overview) を参照してください。
+さらに、`AnnSearchRequest` の `expr` パラメータを設定することで、ハイブリッド検索のフィルタリング条件を設定できます。詳細については、[フィルタリング検索](./filtered-search) および [フィルタリングの説明](./filtering-overview) を参照してください。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>ハイブリッド検索では、各 <code>AnnSearchRequest</code> は1つのクエリデータのみをサポートします。</p>
+ハイブリッド検索では、各 `AnnSearchRequest` は1つのクエリデータのみをサポートします。
 
 </Admonition>
 
-さまざまな検索ベクトルフィールドの機能を示すために、サンプルクエリを使用して3つの `AnnSearchRequest` 検索リクエストを構築します。このプロセスには、事前に計算済みの密ベクトルも使用します。これらの検索リクエストは以下のベクトルフィールドを対象とします。
+様々な検索ベクトルフィールドの機能を実演するために、サンプルクエリを使用して3つの `AnnSearchRequest` 検索リクエストを構築します。また、このプロセスでは、その事前計算された高密度ベクトルを使用します。検索リクエストは、以下のベクトルフィールドを対象とします。
 
-- `text_dense`: セマンティックテキスト検索用。キーワードの完全一致ではなく、文脈に基づいた意味理解による検索・取得を可能にします。
-
-- `text_sparse`: 全文検索またはキーワード一致用。テキスト内の正確な単語またはフレーズ一致に焦点を当てます。
-
-- `image_dense`: マルチモーダルなテキストから画像への検索用。クエリのセマンティックな内容に基づいて関連する商品画像を取得します。
+- `text_dense`: セマンティックテキスト検索用。直接的なキーワードマッチングではなく、意味に基づいた文脈理解と検索を可能にします。
+- `text_sparse`: 全文検索またはキーワードマッチング用。テキスト内の正確な単語やフレーズ一致に焦点を当てます。
+- `image_dense`: マルチモーダルテキストから画像への検索用。クエリのセマンティックコンテンツに基づいて関連する商品画像を取得します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -891,13 +963,35 @@ export req='[
 </TabItem>
 </Tabs>
 
-パラメータ `limit` が 2 に設定されているため、各 `AnnSearchRequest` は 2 件の検索結果を返します。この例では 3 つの `AnnSearchRequest` インスタンスが作成されるため、合計で 6 件の検索結果が得られます。
+```c++
+auto query_text = "white headphones, quiet and comfortable";
+auto query_dense_vector = generate_dense_vector(768);
+auto query_multimodal_vector = generate_dense_vector(512);
 
-### ステップ 2: リランキング戦略の設定\{#step-2-configure-a-reranking-strategy}
+auto sub_req1 = milvus::SubSearchRequest()
+                    .AddFloatVector(query_dense_vector)
+                    .WithAnnsField("text_dense")
+                    .WithLimit(2);
 
-ANN 検索結果のセットを統合してリランキングするには、適切なリランキング戦略を選択することが重要です。Zilliz Cloud では複数のリランキング戦略を提供しています。これらのリランキング機構の詳細については、[Weighted Ranker](./reranking-weighted-reranker) または [RRF Ranker](./reranking-rrf) を参照してください。
+auto sub_req2 = milvus::SubSearchRequest()
+                    .AddEmbeddedText(query_text)
+                    .WithAnnsField("text_sparse")
+                    .WithLimit(2);
+                    
+auto sub_req3 = milvus::SubSearchRequest()
+                    .AddEmbeddedText(query_multimodal_vector)
+                    .WithAnnsField("image_dense")
+                    .WithLimit(2);
 
-この例では、特定の検索クエリを特に重視しないため、RRFRanker 戦略を使用します。
+```
+
+パラメータ `limit` が 2 に設定されているため、各 `AnnSearchRequest` は 2 件の検索結果を返します。この例では、3 つの `AnnSearchRequest` インスタンスが作成され、合計 6 件の検索結果が得られます。
+
+### ステップ 2：リランキング戦略の構成\{#step-2-configure-a-reranking-strategy}
+
+ANN 検索結果のセットをマージしてリランキングするには、適切なリランキング戦略を選択することが不可欠です。Zilliz Cloud は、いくつかのタイプのリランキング戦略を提供しています。これらのリランキングメカニズムの詳細については、[加重ランカー](./reranking-weighted-reranker) または [RRF ランカー](./reranking-rrf) を参照してください。
+
+この例では、特定の検索クエリに重点を置いていないため、RRFRanker 戦略を進めていきます。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -988,9 +1082,13 @@ export ranker='{
 </TabItem>
 </Tabs>
 
-### ステップ 3: ハイブリッド検索を実行する\{#step-3-perform-a-hybrid-search}
+```c++
+auto ranker = std::make_shared<milvus::RRFRerank>(100);
+```
 
-ハイブリッド検索を開始する前に、コレクションがロードされていることを確認してください。コレクション内のベクトルフィールドにインデックスが設定されていない場合や、メモリにロードされていない場合は、ハイブリッド検索メソッドの実行時にエラーが発生します。
+### Step 3: Perform a Hybrid Search\{#step-3-perform-a-hybrid-search}
+
+Hybrid Search を開始する前に、コレクションがロードされていることを確認してください。コレクション内のいずれかのベクトルフィールドにインデックスがないか、メモリにロードされていない場合、Hybrid Search メソッドを実行するとエラーが発生します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -1080,6 +1178,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/hybrid_search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"search\": ${req},
@@ -1094,7 +1193,32 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-以下が出力です:
+```c++
+auto request = milvus::HybridSearchRequest()
+                .WithCollectionName("my_collection")
+                .AddSubRequest(std::make_shared<milvus::SubSearchRequest>(std::move(sub_req1)))
+                .AddSubRequest(std::make_shared<milvus::SubSearchRequest>(std::move(sub_req2)))
+                .AddSubRequest(std::make_shared<milvus::SubSearchRequest>(std::move(sub_req3)))
+                .WithRerank(ranker)
+                .WithLimit(2);
+                
+milvus::SearchResponse response;
+auto status = client->HybridSearch(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+for (auto& result : response.Results().Results()) {
+    std::cout << "TopK results:" << std::endl;
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
+I'm sorry, but the markdown text to translate was not provided after "The following is the output:". Please include the English markdown content you would like me to translate into Japanese following the given rules.
 
 ```python
 ["['id: 1, distance: 0.006047376897186041, entity: {}', 'id: 2, distance: 0.006422005593776703, entity: {}']"]

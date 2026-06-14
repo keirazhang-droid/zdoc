@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2023年3月6日） | Cloud"
+title: "リリースノート (2023年3月6日) | Cloud"
 slug: /release-notes-100
 sidebar_key: release-notes-100
 sidebar_label: "2023年3月6日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud の大幅なアップデートの一般提供を発表いたします。本リリースにより、ベクトルデータベースサービスの利便性、セキュリティ、パフォーマンス、機能性の基準が新たな段階に引き上げられ、すべてのユーザー向けに構築された最先端のベクトルデータベース体験をお届けします。 | Cloud"
+description: "Zilliz Cloud の重要なアップデートの一般提供を発表できることを嬉しく思います。このリリースにより、ベクトルデータベースサービスの使いやすさ、セキュリティ、パフォーマンス、機能の基準が新たな段階に引き上げられ、誰にでも使いやすい最先端のベクトルデータベース体験を提供します。 | Cloud"
 type: origin
 token: XmUYwRgNDitesQkl9QDc3IslnOh
-sidebar_position: 32
+sidebar_position: 33
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

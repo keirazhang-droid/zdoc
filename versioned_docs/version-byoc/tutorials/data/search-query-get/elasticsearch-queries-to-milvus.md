@@ -218,7 +218,7 @@ res = client.query(
 )
 ```
 
-You can find the Elasticsearch example on [this page](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-prefix-query.html). For details on the `like` operator in Milvus, refer to [Using ](./basic-filtering-operators#example-2-using-like-for-pattern-matching)[`LIKE`](./basic-filtering-operators#example-2-using-like-for-pattern-matching)[ for Pattern Matching](./basic-filtering-operators#example-2-using-like-for-pattern-matching).
+You can find the Elasticsearch example on [this page](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-prefix-query.html). For details on the `like` operator in Milvus, refer to [Using ](./basic-filtering-operators)[`LIKE`](./basic-filtering-operators)[ for Pattern Matching](./basic-filtering-operators).
 
 ### Range query\{#range-query}
 
@@ -335,7 +335,7 @@ res = client.query(
 )
 ```
 
-You can find the Elasticsearch example on [this page](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html). For details on range operators in Milvus, refer to [Range operators](./basic-filtering-operators#range-operators).
+You can find the Elasticsearch example on [this page](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html). For details on range operators in Milvus, refer to [Range operators](./basic-filtering-operators).
 
 ### Wildcard query\{#wildcard-query}
 
@@ -368,7 +368,7 @@ res = client.query(
 )
 ```
 
-You can find the Elasticsearch example on [this page](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html). For details on the range operators in Milvus, refer to [Range operators](./basic-filtering-operators#range-operators). 
+You can find the Elasticsearch example on [this page](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html). For details on the range operators in Milvus, refer to [Range operators](./basic-filtering-operators). 
 
 ## Boolean query\{#boolean-query}
 
@@ -508,10 +508,6 @@ The following is a non-strict equivalence of the above Elasticsearch example in 
 search_params_dense = {
     "data": [[1.25, 2, 3.5]],
     "anns_field": "vector",
-    "param": {
-        "metric_type": "IP",
-        
-    },
     "limit": 100
 }
 
@@ -519,10 +515,7 @@ req_dense = ANNSearchRequest(**search_params_dense)
 
 search_params_sparse = {
     "data": ["shoes"],
-    "anns_field": "text_sparse",
-    "param": {
-        "metric_type": "BM25",
-    }
+    "anns_field": "text_sparse"
 }
 
 req_sparse = ANNSearchRequest(**search_params_sparse)

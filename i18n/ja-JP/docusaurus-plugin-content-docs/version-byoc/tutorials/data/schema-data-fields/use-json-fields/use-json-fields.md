@@ -5,17 +5,17 @@ sidebar_key: use-json-fields
 sidebar_label: "JSON"
 beta: FALSE
 notebook: FALSE
-description: "この章では、JSON フィールド型について紹介し、JSON フィールドのインデックス作成方法に関するガイドを提供します。| BYOC"
+description: "この章では、JSON フィールドタイプを紹介し、JSON フィールドのインデックス方法についてのガイドを提供します。 | BYOC"
 type: origin
 token: BkDMwo71MiZMazk7gbtc7fqknbh
-sidebar_position: 8
+sidebar_position: 9
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - json field
+  - クラウド
+  - コレクション
+  - スキーマ
+  - JSON フィールド
 
 ---
 

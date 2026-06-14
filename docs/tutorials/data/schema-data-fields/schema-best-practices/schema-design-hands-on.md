@@ -265,6 +265,20 @@ schema := entity.NewSchema()
 </TabItem>
 </Tabs>
 
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+```
+
 ### Step 2: Add fields\{#step-2-add-fields}
 
 Once the schema is created, the next step is to specify the fields that will comprise your data. Each field is associated with their respective data types and attributes.
@@ -460,6 +474,17 @@ export schema="{
 </TabItem>
 </Tabs>
 
+```c++
+schema->AddField({"article_id", milvus::DataType::INT64, "", true, true});
+schema->AddField(milvus::FieldSchema("title", milvus::DataType::VARCHAR)
+                    .WithMaxLength(200).EnableAnalyzer(true).EnableMatch(true));
+schema->AddField(milvus::FieldSchema("timestamp", milvus::DataType::INT32));
+schema->AddField(milvus::FieldSchema("text", milvus::DataType::VARCHAR)
+                    .WithMaxLength(2000).EnableAnalyzer(true));
+schema->AddField(milvus::FieldSchema("text_dense_vector", milvus::DataType::FLOAT_VECTOR).WithDimension(768));
+schema->AddField(milvus::FieldSchema("text_sparse_vector", milvus::DataType::SPARSE_FLOAT_VECTOR));
+```
+
 In this example, the following attributes are specified for fields:
 
 - Primary key: the `article_id` is used as the primary key enabling automatically allocation of primary keys for incoming entities.
@@ -562,6 +587,13 @@ export schema="{
 
 </TabItem>
 </Tabs>
+
+```c++
+milvus::FunctionPtr function = std::make_shared<milvus::Function>("text_bm25", milvus::FunctionType::BM25);
+function->AddInputFieldName("text");
+function->AddOutputFieldName("text_sparse_vector");
+schema->AddFunction(function);
+```
 
 This example adds a built-in BM25 function in schema, utilizing the `text` field as input and storing the resulting sparse vectors in the `text_sparse_vector` field.
 

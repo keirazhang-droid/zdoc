@@ -97,6 +97,16 @@ export schema='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+```
+
+</TabItem>
 </Tabs>
 
 ## Add Primary Field\{#add-primary-field}
@@ -181,6 +191,14 @@ export schema='{
         $primaryField
     ]
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+schema->AddField(milvus::FieldSchema("my_id", milvus::DataType::INT64, "", true, false));
 ```
 
 </TabItem>
@@ -275,6 +293,14 @@ export schema="{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+schema->AddField(milvus::FieldSchema("my_vector", milvus::DataType::FLOAT_VECTOR).WithDimension(5));
+```
+
+</TabItem>
 </Tabs>
 
 The `dim` paramter in the above code snippets indicates the dimensionality of the vector embeddings to be held in the vector field. The `FLOAT_VECTOR` value indicates that the vector field holds a list of 32-bit floating numbers, which are usually used to represent antilogarithms.In addition to that, Zilliz Cloud also supports the following types of vector embeddings:
@@ -301,9 +327,9 @@ The `dim` paramter in the above code snippets indicates the dimensionality of th
 
 ## Add Scalar Fields\{#add-scalar-fields}
 
-In common cases, you can use scalar fields to store the metadata of the vector embeddings stored in Zilliz Cloud clusters, and conduct ANN searches with metadata filtering to improve the correctness of the search results. Zilliz Cloud supports multiple scalar field types, including **VarChar**, **Boolean**, **Int**, **Float**, and **Double**.
+In common cases, you can use scalar fields to store the metadata of the vector embeddings stored in Zilliz Cloud clusters, and conduct ANN searches with metadata filtering to improve the correctness of the search results. Zilliz Cloud supports multiple scalar field types, including **VarChar**, **TEXT**, **Boolean**, **Int**, **Float**, and **Double**.
 
-### Add String Fields\{#add-string-fields}
+### Add VarChar Fields\{#add-varchar-fields}
 
 In Zilliz Cloud clusters, you can use VarChar fields to store strings. For more on the VarChar field, refer to [String Field](./use-string-field).
 
@@ -380,6 +406,63 @@ export schema="{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+schema->AddField(milvus::FieldSchema("my_varchar", milvus::DataType::VARCHAR).WithMaxLength(512));
+```
+
+</TabItem>
+</Tabs>
+
+### Add TEXT Fields\{#add-text-fields}
+
+In Milvus 3.0 and later, you can use `TEXT` fields to store document text, passages, logs, and other long text content. Unlike `VARCHAR`, a `TEXT` field does not require `max_length`. For more on the `TEXT` field, refer to [TEXT Field](./undefined).
+
+<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
+<TabItem value='python'>
+
+```python
+schema.add_field(
+    field_name="my_text",
+    datatype=DataType.TEXT,
+)
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+// java
+```
+
+</TabItem>
+
+<TabItem value='javascript'>
+
+```javascript
+// nodejs
+```
+
+</TabItem>
+
+<TabItem value='go'>
+
+```go
+// go
+```
+
+</TabItem>
+
+<TabItem value='bash'>
+
+```bash
+# restful
+```
+
+</TabItem>
 </Tabs>
 
 ### Add Number Fields\{#add-number-fields}
@@ -447,6 +530,14 @@ export schema="{
         $int64Field
     ]
 }"
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+schema->AddField(milvus::FieldSchema("my_int64", milvus::DataType::INT64));
 ```
 
 </TabItem>
@@ -518,6 +609,14 @@ export schema="{
         $boolField
     ]
 }"
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+schema->AddField(milvus::FieldSchema("my_bool", milvus::DataType::BOOL));
 ```
 
 </TabItem>
@@ -594,6 +693,14 @@ export schema="{
         $jsonField
     ]
 }"
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+schema->AddField(milvus::FieldSchema("my_json", milvus::DataType::JSON));
 ```
 
 </TabItem>
@@ -686,5 +793,15 @@ export schema="{
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='c++'>
+
+```c++
+schema->AddField(milvus::FieldSchema("my_array", milvus::DataType::ARRAY)
+                                    .WithElementType(milvus::DataType::VARCHAR)
+                                    .WithMaxCapacity(5)
+                                    .WithMaxLength(512));
+```
+
+</TabItem>
+</Tabs>

@@ -1,23 +1,23 @@
 ---
-title: "空白 | Cloud"
+title: "ホワイトスペース | Cloud"
 slug: /whitespace-tokenizer
 sidebar_key: whitespace-tokenizer
-sidebar_label: "空白"
+sidebar_label: "ホワイトスペース"
 beta: FALSE
 notebook: FALSE
-description: "`whitespace` トークナイザーは、単語間にスペースがあるたびにテキストを項に分割します。 | Cloud"
+description: "`whitespace` トークナイザーは、単語間にスペースがある場合にテキストを分割します。 | Cloud"
 type: origin
 token: F2QrwjFSziSUkJkyXzbcwovUnCg
 sidebar_position: 2
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
   - 組み込みトークナイザー
-  - whitespace-tokenizer
+  - ホワイトスペーストークナイザー
 
 ---
 
@@ -83,7 +83,13 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
-ホワイトスペーストークナイザーは、1つ以上のフィルターと組み合わせて使用できます。たとえば、次のコードでは、`whitespace` トークナイザーと [`lowercase`](./lowercase-filter) フィルターを使用するアナライザーを定義しています。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "whitespace"}
+};
+```
+
+ホワイトスペーストークナイザーは、1つ以上のフィルターと組み合わせて使用できます。例えば、次のコードは、`whitespace` トークナイザーと [`lowercase`](./lowercase-filter)[ フィルター](./lowercase-filter) を使用するアナライザーを定義しています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -141,13 +147,20 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
-`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールド内のテキストを処理し、効率的なトークン化とフィルタリングを実現します。詳細については、[使用例](./analyzer-overview#example-use)を参照してください。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "whitespace"},
+    {"filter", {"lowercase"}}
+};
+```
+
+`analyzer_params` を定義した後、コレクションスキーマを定義する際に、`VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングを実行できます。詳細については、[使用例](./analyzer-overview#example-use) を参照してください。
 
 ## 例\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を検証してください。
+アナライザー構成をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
 
-### アナライザー設定\{#analyzer-configuration}
+### アナライザー構成\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -195,6 +208,13 @@ analyzerParams = map[string]any{"tokenizer": "whitespace", "filter": []any{"lowe
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "whitespace"},
+    {"filter", {"lowercase"}}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -297,6 +317,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "The Milvus vector database is built for scale!";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

@@ -5,15 +5,15 @@ sidebar_key: use-array-fields
 sidebar_label: "配列"
 beta: FALSE
 notebook: FALSE
-description: "ARRAY フィールドは、同じデータ型の要素の順序付きセットを格納します。| BYOC"
+description: "配列フィールドは、同じデータ型の要素の順序付きリストを格納します。 | BYOC"
 type: origin
 token: N0RmwUtmqinQvokWdYLc3yV5nJh
-sidebar_position: 9
+sidebar_position: 10
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
+  - クラウド
+  - コレクション
   - スキーマ
   - 配列フィールド
 
@@ -23,11 +23,11 @@ import Admonition from '@theme/Admonition';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# 配列 Field
+# 配列フィールド
 
-ARRAYフィールドは、同じデータ型の要素の順序付きセットを格納します。
+配列フィールドは、同じデータ型の要素の順序付きリストを格納します。 
 
-以下は、ARRAYフィールドがデータを格納する方法の例です。
+配列フィールドがデータを格納する方法の例を以下に示します：
 
 ```json
 {
@@ -36,31 +36,31 @@ ARRAYフィールドは、同じデータ型の要素の順序付きセットを
 }
 ```
 
-## 制限s\{#limits}
+## 制限\{#limits}
 
-- **デフォルト値**: ARRAYフィールドはデフォルト値をサポートしていません。ただし、`nullable`属性を`True`に設定することで、NULL値を許容できます。詳細については、[NULL許容 & Default](./nullable-fields)を参照してください。
+- **デフォルト値**: ARRAY フィールドはデフォルト値をサポートしません。ただし、`nullable` 属性を `True` に設定して NULL 値を許容することは可能です。詳細については、[NULL許容 & デフォルト値](./nullable-fields) を参照してください。
 
-- **データ Type:** ARRAYフィールド内のすべての要素は同じデータ型を持つ必要があり、これは`element_type`パラメータで定義されます。`element_type`が`VARCHAR`に設定されている場合、配列要素の`max_length`も指定する必要があります。`element_type`には、任意のスカラーデータ型、`JSON`、および`STRUCT`を指定できます。
+- **データ型:** ARRAY フィールド内のすべての要素は、同じデータ型を共有する必要があります。これは `element_type` パラメーターで定義されます。`element_type` が `VARCHAR` に設定されている場合、配列要素の `max_length` も指定する必要があります。`element_type` は、任意のスカラーデータ型、`JSON`、および `STRUCT` を受け入れます。
 
-- **配列容量**: ARRAYフィールド内の要素数は、作成時に`max_capacity`で定義された最大容量以下である必要があります。この値は**1**から**4096**の範囲内の整数でなければなりません。
+- **配列容量**: ARRAY フィールド内の要素数は、配列作成時に `max_capacity` で指定された最大容量以下である必要があります。値は **1** から **4096** の範囲内の整数である必要があります。
 
-- **文字列処理**: 配列フィールド内の文字列値は、セマンティックなエスケープや変換を行わずにそのまま格納されます。たとえば、`'a"b'`、`"a'b"`、`'a\'b'`、および`"a\"b"`は入力された通りに格納されますが、`'a'b'`および`"a"b"`は無効な値とみなされます。
+- **文字列処理**: 配列 フィールド内の文字列値は、セマンティックなエスケープや変換なしに、そのまま保存されます。例えば、`'a"b'`、`"a'b"`、`'a\'b'`、`"a\"b"` は入力されたとおりに保存されますが、`'a'b'` および `"a"b"` は無効な値と見なされます。
 
-## Add ARRAY field\{#add-array-field}
+## ARRAY フィールドの追加\{#add-array-field}
 
-Zilliz CloudクラスターでARRAYフィールドを使用するには、コレクションスキーマを作成する際に関連するフィールドタイプを定義します。このプロセスには以下の操作が含まれます：
+Zilliz Cloud クラスターで ARRAY フィールドを使用するには、コレクションスキーマの作成時に関連するフィールド型を定義します。このプロセスには以下が含まれます：
 
-1. `datatype`をサポートされている配列データ型である`ARRAY`に設定します。
+1. `datatype` をサポートされている配列データ型である `ARRAY` に設定します。
 
-1. `element_type`パラメータを使用して、配列内の要素のデータ型を指定します。同一の配列内にあるすべての要素は同じデータ型でなければなりません。
+1. `element_type` パラメーターを使用して、配列内の要素のデータ型を指定します。同じ配列内のすべての要素は、同じデータ型である必要があります。
 
-1. `max_capacity`パラメータを使用して、配列の最大容量（つまり、格納可能な最大要素数）を定義します。
+1. `max_capacity` パラメーターを使用して、配列の最大容量、つまり含めることができる要素の最大数を定義します。
 
-以下は、ARRAYフィールドを含むコレクションスキーマを定義する方法の例です：
+ARRAY フィールドを含むコレクションスキーマを定義する方法は以下の通りです：
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>スキーマ定義時に<code>enable_dynamic_fields=True</code>を設定すると、Zilliz Cloudでは事前に定義されていないスカラーフィールドの挿入が可能になります。ただし、これによりクエリや管理の複雑さが増し、パフォーマンスに影響を与える可能性があります。詳細については、<a href="./enable-dynamic-field">Dynamic Field</a>を参照してください。</p>
+スキーマの定義時に `enable_dynamic_fields=True` を設定した場合、Zilliz Cloud では事前に定義されていないスカラーフィールドの挿入が許可されます。ただし、これによりクエリと管理の複雑性が増し、パフォーマンスに影響を与える可能性があります。詳細については、[ダイナミックフィールド](./enable-dynamic-field) を参照してください。
 
 </Admonition>
 
@@ -275,6 +275,33 @@ export schema="{
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"pk", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR).WithDimension(3));
+schema->AddField(milvus::FieldSchema("tags", milvus::DataType::ARRAY)
+                                    .WithMaxCapacity(10)
+                                    .WithElementType(milvus::DataType::VARCHAR)
+                                    .WithMaxLength(65535));
+schema->AddField(milvus::FieldSchema("ratings", milvus::DataType::ARRAY)
+                                    .WithMaxCapacity(10)
+                                    .WithElementType(milvus::DataType::INT64));
+```
+
+</TabItem>
 </Tabs>
 
 ## インデックスパラメータの設定\{#set-index-params}
@@ -375,6 +402,17 @@ export indexParams='[
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("tags", "inverted_index", milvus::IndexType::AUTOINDEX,),
+    milvus::IndexDesc("embedding", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+```
+
+</TabItem>
 </Tabs>
 
 ## コレクションの作成\{#create-collection}
@@ -439,11 +477,26 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
     \"indexParams\": $indexParams
 }"
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("my_collection")
+                                        .WithIndexes(std::move(indexes))
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -573,6 +626,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "data": [
         {
@@ -599,13 +653,38 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::EntityRows data = {{{"pk", 1}, {"tags", std::vector<std::string>{"pop", "rock", "classic"}}, {"ratings", std::vector<int64_t>{5, 4, 3}}, {"embedding", std::vector<float>{0.12, 0.34, 0.56}}},
+                           {{"pk", 2}, {"tags", std::vector<std::string>{"jazz", "blues"}}, {"ratings", std::vector<int64_t>{4, 5}}, {"embedding", std::vector<float>{0.78, 0.91, 0.23}}},
+                           {{"pk", 3}, {"tags", std::vector<std::string>{"electronic", "dance"}}, {"ratings", std::vector<int64_t>{3, 3, 4}}, {"embedding", std::vector<float>{0.67, 0.45, 0.89}}}};
+                           
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
+
+<Admonition type="info" icon="📘" title="Notes">
+
+完全な配列の挿入に加えて、`ARRAY` フィールドは `upsert` API 上で `ARRAY_APPEND` および `ARRAY_REMOVE` の部分更新演算子もサポートしています。これらを使用すると、既存の配列の現在の値を取得せずに要素を追加したり、一致する要素を削除したりできるため、クライアント側の読み取り-変更-書き込みパターンを回避できます。詳細については、[部分更新演算子を使用した配列フィールドのアップサート](./upsert-entities#upsert-array-fields-with-partial-update-operators) を参照してください。
+
+</Admonition>
 
 ## フィルター式を使用したクエリ\{#query-with-filter-expressions}
 
-エンティティを挿入した後、指定されたフィルター式に一致するエンティティを取得するには `query` メソッドを使用します。
+エンティティを挿入した後、`query` メソッドを使用して、指定されたフィルター式に一致するエンティティを取得します。
 
-`tags` が null でないエンティティを取得するには：
+`tags` が null ではないエンティティを取得するには:
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -691,12 +770,38 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": "tags IS NOT NULL",
     "outputFields": ["tags", "ratings", "embedding"]
 }'
 
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("tags IS NOT NULL")
+                       .AddOutputField("tags")
+                       .AddOutputField("ratings")
+                       .AddOutputField("embedding");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
 ```
 
 </TabItem>
@@ -799,11 +904,37 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
   "collectionName": "my_collection",
   "filter": "ratings[0] > 4",
   "outputFields": ["tags", "ratings", "embedding"]
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter("ratings[0] > 4")
+                       .AddOutputField("tags")
+                       .AddOutputField("ratings")
+                       .AddOutputField("embedding");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
 ```
 
 </TabItem>
@@ -916,6 +1047,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "data": [
@@ -931,6 +1063,38 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::vector<float> query_vector = {0.3, -0.6, 0.1};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("embedding")
+                   .WithLimit(5)
+                   .WithFilter(R"(tags[0] == "pop")")
+                   .AddOutputField("tags")
+                   .AddOutputField("ratings")
+                   .AddOutputField("embedding")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
-さらに、Zilliz Cloud は高度な配列フィルタリング演算子（`ARRAY_CONTAINS`、`ARRAY_CONTAINS_ALL`、`ARRAY_CONTAINS_ANY`、および `ARRAY_LENGTH`）をサポートしており、クエリ機能をさらに強化します。詳細については、[ARRAY Operators](./array-filtering-operators) を参照してください。
+さらに、Zilliz Cloud は高度な配列フィルタリング演算子として `ARRAY_CONTAINS`、`ARRAY_CONTAINS_ALL`、`ARRAY_CONTAINS_ANY`、および `ARRAY_LENGTH` をサポートしており、クエリ機能をさらに強化します。詳細については、[配列演算子](./array-filtering-operators) を参照してください。

@@ -130,7 +130,30 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/list" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{}'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::ListCollectionsResponse response;
+status = client->ListCollections(milvus::ListCollectionsRequest(), response);
+for (auto& name : response.CollectionNames()) {
+    std::cout << "\t" << name << std::endl;
+}
 ```
 
 </TabItem>
@@ -207,9 +230,27 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/describe" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup"
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+milvus::DescribeCollectionResponse response;
+auto status = client->DescribeCollection(milvus::DescribeCollectionRequest()
+                                            .WithCollectionName("quick_setup"),
+                                         response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::cout << "Collection name: " << response.Desc().CollectionName() << std::endl;
+std::cout << "Collection ID: " << response.Desc().ID() << std::endl;
 ```
 
 </TabItem>

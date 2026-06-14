@@ -1,20 +1,20 @@
 ---
-title: "オンデマンド DQL Operations | Cloud"
+title: "オンデマンド DQL 運用 | Cloud"
 slug: /dql-sessions-external-collection
 sidebar_key: dql-sessions-external-collection
 sidebar_label: "DQL セッション"
 beta: PUBLIC
 notebook: FALSE
-description: "検索、クエリ、取得、ハイブリッド検索などのオンデマンドコンピューティングのためのコレクション内 DQL 操作では、オンデマンドクラスターからコンピュートリソースをアタッチする必要があります。Zilliz Cloud では、オンデマンドのコンピュートニーズに応えるためのセッションを作成できます。 | Cloud"
+description: "オンデマンドコンピューティングのためのコレクション内のDQL操作（検索、クエリ、取得、ハイブリッド検索など）は、オンデマンドクラスターからコンピューティングリソースをアタッチする必要があります。Zilliz Cloudでは、オンデマンドのコンピューティングニーズを満たすためにセッションを作成できます。 | Cloud"
 type: origin
 token: T23Rwd19Dixzh8kugLfc7RZSnMe
 sidebar_position: 3
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - external collection
-  - session
+  - クラウド
+  - 外部コレクション
+  - セッション
 
 ---
 
@@ -26,13 +26,16 @@ import TabItem from '@theme/TabItem';
 
 オンデマンドコンピューティングにおけるコレクションの DQL 運用（検索、クエリ、取得、ハイブリッド検索など）には、オンデマンドクラスタからコンピュートリソースをアタッチする必要があります。Zilliz Cloud では、オンデマンドコンピュートニーズに対応するためのセッションを作成できます。
 
-この記事では、プロジェクトエンドポイントを使用してデータベースにコレクションを作成済みであることを前提としています。詳細については、[外部コレクションの作成](./create-external-collection) を参照してください。
+この記事では、プロジェクトエンドポイントを使用してデータベースにコレクションを作成済みであることを前提としています。詳細については、[外部コレクションの作成](XURL0X) を参照してください。
 
 ## プロジェクトエンドポイントへの接続\{#connect-to-a-project-endpoint}
 
-プロジェクトエンドポイントは、オンデマンドコンピュートリソースへのアクセスを提供するために設計されています。これを使用して、オンデマンドクラスタやデータベースを管理し、コレクションに格納されたデータを操作できます。
+プロジェクトエンドポイントは、オンデマンドコンピュートリソースへのアクセスを提供するために設計されています。これを使用して、オンデマンドクラスタやデータベースの管理、およびコレクションに格納されたデータの操作を行うことができます。
 
 以下のコード例では、デフォルトデータベースに `my_collection` という名前の外部コレクションがあることを前提としています。また、接続を設定するには、十分な権限を持つ有効な API キーを常に使用する必要があります。
+
+<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"cURL","value":"bash"}]}>
+<TabItem value='python'>
 
 ```python
 client = MilvusClient(
@@ -45,7 +48,11 @@ client.has_collection(
 )
 ```
 
-```typescript
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
 const client = new MilvusClient({
     address: "https://{project-id}.{region}.vectordb.zillizcloud.com",
     token: "YOUR_API_KEY"
@@ -55,6 +62,10 @@ client.has_collection({
     collection_name: "my_collection"
 });
 ```
+
+</TabItem>
+
+<TabItem value='java'>
 
 ```bash
 export PROJECT_ENDPOINT='https://{project-id}.{region}.vectordb.zillizcloud.com'
@@ -69,17 +80,23 @@ curl --request POST \
 }'
 ```
 
-## セッションの作成\{#create-a-session}
+</TabItem>
+</Tabs>
 
-プロジェクトエンドポイントへの接続を設定したら、指定したオンデマンドクラスターからコンピュートリソースをアタッチするセッションを作成します。
+## セッションを作成する\{#create-a-session}
 
-以下の例では、ID が `inxx-xxxxxxxxxxxxxxxxx` のオンデマンドクラスターがすでに作成されていることを前提としています。
+プロジェクトエンドポイントへの接続を確立したら、指定したオンデマンドクラスターからコンピュートリソースをアタッチするためのセッションを作成します。
+
+次の例では、IDが`inxx-xxxxxxxxxxxxxxxxx`のオンデマンドクラスターがすでに作成されていることを前提としています。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>RESTful API リクエストの場合、セッションを作成する代わりに、クラスター ID を DQL 呼び出しのクエリパラメーターとして渡す必要があります。</p>
+RESTful リクエストの場合、セッションを作成する代わりに、クラスター ID をクエリパラメータとして DQL 呼び出しに渡す必要があります。
 
 </Admonition>
+
+<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
+<TabItem value='python'>
 
 ```python
 session = client.session(
@@ -87,17 +104,31 @@ session = client.session(
 )
 ```
 
-```typescript
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
 const session = client.session("inxx-xxxxxxxxxxxxxxxxx");
 ```
+
+</TabItem>
+
+<TabItem value='java'>
 
 ```bash
 export CLUSTER_ID="inxx-xxxxxxxxxxxxxxxxx"
 ```
 
+</TabItem>
+</Tabs>
+
 ## DQL 操作の実行\{#conduct-dql-operations}
 
 セッションの準備ができたら、検索を実行できます。次の例では、基本的なベクトル検索を例として使用しています。これはクエリ、get、およびハイブリッド検索にも適用されます。
+
+<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"cURL","value":"bash"}]}>
+<TabItem value='python'>
 
 ```python
 query_vector = [0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, ..., 0.9029438446296592]
@@ -107,12 +138,15 @@ res = session.search(
     anns_field="vector",
     data=[query_vector],
     limit=3,
-    output_fields=["product_id", "title", "main_category", "price", "average_rating", "rating_number"],
-    search_params={"metric_type": "COSINE"}
+    output_fields=["product_id", "title", "main_category", "price", "average_rating", "rating_number"]
 )
 ```
 
-```typescript
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
 const query_vector = [0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, ..., 0.9029438446296592];
 const res = session.search({
     db_name: "my_database",
@@ -123,6 +157,10 @@ const res = session.search({
     output_fields: ["product_id", "title", "main_category", "price", "average_rating", "rating_number"],
 });
 ```
+
+</TabItem>
+
+<TabItem value='java'>
 
 ```bash
 curl --request POST \
@@ -154,20 +192,34 @@ curl --request POST \
 }'
 ```
 
+</TabItem>
+</Tabs>
+
 ## セッションを閉じる\{#close-a-session}
 
-オンデマンドのコンピューティングタスクが完了したら、セッションを閉じることができます。閉じたセッションは、それ以上の DQL 操作に使用できません。
+オンデマンドコンピューティングタスクが完了したら、セッションを閉じることができます。閉じられたセッションは、それ以降のDQL操作には使用できません。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>RESTful API 呼び出しではこれは不要です。</p>
+RESTful 呼び出しはこれを必要としない。
 
 </Admonition>
+
+<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"NodeJS","value":"javascript"}]}>
+<TabItem value='python'>
 
 ```python
 session.close()
 ```
 
-```typescript
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
 session.close();
 ```
+
+</TabItem>
+</Tabs>
+

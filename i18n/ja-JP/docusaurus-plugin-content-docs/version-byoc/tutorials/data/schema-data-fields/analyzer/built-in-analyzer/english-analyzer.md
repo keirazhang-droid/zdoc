@@ -5,19 +5,19 @@ sidebar_key: english-analyzer
 sidebar_label: "英語"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud の `english` アナライザーは、英語テキストを処理するように設計されており、言語固有のトークン化およびフィルタリングルールを適用します。| BYOC"
+description: "Zilliz Cloud の `english` アナライザーは、英語テキストを処理するために設計されており、トークン化とフィルタリングに言語固有のルールを適用します。 | BYOC"
 type: origin
 token: W0WhwqRyciRMRLklcsdca1U2nae
 sidebar_position: 2
 keywords: 
-  - zilliz
+  - Zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
   - 組み込みアナライザー
-  - english analyzer
+  - 英語アナライザー
 
 ---
 
@@ -27,23 +27,23 @@ import TabItem from '@theme/TabItem';
 
 # English
 
-Zilliz Cloud の `english` アナライザーは、英語テキストを処理するために設計されており、トークン化およびフィルタリングに言語固有のルールを適用します。
+Zilliz Cloud の `english` アナライザーは、英語テキストを処理するために設計されており、トークン化とフィルタリングに言語固有のルールを適用します。
 
 ## Definition\{#definition}
 
-`english` アナライザーは以下のコンポーネントを使用します。
+`english` アナライザーは、次のコンポーネントを使用します。
 
-- **トークナイザー**: テキストを個別の単語単位に分割するために、[`standard`](./standard-tokenizer) [トークナイザー](./standard-tokenizer) を使用します。
+- **トークナイザー**: テキストを個別の単語単位に分割するために、[`standard`](./standard-tokenizer)[ トークナイザー](./standard-tokenizer) を使用します。
 
-- **フィルター**: 包括的なテキスト処理を行うため、複数のフィルターを含みます：
+- **フィルター**: 包括的なテキスト処理のための複数のフィルターが含まれています。
 
-    - [`lowercase`](./lowercase-filter)：すべてのトークンを小文字に変換し、大文字と小文字を区別しない検索を可能にします。
+    - [`lowercase`](./lowercase-filter): すべてのトークンを小文字に変換し、大文字と小文字を区別しない検索を可能にします。
 
-    - [`stemmer`](./stemmer-filter)：単語をその語幹（ルート）形式に還元することで、より広範なマッチングをサポートします（例：「running」→「run」）。
+    - [`stemmer`](./stemmer-filter): 単語を語幹に変換して、より広いマッチングをサポートします (例: "running" は "run" になります)。
 
-    - [`stop_words`](./stop-filter)：一般的な英語のストップワードを削除し、テキスト中の重要な用語に焦点を当てます。
+    - [`stop_words`](./stop-filter): テキスト内の重要語に焦点を当てるために、一般的な英語のストップワードを削除します。
 
-`english` アナライザーの機能は、次のカスタムアナライザー設定と同等です：
+`english` アナライザーの機能は、次のカスタムアナライザー構成と同等です:
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -135,6 +135,21 @@ analyzerParams='{
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        "lowercase", 
+        {{"type", "stemmer"}, {"language", "english"}},
+        {{"type", "stop"}, {"stop_words", "_english_"}}
+    }}
+};
+```
+
+</TabItem>
 </Tabs>
 
 ## 設定\{#configuration}
@@ -186,6 +201,16 @@ analyzerParams = map[string]any{"type": "english"}
 analyzerParams='{
   "type": "english"
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "english"}
+};
 ```
 
 </TabItem>
@@ -263,15 +288,26 @@ analyzerParams='{
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "english"},
+    {"stop_words", {"a", "an", "the"}}
+};
+```
+
+</TabItem>
 </Tabs>
 
-`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールド内のテキストを処理し、効率的なトークン化とフィルタリングを実現します。詳細については、[使用例](./analyzer-overview#example-use)を参照してください。
+`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定したアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングを行うことができます。詳細については、[使用例](./analyzer-overview#example-use) を参照してください。
 
-## 例\{#examples}
+## Examples\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を検証してください。
+アナライザー設定をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
 
-### アナライザー設定\{#analyzer-configuration}
+### Analyzer configuration\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -324,6 +360,17 @@ analyzerParams='{
   ]
 }'
 
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "english"},
+    {"stop_words", {"a", "an", "the"}}
+};
 ```
 
 </TabItem>
@@ -426,6 +473,33 @@ if err != nil {
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "Milvus is a vector database built for scale!";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>

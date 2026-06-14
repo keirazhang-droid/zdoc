@@ -12,12 +12,12 @@ sidebar_position: 1
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
   - 組み込みトークナイザー
-  - standard-tokenizer
+  - 標準トークナイザー
 
 ---
 
@@ -83,7 +83,13 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
-`standard` トークナイザーは、1つ以上のフィルターと組み合わせて使用できます。たとえば、次のコードでは、`standard` トークナイザーと `lowercase` フィルターを使用するアナライザーを定義しています。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"}
+};
+```
+
+`standard`トークナイザーは、1つ以上のフィルターと組み合わせて動作できます。例えば、次のコードは`standard`トークナイザーと`lowercase`フィルターを使用するアナライザーを定義しています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -141,19 +147,26 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {"lowercase"}}
+};
+```
+
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>よりシンプルなセットアップを行うには、<a href="./standard-analyzer"><code>standard</code></a> <a href="./standard-analyzer">アナライザー</a>を使用することもできます。これは<code>standard</code>トークナイザーと<a href="./lowercase-filter"><code>lowercase</code></a><a href="./lowercase-filter">フィルター</a>を組み合わせたものです。</p>
+より簡単な設定のために、[`standard`](./standard-analyzer) [アナライザー](./standard-analyzer) を使用することもできます。これは `standard` トークナイザーと [`lowercase`](./lowercase-filter)[ フィルター](./lowercase-filter) を組み合わせたものです。
 
 </Admonition>
 
-`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud はそのフィールドのテキストを指定されたアナライザーを使って効率的にトークン化およびフィルタリング処理できます。詳細については、[Example use](./analyzer-overview#example-use) を参照してください。
+`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングが可能になります。詳細については、[使用例](./analyzer-overview#example-use) を参照してください。
 
-## Examples\{#examples}
+## 例\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使ってその動作を検証してください。
+アナライザー設定をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
 
-### Analyzer configuration\{#analyzer-configuration}
+### アナライザー設定\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -201,6 +214,13 @@ analyzerParams = map[string]any{"tokenizer": "standard", "filter": []any{"lowerc
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {"lowercase"}}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -303,6 +323,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "The Milvus vector database is built for scale!";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

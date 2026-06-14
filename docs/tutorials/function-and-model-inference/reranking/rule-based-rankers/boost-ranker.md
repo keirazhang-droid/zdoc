@@ -491,6 +491,18 @@ const rerank = {
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto rerank = std::make_shared<milvus::BoostRerank>("boost");
+rerank->SetFilter("doctype == 'abstract'");
+rerank->SetWeight(0.5);
+rerank->SetRandomScoreField("id");
+rerank->SetRandomScoreSeed(126);
+```
+
+</TabItem>
 </Tabs>
 
 <table>
@@ -642,6 +654,39 @@ console.log('Search results:', searchResults);
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+auto function_score = std::make_shared<milvus::FunctionScore>();
+function_score->AddFunction(rerank);
+
+std::vector<float> query_vector = {-0.619954382375778, 0.4479436794798608, -0.17493894838751745, -0.4248030059917294, -0.8648452746018911};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("vector")
+                   .WithRerank(function_score)
+                   .AddOutputField("doctype")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -812,6 +857,38 @@ await client.search({
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto fix_weight_ranker = std::make_shared<milvus::BoostRerank>("boost");
+fix_weight_ranker->SetWeight(0.8);
+
+auto random_weight_ranker = std::make_shared<milvus::BoostRerank>("boost");
+random_weight_ranker->SetWeight(0.4);
+random_weight_ranker->SetRandomScoreSeed(126);
+
+auto function_score = std::make_shared<milvus::FunctionScore>();
+function_score->AddFunction(fix_weight_ranker);
+function_score->AddFunction(random_weight_ranker);
+
+std::vector<float> query_vector = {-0.619954382375778, 0.4479436794798608, -0.17493894838751745, -0.4248030059917294, -0.8648452746018911};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("vector")
+                   .WithLimit(10)
+                   .WithRerank(function_score)
+                   .AddOutputField("doctype")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>

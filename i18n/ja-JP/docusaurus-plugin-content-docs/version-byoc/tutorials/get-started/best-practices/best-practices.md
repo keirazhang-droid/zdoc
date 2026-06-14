@@ -5,10 +5,10 @@ sidebar_key: best-practices
 sidebar_label: "ベストプラクティス"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud を使用する際のベストプラクティスに関する記事をご覧ください。| BYOC"
+description: "Zilliz Cloud 使用時のベストプラクティスに関する記事をご覧いただけます。 | BYOC"
 type: origin
 token: HWzCwbjfci51HHk4BvTcfbiHn1d
-sidebar_position: 14
+sidebar_position: 15
 keywords: 
   - zilliz
   - ベクトルデータベース

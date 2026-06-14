@@ -83,7 +83,7 @@ This command will guide you in choosing the target tools and determining the ins
    </tr>
    <tr>
      <td><p>Import</p></td>
-     <td><p>Bulk data import from S3/GCS</p></td>
+     <td><p>Bulk data import from S3/GCS/Azure Blob Storage</p></td>
    </tr>
    <tr>
      <td><p>Partitions</p></td>

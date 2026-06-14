@@ -1,26 +1,26 @@
 ---
-title: "API & SDKs | BYOC"
+title: "API と SDK | BYOC"
 slug: /api-sdks
 sidebar_key: api-sdks
-sidebar_label: "API & SDKs"
+sidebar_label: "API と SDK"
 beta: FALSE
 notebook: FALSE
-description: "この章では、RESTful API および SDK の使用方法やインストール手順、ならびにそれらのリファレンスドキュメントへのアクセス方法について説明します。| BYOC"
+description: "この章では、RESTful API および SDK の使用またはインストール手順と、それらのリファレンスドキュメントへのアクセスを提供します。 | BYOC"
 type: origin
 token: Ecwpw6cImiFV0gkkusgcQhvBnLe
-sidebar_position: 16
+sidebar_position: 17
 keywords: 
-  - zilliz
-  - milvus
+  - Zilliz
+  - Milvus
   - ベクトルデータベース
-  - api
-  - restful
-  - sdk
-  - python
-  - java
-  - go
-  - node
-  - nodejs
+  - API
+  - RESTful
+  - SDK
+  - Python
+  - Java
+  - Go
+  - Node.js
+  - Node.js
 
 ---
 

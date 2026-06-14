@@ -1,21 +1,23 @@
 ---
-title: "外部コレクションを使用したオンデマンド検索のクイックスタート | Cloud"
+title: "オンデマンド検索のクイックスタート | Cloud"
 slug: /quick-start-to-on-demand-search
 sidebar_key: quick-start-to-on-demand-search
-sidebar_label: "外部コレクションを使用したオンデマンド検索のクイックスタート"
+sidebar_label: "オンデマンド検索のクイックスタート"
 beta: PUBLIC
 notebook: FALSE
-description: "オンデマンド検索を使用すると、外部ストレージ内のデータや Zilliz Cloud にインポートされたデータにゼロコピーでアクセスし、大規模なデータセットを検索できます。コンピューティングリソースを継続的に実行する必要はありません。外部ボリュームまたはインポートされたファイルからコレクションを作成し、プロジェクトデータプレーンエンドポイントを介してインデックスを構築しメタデータを更新し、検索やクエリワークロードを実行する必要があるときだけオンデマンドクラスタを起動できます。 | Cloud"
+description: "Zilliz Cloud はオンデマンドのコンピュートリソースを提供し、必要に応じて類似性検索やクエリを実行できます。下図に示すように、リクエストがない場合にはコンピュートリソースは自動的にサスペンドされ、サスペンド中のコンピュートリソースは課金されません。 | Cloud"
 type: origin
-token: KdwFwQnDNisT4skHH6Hc16uInji
-sidebar_position: 9
+token: GQN0wDCrni4n36kyeVQcF41Lned
+sidebar_position: 10
 keywords: 
   - zilliz
   - ベクトルデータベース
   - クイックスタート
   - cloud
   - milvus
-  - on-demand search
+  - オンデマンド検索
+  - データレイク
+  - 外部データレイクの検索
 
 ---
 
@@ -23,33 +25,25 @@ import Admonition from '@theme/Admonition';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# クイックスタート: 外部コレクションを使用したオンデマンド検索
+# On-Demand Search のクイックスタート
 
-オンデマンド検索を使用すると、外部ストレージ内のデータや Zilliz Cloud にインポートされたデータにゼロコピーでアクセスし、大規模データセットを検索できます。コンピューティングリソースを継続的に実行しておく必要はありません。外部ボリュームやインポートされたファイルからコレクションを作成し、プロジェクトデータプレーンエンドポイントを介してインデックスの構築とメタデータの更新を行い、検索やクエリワークロードを実行する必要があるときだけオンデマンドクラスタを起動できます。
+Zilliz Cloud はオンデマンドのコンピューティングリソースを提供し、オンデマンドで類似性検索やクエリを実行できます。下図に示すように、リクエストがない場合、コンピューティングリソースは自動的に休止し、休止中のコンピューティングリソースには料金は発生しません。
 
-これを行うには、以下の手順に従います。
+![ZhWHbgOD0o56IpxbQ32ctGaInBe](https://zdoc-images.s3.us-west-2.amazonaws.com/zhwhbgod0o56ipxbq32ctgainbe.png "ZhWHbgOD0o56IpxbQ32ctGaInBe")
 
-## 開始前の準備\{#before-you-start}
-
-- **ストレージ統合の作成**
-
-    ストレージ統合は、データの場所とアクセス認証情報を記録するプロファイルです。ストレージ統合を設定するには、[AWS S3](./integrate-with-aws-s3)、[Google GCS](./integrate-with-gcp)、または [Azure](./integrate-with-azure-blob-storage) のストレージ統合を作成する手順に従い、ストレージ統合IDを取得してください。
-
-- **外部ボリュームの作成**
-
-    外部ボリュームは、ストレージ統合内のパスです。生データがそのパス上にあることを確認してください。同じストレージ統合から複数の外部ボリュームを作成できます。外部ボリュームの作成については、[外部ボリューム](./external-volume#create-an-external-volume) を参照してください。
-
-## ステップ 1: プロジェクトエンドポイントへの接続\{#step-1-connect-to-a-project-endpoint}
+## ステップ 1: プロジェクトエンドポイントに接続する。\{#step-1-connect-to-a-project-endpoint\}
 
 データベースを操作する前に、プロジェクトエンドポイントに接続します。プロジェクトエンドポイントは、Zilliz Cloud コンソールでオンデマンドコンピューティングを有効にした後、クイックスタートページで取得できます。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>外部コレクション操作には、認証のための<strong>API キー</strong>が必要です。このフローでは <code>username:password</code> 認証はサポートされていません。</p>
+> - 管理されたコレクションの操作には、認証に **API キー**が必要です。このフローは `username:password` 認証をサポートしません。
+>
+> - オンデマンドコンピューティング用のデータベース内の管理されたコレクションは、ロード操作を必要としません。
 
 </Admonition>
 
-<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"cURL","value":"bash"}]}>
+<Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"NodeJS","value":"javascript"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
 
 ```python
@@ -65,8 +59,69 @@ client = MilvusClient(
 
 <TabItem value='java'>
 
+```java
+import io.milvus.v2.client.ConnectConfig;
+import io.milvus.v2.client.MilvusClientV2;
+
+MilvusClientV2 client = new MilvusClientV2(ConnectConfig.builder()
+    .uri("https://{project-id}.{region}.api.zillizcloud.com")
+    .token("YOUR_API_KEY")
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+ctx := context.Background()
+
+client, err := milvusclient.New(ctx, &milvusclient.ClientConfig{
+    Address: "https://{project-id}.{region}.api.zillizcloud.com",
+    APIKey:  "YOUR_API_KEY",
+})
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+import { MilvusClient } from '@zilliz/milvus2-sdk-node';
+
+const client = new MilvusClient({
+  address: 'https://{project-id}.{region}.api.zillizcloud.com',
+  token: 'YOUR_API_KEY',
+});
+
+await client.connectPromise;
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
 ```bash
 export PROJECT_ENDPOINT="https://{project-id}.{region}.api.zillizcloud.com"
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include <milvus/MilvusClientV2.h>
+
+auto client = milvus::MilvusClientV2::Create();
+milvus::ConnectParam connect_param(
+    "https://{project-id}.{region}.api.zillizcloud.com",
+    "YOUR_API_KEY"
+);
+
+auto status = client->Connect(connect_param);
 ```
 
 </TabItem>
@@ -89,6 +144,39 @@ client.create_database(
 
 <TabItem value='java'>
 
+```java
+import io.milvus.v2.service.database.request.CreateDatabaseReq;
+
+client.createDatabase(CreateDatabaseReq.builder()
+    .databaseName("my_database")
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+err = client.CreateDatabase(ctx, milvusclient.NewCreateDatabaseOption("my_database"))
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+await client.createDatabase({
+  db_name: 'my_database',
+});
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
 ```bash
 curl --request POST \
 --url "${PROJECT_ENDPOINT}/v2/vectordb/databases/create" \
@@ -100,15 +188,32 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```shell
+zilliz database create --name my_database
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::CreateDatabaseRequest request;
+request.WithDatabaseName("my_database");
+
+auto status = client->CreateDatabase(request);
+```
+
+</TabItem>
 </Tabs>
 
-## Step 3: 外部コレクションを作成する。\{#step-3-create-an-external-collection}
+## ステップ 3: マネージドコレクションを作成する。\{#step-3-create-a-managed-collection}
 
-データベースの準備ができたら、外部コレクションを作成できます。外部コレクションは、そのカラムを指定したデータファイルにマッピングし、そのコレクション内の検索用にオンデマンドのコンピューティングリソースをアタッチします。
+データベースの準備ができたら、その中にマネージドコレクションを作成できます。外部コレクションがコレクションのカラムを外部データファイルにマッピングするのとは異なり、マネージドコレクションではデータをインポートして大幅なパフォーマンス向上を図ります。
 
-管理コレクションが生データをコレクションにインポートすることを要求するのとは異なり、外部コレクションはサブ秒のリフレッシュ操作を通じて生データからメタデータを生成します。
-
-次の例は、コレクションフィールドとデータファイルの間のマッピング関係を設定する方法を示しています。スキーマを初期化する際に、データのボリュームパスとファイル形式を渡します。
+以下の例では、コレクションスキーマの設定方法とコレクションの作成方法を示します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -116,72 +221,101 @@ curl --request POST \
 ```python
 from pymilvus import MilvusClient, DataType
 
-schema = MilvusClient.create_schema(
-    external_source='volume://my_volume/iceberg/metadata/00001-xxx.metadata.json',
-    external_spec='{
-        "format": "iceberg-table",
-        "snapshot_id": "1234567890123456789"
-    }'
-)
-
-schema.add_field(
-    field_name="vector",
-    datatype=DataType.FLOAT_VECTOR,
-    dim=1536,
-    # highlight-next
-    external_field="embedding" # field name in the external data file
-)
+schema = MilvusClient.create_schema()
 
 schema.add_field(
     field_name="product_id",
-    datatype=DataType.VARCHAR,
-    max_length=32,
-    nullable=True,
-    # highlight-next
-    external_field="product_id"
-)
-
-schema.add_field(
-    field_name="title",
-    datatype=DataType.VARCHAR,
-    max_length=512,
-    nullable=True,
-    # highlight-next
-    external_field="title"
-)
-
-schema.add_field(
-    field_name="main_category",
-    datatype=DataType.VARCHAR,
-    max_length=64,
-    nullable=True,
-    # highlight-next
-    external_field="main_category"
-)
-
-schema.add_field(
-    field_name="price",
-    datatype=DataType.DOUBLE,
-    nullable=True,
-    # highlight-next
-    external_field="price"
-)
-
-schema.add_field(
-    field_name="average_rating",
-    datatype=DataType.DOUBLE,
-    nullable=True,
-    # highlight-next
-    external_field="average_rating"
-)
-
-schema.add_field(
-    field_name="rating_number",
     datatype=DataType.INT64,
-    nullable=True,
-    # highlight-next
-    external_field="rating_number"
+    is_primary=True
 )
+
+schema.add_field(
+    field_name="product_name",
+    datatype=DataType.VARCHAR,
+    max_length=512
+)
+
+schema.add_field(
+    field_name="embedding",
+    datatype=DataType.FLOAT_VECTOR,
+    dim=768
+)
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+import io.milvus.v2.common.DataType;
+import io.milvus.v2.service.collection.request.AddFieldReq;
+import io.milvus.v2.service.collection.request.CreateCollectionReq;
+
+CreateCollectionReq.CollectionSchema schema = client.createSchema();
+
+schema.addField(AddFieldReq.builder()
+    .fieldName("product_id")
+    .dataType(DataType.Int64)
+    .isPrimaryKey(true)
+    .build());
+
+schema.addField(AddFieldReq.builder()
+    .fieldName("product_name")
+    .dataType(DataType.VarChar)
+    .maxLength(512)
+    .build());
+
+schema.addField(AddFieldReq.builder()
+    .fieldName("embedding")
+    .dataType(DataType.FloatVector)
+    .dimension(768)
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+schema := entity.NewSchema().
+    WithField(entity.NewField().
+        WithName("product_id").
+        WithDataType(entity.FieldTypeInt64).
+        WithIsPrimaryKey(true)).
+    WithField(entity.NewField().
+        WithName("product_name").
+        WithDataType(entity.FieldTypeVarChar).
+        WithMaxLength(512)).
+    WithField(entity.NewField().
+        WithName("embedding").
+        WithDataType(entity.FieldTypeFloatVector).
+        WithDim(768))
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+import { DataType } from '@zilliz/milvus2-sdk-node';
+
+const schema = [
+  {
+    name: 'product_id',
+    data_type: DataType.Int64,
+    is_primary_key: true,
+  },
+  {
+    name: 'product_name',
+    data_type: DataType.VarChar,
+    max_length: 512,
+  },
+  {
+    name: 'embedding',
+    data_type: DataType.FloatVector,
+    dim: 768,
+  },
+];
 ```
 
 </TabItem>
@@ -190,64 +324,75 @@ schema.add_field(
 
 ```bash
 export schema='{
-    "externalSource": "volume://my_volume/iceberg/metadata/00001-xxx.metadata.json",
-    "externalSpec": "{\"format\": \"iceberg-table\", \"snapshot_id\": \"1234567890123456789\"}",
     "fields": [
         {
-            "fieldName": "vector",
+            "fieldName": "product_id",
+            "dataType": "Int64",
+            "isPrimary": true
+        },
+        {
+            "fieldName": "embedding",
             "dataType": "FloatVector",
             "elementTypeParams": {
-                "dim": "1536"
-            },
-            "externalField": "embedding"
+                "dim": "768"
+            }
         },
         {
-            "fieldName": "product_id",
+            "fieldName": "product_name",
             "dataType": "VarChar",
             "elementTypeParams": {
-                "max_length": "32"
-            },
-            "nullable": true,
-            "externalField": "product_id"
-        },
-        {
-            "fieldName": "title",
-            "dataType": "VarChar",
-            "elementTypeParams": {
-                "max_length": "512"
-            },
-            "nullable": true,
-            "externalField": "title"
-        },
-        {
-            "fieldName": "main_category",
-            "dataType": "VarChar",
-            "elementTypeParams": {
-                "max_length": "64"
-            },
-            "nullable": true,
-            "externalField": "main_category"
-        },
-        {
-            "fieldName": "price",
-            "dataType": "Double",
-            "nullable": true,
-            "externalField": "price"
-        },
-        {
-            "fieldName": "average_rating",
-            "dataType": "Double",
-            "nullable": true,
-            "externalField": "average_rating"
-        },
-        {
-            "fieldName": "rating_number",
-            "dataType": "Int64",
-            "nullable": true,
-            "externalField": "rating_number"
+                "max_length": 512
+            }
         }
     ]
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```shell
+cat > schema.json <<'JSON'
+{
+  "fields": [
+    {
+      "fieldName": "product_id",
+      "dataType": "Int64",
+      "isPrimary": true
+    },
+    {
+      "fieldName": "product_name",
+      "dataType": "VarChar",
+      "elementTypeParams": {
+        "max_length": 512
+      }
+    },
+    {
+      "fieldName": "embedding",
+      "dataType": "FloatVector",
+      "elementTypeParams": {
+        "dim": "768"
+      }
+    }
+  ]
+}
+JSON
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto schema = std::make_shared<milvus::CollectionSchema>();
+
+schema->AddField(milvus::FieldSchema("product_id", milvus::DataType::INT64)
+    .WithPrimaryKey(true));
+schema->AddField(milvus::FieldSchema("product_name", milvus::DataType::VARCHAR)
+    .WithMaxLength(512));
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR)
+    .WithDimension(768));
 ```
 
 </TabItem>
@@ -265,9 +410,53 @@ client.use_database(
 
 # create the collection
 client.create_collection(
-    collection_name="my_collection",
+    collection_name="prod_collection",
     schema=schema
 )
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+client.createCollection(CreateCollectionReq.builder()
+    .databaseName("my_database")
+    .collectionName("prod_collection")
+    .collectionSchema(schema)
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+err = client.UseDatabase(ctx, milvusclient.NewUseDatabaseOption("my_database"))
+if err != nil {
+    log.Fatal(err)
+}
+
+err = client.CreateCollection(ctx,
+    milvusclient.NewCreateCollectionOption("prod_collection", schema))
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+await client.useDatabase({
+  db_name: 'my_database',
+});
+
+await client.createCollection({
+  collection_name: 'prod_collection',
+  fields: schema,
+});
 ```
 
 </TabItem>
@@ -281,17 +470,42 @@ curl --request POST \
 --header "Content-Type: application/json" \
 -d "{
     \"dbName\": \"my_database\",
-    \"collectionName\": \"my_collection\",
+    \"collectionName\": \"prod_collection\",
     \"schema\": $schema
 }"
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```shell
+zilliz collection create \
+  --database my_database \
+  --name prod_collection \
+  --body file://schema.json
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->UseDatabase("my_database");
+
+milvus::CreateCollectionRequest request;
+request.WithCollectionName("prod_collection")
+       .WithCollectionSchema(schema);
+
+status = client->CreateCollection(request);
+```
+
+</TabItem>
 </Tabs>
 
-## Step 4: インデックスを作成し、コレクションをリフレッシュする。\{#step-4-create-indexes-and-refresh-the-collection}
+## ステップ 4: インデックスを作成する。\{#step-4-create-indexes}
 
-外部データベースでも、マネージドコレクションと同様にインデックスを作成できます。すべてのベクトルフィールドにインデックスを作成する必要があり、高速なメタデータフィルタリングのために一部のスカラーフィールドにインデックスを作成することも選択できます。ただし、インデックスを構築するために refresh を呼び出す必要があります。
+すべてのベクトルフィールドと、必要に応じて選択したスカラーフィールドのインデックスを作成する必要があります。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -301,21 +515,99 @@ index_params = client.prepare_index_params()
 
 # Add indexes
 index_params.add_index(
-    field_name="vector",
+    field_name="embedding",
     index_type="AUTOINDEX",
     metric_type="COSINE"
 )
 
 index_params.add_index(
-    field_name="main_category", 
+    field_name="product_name", 
     index_type="AUTOINDEX"
 )
 
 client.create_index(
     db_name="my_database",
-    collection_name="my_collection",
+    collection_name="prod_collection",
     index_params=index_params
 )
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+import io.milvus.v2.common.IndexParam;
+import io.milvus.v2.service.index.request.CreateIndexReq;
+
+List<IndexParam> indexParams = Arrays.asList(
+    IndexParam.builder()
+        .fieldName("embedding")
+        .indexName("embedding")
+        .indexType(IndexParam.IndexType.AUTOINDEX)
+        .metricType(IndexParam.MetricType.COSINE)
+        .build(),
+    IndexParam.builder()
+        .fieldName("product_name")
+        .indexName("product_name")
+        .indexType(IndexParam.IndexType.AUTOINDEX)
+        .build()
+);
+
+client.createIndex(CreateIndexReq.builder()
+    .databaseName("my_database")
+    .collectionName("prod_collection")
+    .indexParams(indexParams)
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+vectorIndex := index.NewAutoIndex(entity.COSINE)
+vectorIndexTask, err := client.CreateIndex(ctx,
+    milvusclient.NewCreateIndexOption("prod_collection", "embedding", vectorIndex).
+        WithIndexName("embedding"))
+if err != nil {
+    log.Fatal(err)
+}
+if err := vectorIndexTask.Await(ctx); err != nil {
+    log.Fatal(err)
+}
+
+scalarIndexTask, err := client.CreateIndex(ctx,
+    milvusclient.NewCreateIndexOption("prod_collection", "product_name", index.NewInvertedIndex()).
+        WithIndexName("product_name"))
+if err != nil {
+    log.Fatal(err)
+}
+if err := scalarIndexTask.Await(ctx); err != nil {
+    log.Fatal(err)
+}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+await client.createIndex([
+  {
+    collection_name: 'prod_collection',
+    field_name: 'embedding',
+    index_name: 'embedding',
+    index_type: 'AUTOINDEX',
+    metric_type: 'COSINE',
+  },
+  {
+    collection_name: 'prod_collection',
+    field_name: 'product_name',
+    index_name: 'product_name',
+    index_type: 'AUTOINDEX',
+  },
+]);
 ```
 
 </TabItem>
@@ -325,14 +617,14 @@ client.create_index(
 ```bash
 export indexParams='[
     {
-        "fieldName": "vector",
+        "fieldName": "embedding",
         "metricType": "COSINE",
-        "indexName": "vector",
+        "indexName": "embedding",
         "indexType": "AUTOINDEX"
     },
     {
-        "fieldName": "main_category",
-        "indexName": "main_category",
+        "fieldName": "product_name",
+        "indexName": "product_name",
         "indexType": "AUTOINDEX"
     }
 ]'
@@ -343,24 +635,139 @@ curl --request POST \
 --header "Content-Type: application/json" \
 -d "{
     \"dbName\": \"my_database\",
-    \"collectionName\": \"my_collection\",
+    \"collectionName\": \"prod_collection\",
     \"indexParams\": $indexParams
 }"
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```shell
+zilliz index create \
+  --database my_database \
+  --collection prod_collection \
+  --body '{"indexParams":[{"fieldName":"embedding","metricType":"COSINE","indexName":"embedding","indexType":"AUTOINDEX"},{"fieldName":"product_name","indexName":"product_name","indexType":"AUTOINDEX"}]}'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::CreateIndexRequest request;
+request.WithDatabaseName("my_database")
+       .WithCollectionName("prod_collection")
+       .AddIndex(milvus::IndexDesc(
+           "embedding",
+           "embedding",
+           milvus::IndexType::AUTOINDEX,
+           milvus::MetricType::COSINE))
+       .AddIndex(milvus::IndexDesc(
+           "product_name",
+           "product_name",
+           milvus::IndexType::AUTOINDEX));
+
+auto status = client->CreateIndex(request);
+```
+
+</TabItem>
 </Tabs>
 
-次に、外部コレクションを更新します。`externalSource` と `externalSpec` を省略してコレクションスキーマを再利用することも、両方を指定して新しいソースからコレクションスキーマを更新することもできます。
+## Step 5: データをインポートする。\{#step-5-import-data}
+
+すべての設定が完了したら、処理済みデータをインポートできます。以下の例では、処理済みデータを外部ストレージバケットに保存していることを前提としています。
+
+バケットまたはストレージ統合のデータ形式については、[形式オプション](./data-import-format-options) を参照してください。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
 
 ```python
-# refresh the external database
-job_id = client.refresh_external_collection(
-    collection_name="my_collection"
+from pymilvus.bulk_writer import bulk_import
+
+# The path should be relative to the root 
+# of a zilliz cloud volume or an external storage
+OBJECT_URLS = [[                                                                                                             
+    "https://s3.us-west-2.amazonaws.com/your-bucket/path/in/external/storage.json"                                           
+]]                                                                                                                                                                                                                                                     
+ACCESS_KEY = "YOUR_STORAGE_ACCESS_KEY"                                                                                       
+SECRET_KEY = "YOUR_STORAGE_SECRET_KEY"
+
+res = bulk_import(
+    api_key="YOUR_ZILLIZ_API_KEY",
+    url="https://api.cloud.zilliz.com",
+    project_id="proj-xxxxxxxxxxxxxxxxxxx",
+    region_id="aws-us-west-2",
+    db_name="my_database",
+    collection_name="prod_collection",
+    object_url=OBJECT_URLS,
+    access_key=ACCESS_KEY,
+    secret_key=SECRET_KEY
 )
+
+# job-xxxxxxxxxxxxxxxxxxxxx
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+import io.milvus.bulkwriter.request.import_.CloudImportRequest;
+import io.milvus.bulkwriter.restful.BulkImportUtils;
+
+import java.util.Collections;
+import java.util.List;
+
+String cloudEndpoint = "https://api.cloud.zilliz.com";
+
+List<List<String>> objectUrls = Collections.singletonList(
+    Collections.singletonList("https://s3.us-west-2.amazonaws.com/your-bucket/path/in/external/storage.json")
+);
+
+CloudImportRequest request = CloudImportRequest.builder()
+    .apiKey("YOUR_ZILLIZ_API_KEY")
+    .clusterId("inxx-xxxxxxxxxxxxxxxxxxx")
+    .dbName("my_database")
+    .collectionName("prod_collection")
+    .objectUrls(objectUrls)
+    .accessKey("YOUR_STORAGE_ACCESS_KEY")
+    .secretKey("YOUR_STORAGE_SECRET_KEY")
+    .build();
+
+String res = BulkImportUtils.bulkImport(cloudEndpoint, request);
+System.out.println(res);
+
+// job-xxxxxxxxxxxxxxxxxxxxx
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+import { HttpClient } from '@zilliz/milvus2-sdk-node';
+
+const client = new HttpClient({
+  endpoint: 'https://api.cloud.zilliz.com',
+  token: 'YOUR_ZILLIZ_API_KEY',
+});
+
+const res = await client.createImportJobs({
+  projectId: 'proj-xxxxxxxxxxxxxxxxxxx',
+  regionId: 'aws-us-west-2',
+  dbName: 'my_database',
+  collectionName: 'prod_collection',
+  objectUrls: [[
+    'https://s3.us-west-2.amazonaws.com/your-bucket/path/in/external/storage.json',
+  ]],
+  accessKey: 'YOUR_STORAGE_ACCESS_KEY',
+  secretKey: 'YOUR_STORAGE_SECRET_KEY',
+});
+
+// job-xxxxxxxxxxxxxxxxxxxxx
 ```
 
 </TabItem>
@@ -368,29 +775,98 @@ job_id = client.refresh_external_collection(
 <TabItem value='java'>
 
 ```bash
-# Refresh the external collection
-curl --request POST \
---url "${PROJECT_ENDPOINT}/v2/vectordb/jobs/external_collection/refresh" \
---header "Authorization: Bearer ${TOKEN}" \
---header "Content-Type: application/json" \
--d '{
-    "dbName": "default",
-    "collectionName": "my_collection"
-}'
+curl --request POST \                                                                                                        
+  --url "${CLOUD_PLATFORM_ENDPOINT}/v2/vectordb/jobs/import/create" \                                                        
+  --header "Authorization: Bearer ${TOKEN}" \                                                                                
+  --header "Accept: application/json" \                                                                                      
+  --header "Content-Type: application/json" \                                                                                
+  -d '{                                                                                                                      
+    "projectId": "proj-xxxxxxxxxxxxxxxxxx",                                                                                  
+    "regionId": "aws-us-west-2",                                                                                             
+    "dbName": "my_database",                                                                                                 
+    "collectionName": "prod_collection",                                                                                     
+    "objectUrls": [["https://s3.us-west-2.amazonaws.com/your-bucket/path/in/external/storage.json"]],                        
+    "accessKey": "YOUR_STORAGE_ACCESS_KEY",                                                                                  
+    "secretKey": "YOUR_STORAGE_SECRET_KEY"                                                                                   
+  }'
+    
+ # job-xxxxxxxxxxxxxxxxxxxxx
+```
 
-# job-xxxxxxxxxxxxxxxxxxx
+</TabItem>
+
+<TabItem value='java'>
+
+```shell
+zilliz import start \
+  --cluster-id inxx-xxxxxxxxxxxxxxxxxxx \
+  --collection prod_collection \
+  --body '{"projectId":"proj-xxxxxxxxxxxxxxxxxxx","regionId":"aws-us-west-2","dbName":"my_database","objectUrls":[["https://s3.us-west-2.amazonaws.com/your-bucket/path/in/external/storage.json"]],"accessKey":"YOUR_STORAGE_ACCESS_KEY","secretKey":"YOUR_STORAGE_SECRET_KEY"}'
+
+# job-xxxxxxxxxxxxxxxxxxxxx
 ```
 
 </TabItem>
 </Tabs>
 
-次に、ループを作成して進捗監視の呼び出しをラップし、リフレッシュ操作の進捗状況を追跡できます。
+返されたジョブ ID を使用して、進行状況を監視できます。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
 
 ```python
-progress = client.get_refresh_external_collection_progress(job_id=job_id)
+import json
+from pymilvus.bulk_writer import get_import_progress
+
+# Get bulk-insert job progress
+resp = get_import_progress(
+    api_key="YOUR_ZILLIZ_API_KEY",
+    url="https://api.cloud.zilliz.com",
+    cluster_id="inxx-xxxxxxxxxxxxxxxxxxx",
+    job_id="job-xxxxxxxxxxxxxxxxxxxxx",
+)
+
+print(json.dumps(resp.json(), indent=4))
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+import io.milvus.bulkwriter.request.describe.CloudDescribeImportRequest;
+import io.milvus.bulkwriter.restful.BulkImportUtils;
+
+String cloudEndpoint = "https://api.cloud.zilliz.com";
+
+CloudDescribeImportRequest request = CloudDescribeImportRequest.builder()
+    .apiKey("YOUR_ZILLIZ_API_KEY")
+    .clusterId("inxx-xxxxxxxxxxxxxxxxxxx")
+    .jobId("job-xxxxxxxxxxxxxxxxxxxxx")
+    .build();
+
+String resp = BulkImportUtils.getImportProgress(cloudEndpoint, request);
+System.out.println(resp);
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+import { HttpClient } from '@zilliz/milvus2-sdk-node';
+
+const client = new HttpClient({
+  endpoint: 'https://api.cloud.zilliz.com',
+  token: 'YOUR_ZILLIZ_API_KEY',
+});
+
+const resp = await client.getImportJobProgress({
+  clusterId: 'inxx-xxxxxxxxxxxxxxxxxxx',
+  jobId: 'job-xxxxxxxxxxxxxxxxxxxxx',
+});
+
+console.log(JSON.stringify(resp, null, 2));
 ```
 
 </TabItem>
@@ -398,21 +874,34 @@ progress = client.get_refresh_external_collection_progress(job_id=job_id)
 <TabItem value='java'>
 
 ```bash
-curl -s --request POST \
-    --url "${PROJECT_ENDPOINT}/v2/vectordb/jobs/external_collection/describe" \
-    --header "Authorization: Bearer ${TOKEN}" \
-    --header "Content-Type: application/json" \
-    -d '{
-        "jobId": "job-xxxxxxxxxxxxxxxxxxx"
+  # Use jobId returned from create API                                                                                         
+  curl --request POST \                                                                                                        
+    --url "${CLOUD_PLATFORM_ENDPOINT}/v2/vectordb/jobs/import/getProgress" \                                                   
+    --header "Authorization: Bearer ${TOKEN}" \                                                                                
+    --header "Accept: application/json" \                                                                                      
+    --header "Content-Type: application/json" \                                                                                
+    -d '{                                                                                                                      
+      "clusterId": "inxx-xxxxxxxxxxxxxxx",                                                                                     
+      "jobId": "job-xxxxxxxxxxxxxxxxxxxxx"                                                                                     
     }'
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```shell
+zilliz import status \
+  --cluster-id inxx-xxxxxxxxxxxxxxxxxxx \
+  --job-id job-xxxxxxxxxxxxxxxxxxxxx
+```
+
+</TabItem>
 </Tabs>
 
-## ステップ 5: オンデマンドクラスターの作成\{#step-5-create-an-on-demand-cluster}
+## Step 6: オンデマンドクラスターの作成\{#step-6-create-an-on-demand-cluster}
 
-外部コレクションの準備ができたら、オンデマンド検索のためにオンデマンドクラスターにアタッチする必要があります。以下のコマンドはクラスターを作成し、その ID を返します。
+外部コレクションの準備ができたら、オンデマンド検索のためにオンデマンドクラスターにアタッチする必要があります。以下のコマンドはクラスターを作成し、そのIDを返します。
 
 ```bash
 export CONTROL_PLANE_ENDPOINT="https://api.cloud.zilliz.com"
@@ -432,31 +921,106 @@ curl --request POST \
 # inxx-xxxxxxxxxxxxx
 ```
 
-## Step 6: Conduct searches.\{#step-6-conduct-searches}
+デフォルトでは、クラスターは最後のリクエストから60秒後に自動的にサスペンドされますが、ユースケースに適した値に設定することもできます。
 
-When you need to conduct searches, queries, or hybrid searches, you can attach to the on-demand cluster created in the previous step through a session.
+## Step 7: Conduct searches.\{#step-7-conduct-searches}
+
+検索、クエリ、またはハイブリッド検索を実行する必要がある場合は、セッションを通じて前のステップで作成したオンデマンドクラスターにアタッチできます。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
 
 ```python
-# highlight-start
-session = client.session(
-    cluster_id="inxx-xxxxxxxxxxxxx"
-)
-# highlight-end
+from pymilvus import MilvusClient                         
+                                                                                                                               
+client = MilvusClient(                                                                                                       
+    uri="https://{project-id}.{region}.api.zillizcloud.com",                                                                 
+    token="YOUR_API_KEY"                                                                                                     
+)                                                                                                                            
+                                                                                                                               
+session = client.session(cluster_id="inxx-xxxxxxxxxxxxxxx")                                                                  
+                                                                                                                               
+# Must match collection vector dimension (example: 768)                                                                      
+query_vector = [0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, ..., 0.9029438446296592]                                
+                                                                                                                               
+res = session.search(                                                                                                        
+    db_name="my_database",                                                                                                   
+    collection_name="prod_collection",                                                                                       
+    anns_field="embedding",                                                                                                  
+    data=[query_vector],                                                                                                     
+    limit=3,                                                                                                                 
+    output_fields=["product_id", "product_name"]                                                                                
+) 
+```
 
-# 1536-dimensional vector
-query_vector = [0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, ..., 0.9029438446296592]
-res = session.search(
-    db_name="my_database",
-    collection_name="my_collection",
-    anns_field="vector",
-    data=[query_vector],
-    limit=3,
-    output_fields=["product_id", "title", "main_category", "price", "average_rating", "rating_number"],
-    search_params={"metric_type": "COSINE"}
-)
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+import io.milvus.v2.client.ConnectConfig;
+import io.milvus.v2.client.MilvusClientV2;
+import io.milvus.v2.service.vector.request.SearchReq;
+import io.milvus.v2.service.vector.request.data.FloatVec;
+import io.milvus.v2.service.vector.response.SearchResp;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+MilvusClientV2 sessionClient = new MilvusClientV2(ConnectConfig.builder()
+    .uri("https://{project-id}.{region}.api.zillizcloud.com")
+    .token("YOUR_API_KEY")
+    .option(Collections.singletonMap("cluster_id", "inxx-xxxxxxxxxxxxxxx"))
+    .build());
+
+// Must match collection vector dimension (example: 768)
+float[] queryVector = new float[] {
+    0.35803764f, -0.6023496f, 0.18414013f, -0.26286206f, /* ... */ 0.90294385f
+};
+
+SearchResp res = sessionClient.search(SearchReq.builder()
+    .databaseName("my_database")
+    .collectionName("prod_collection")
+    .annsField("embedding")
+    .data(Collections.singletonList(new FloatVec(queryVector)))
+    .limit(3)
+    .outputFields(Arrays.asList("product_id", "product_name"))
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+import { MilvusClient } from '@zilliz/milvus2-sdk-node';
+
+const sessionClient = new MilvusClient({
+  address: 'https://{project-id}.{region}.api.zillizcloud.com',
+  token: 'YOUR_API_KEY',
+  option: { cluster_id: 'inxx-xxxxxxxxxxxxxxx' },
+});
+
+await sessionClient.connectPromise;
+
+// Must match collection vector dimension (example: 768)
+const queryVector = [
+  0.3580376395471989,
+  -0.6023495712049978,
+  0.18414012509913835,
+  -0.26286205330961354,
+  // ...
+  0.9029438446296592,
+];
+
+const res = await sessionClient.search({
+  db_name: 'my_database',
+  collection_name: 'prod_collection',
+  anns_field: 'embedding',
+  data: [queryVector],
+  limit: 3,
+  output_fields: ['product_id', 'product_name'],
+});
 ```
 
 </TabItem>
@@ -464,36 +1028,61 @@ res = session.search(
 <TabItem value='java'>
 
 ```bash
-curl --request POST \
---url "${PROJECT_ENDPOINT}/v2/vectordb/entities/search?cluster_id=inxx-xxxxxxxxxxxxxxxxx" \
---header "Authorization: Bearer ${TOKEN}" \
---header "Content-Type: application/json" \
--d '{
-    "dbName": "my_database",
-    "collectionName": "my_collection",
+curl --request POST \                                                                                                        
+  --url "${PROJECT_ENDPOINT}/v2/vectordb/entities/search?cluster_id=inxx-xxxxxxxxxxxxxxx" \
+  --header "Authorization: Bearer ${TOKEN}" \                                                                                
+  --header "Content-Type: application/json" \                                                                                
+  -d '{                                                                                                                      
+    "dbName": "my_database",                                                                                                 
+    "collectionName": "prod_collection",                                                                                     
     "data": [
         [
             0.3580376395471989,
             -0.6023495712049978,
             0.18414012509913835,
             -0.26286205330961354,
+            ...
             0.9029438446296592
         ]
-    ],
-    "annsField": "vector",
-    "limit": 3,
-    "outputFields": [
-        "product_id",
-        "title",
-        "main_category",
-        "price",
-        "average_rating",
-        "rating_number"
-    ]
-}'
+    ]                                                         
+    "annsField": "embedding",                                                                                                
+    "limit": 3,                                                                                                              
+    "outputFields": ["product_id", "product_name"]                                                                           
+  }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```shell
+zilliz context set --cluster-id inxx-xxxxxxxxxxxxxxx
+
+QUERY_VECTOR=$(python3 - <<'PY'
+import json
+
+query_vector = [
+    0.3580376395471989,
+    -0.6023495712049978,
+    0.18414012509913835,
+    -0.26286205330961354,
+] + [0.0] * 763 + [0.9029438446296592]
+
+print(json.dumps([query_vector]))
+PY
+)
+
+zilliz vector search \
+  --database my_database \
+  --collection prod_collection \
+  --anns-field embedding \
+  --data "$QUERY_VECTOR" \
+  --limit 3 \
+  --output-fields '["product_id","product_name"]'
 ```
 
 </TabItem>
 </Tabs>
 
 その後、データを探索し、最も価値の高いサブセットを見つけることができます。その後、サービングクラスタに接続し、データをインポートして、本番環境でサービングすることができます。
+

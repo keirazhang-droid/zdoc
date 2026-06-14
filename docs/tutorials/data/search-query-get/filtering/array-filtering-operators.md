@@ -11,7 +11,7 @@ notebook: FALSE
 description: "Zilliz Cloud provides powerful operators to query array fields, allowing you to filter and retrieve entities based on the contents of arrays. | Cloud"
 type: origin
 token: MaWywRYCniq6vwkJsT7c2wAyn0f
-sidebar_position: 5
+sidebar_position: 6
 keywords: 
   - zilliz
   - vector database

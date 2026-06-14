@@ -5,15 +5,15 @@ sidebar_key: home
 sidebar_label: "ホーム"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud Developer Hub のホームページです。 | Cloud"
+description: "これは Zilliz Cloud Developer Hub のホームページです。 | Cloud"
 type: origin
 token: KXgEwDH8yifWxukkXXFctMdLnpg
 sidebar_position: 1
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - はじめる
-  - developer hub
+  - はじめに
+  - デベロッパーハブ
   - ホームページ
   - ホーム
 
@@ -91,8 +91,7 @@ res = client.search(
     collection_name="my_collection",
     data=[query_vector],
     anns_field="vector",  # Field to search on
-    limit=3,  # Return top 3 results
-    search_params={"metric_type": "IP"}  # Inner Product similarity
+    limit=3  # Return top 3 results
 )
 
 for hits in res:
@@ -395,14 +394,12 @@ client = MilvusClient(
 req1 = AnnSearchRequest(
     data=[[0.358, -0.602, ...]],
     anns_field="text_dense",  # Search on text embeddings
-    param={"metric_type": "IP"},
     limit=3
 )
 # Search request 2: image dense vector
 req2 = AnnSearchRequest(
     data=[[0.123, 0.456, ...]],
     anns_field="image_dense",  # Search on image embeddings
-    param={"metric_type": "IP"},
     limit=3
 )
 
@@ -417,18 +414,16 @@ res = client.hybrid_search(
 
 ```java
 Map<String,Object> params1 = new HashMap<>();
-params1.put("metric_type", "IP");
+
 AnnSearchReq req1 = AnnSearchReq.builder()
     .vectorFieldName("text_dense")
     .vectors(Collections.singletonList(new FloatVec(textVector)))
-    .params(params1)
     .topK(3)
     .build();
 
 AnnSearchReq req2 = AnnSearchReq.builder()
     .vectorFieldName("image_dense")
     .vectors(Collections.singletonList(new FloatVec(imageVector)))
-    .params(params1)
     .topK(3)
     .build();
 
@@ -821,7 +816,7 @@ curl --request POST \
 
 1. クラスターを作成して接続する。
 
-    必要なコンピューティングとストレージのリソースで [クラスターを作成](./create-cluster) し、[接続](./quick-start) します。
+    必要なコンピューティングとストレージのリソースで [クラスターを作成](./create-cluster) し、[接続](./quick-start-to-serving-cluster) します。
 
 1. モデルプロバイダー連携を設定するか、ホストモデルをデプロイする。
 
@@ -829,7 +824,7 @@ curl --request POST \
 
 1. コレクションを作成し、埋め込み機能を設定する。
 
-    少なくとも 1 つのベクトルフィールドと 1 つの VARCHAR フィールドを持つ [マネージドコレクションを作成](./manage-collections-sdks) し、テキスト埋め込み [機能](./function-and-model-inference) を定義します。
+    少なくとも 1 つのベクトルフィールドと 1 つの VARCHAR フィールドを持つ [マネージドコレクションを作成](./manage-collections-sdks) し、テキスト埋め込み [機能](null) を定義します。
 
 1. 生のテキストデータを挿入する。
 

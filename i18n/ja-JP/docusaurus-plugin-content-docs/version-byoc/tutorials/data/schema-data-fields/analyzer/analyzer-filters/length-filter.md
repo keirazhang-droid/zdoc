@@ -5,17 +5,17 @@ sidebar_key: length-filter
 sidebar_label: "長さ"
 beta: FALSE
 notebook: FALSE
-description: "`length` フィルターは、指定された長さの要件を満たさないトークンを削除し、テキスト処理中に保持されるトークンの長さを制御できます。| BYOC"
+description: "`length` フィルターは、指定された長さの要件を満たさないトークンを削除し、テキスト処理中に保持するトークンの長さを制御できます。 | BYOC"
 type: origin
 token: MKdvwWBDRi5MMAkkn5PcD1x9nfh
 sidebar_position: 6
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
   - 組み込みフィルター
   - 長さ
 
@@ -107,7 +107,16 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
-`length` フィルターは、次の設定可能なパラメーターを受け入れます。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {{"type", "length"}, {"max", 10}}
+    }}
+};
+```
+
+`length` フィルターは、以下の設定可能なパラメーターを受け入れます。
 
 <table>
    <tr>
@@ -116,19 +125,19 @@ analyzerParams='{
    </tr>
    <tr>
      <td><p><code>max</code></p></td>
-     <td><p>トークンの最大長を設定します。この長さを超えるトークンは削除されます。</p></td>
+     <td><p>最大トークン長を設定します。この長さより長いトークンは削除されます。</p></td>
    </tr>
 </table>
 
-`length` フィルターはトークナイザーによって生成された語彙項に対して動作するため、トークナイザーと組み合わせて使用する必要があります。Zilliz Cloud で利用可能なトークナイザーの一覧については、[トークナイザー Reference](./analyzer-tokenizers) を参照してください。
+`length` フィルターは、トークナイザーによって生成されたトークンに対して動作するため、トークナイザーと組み合わせて使用する必要があります。Zilliz Cloud で利用可能なトークナイザーの一覧については、[トークナイザーリファレンス](./analyzer-tokenizers) を参照してください。
 
-`analyzer_params` を定義したら、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールド内のテキストを処理し、効率的なトークン化とフィルタリングを実現します。詳細については、[Example use](./analyzer-overview#example-use) を参照してください。
+`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングを行うことができます。詳細については、[使用例](./analyzer-overview#example-use) を参照してください。
 
 ## 例\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を検証してください。
+アナライザー構成をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
 
-### アナライザー設定\{#analyzer-configuration}
+### アナライザー構成\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -187,6 +196,15 @@ analyzerParams = map[string]any{"tokenizer": "standard",
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {{"type", "length"}, {"max", 10}}
+    }}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -285,6 +303,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "The length filter allows control over token length requirements for text processing.";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

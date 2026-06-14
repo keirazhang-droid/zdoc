@@ -2,13 +2,13 @@
 title: "コレクションフィールドの変更 | Cloud"
 slug: /alter-collection-field
 sidebar_key: alter-collection-field
-sidebar_label: "フィールドの変更"
+sidebar_label: "フィールドを変更"
 beta: FALSE
 notebook: FALSE
-description: "コレクションフィールドのプロパティを変更して、列の制約を変更したり、より厳格なデータ整合性ルールを適用したりできます。| Cloud"
+description: "コレクションフィールドのプロパティを変更することで、列制約を変更したり、より厳格なデータ整合性ルールを適用したりできます。 | Cloud"
 type: origin
 token: PLjFwlcT8ilFBakYXyfcg6S2n7d
-sidebar_position: 17
+sidebar_position: 18
 keywords: 
   - zilliz
   - ベクトルデータベース
@@ -26,22 +26,23 @@ import TabItem from '@theme/TabItem';
 
 # コレクションフィールドの変更
 
-コレクションフィールドのプロパティを変更して、カラム制約を変更したり、より厳格なデータ整合性ルールを適用したりできます。
+コレクションフィールドのプロパティを変更することで、列の制約を変更したり、より厳格なデータ整合性ルールを適用したりできます。
+
+このページでは、フィールドのプロパティ変更について説明します。スキーマの形状変更（フィールドの追加や削除など）については扱いません。既存のコレクションにスカラーフィールドを追加したり、フィールドを削除したりする方法については、[コレクションスキーマの変更](./add-fields-to-an-existing-collection) を参照してください。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<ul>
-<li><p>各コレクションにはプライマリフィールドが1つだけ存在します。コレクション作成時に設定されたプライマリフィールドは、その後変更したりそのプロパティを変更したりすることはできません。</p></li>
-<li><p>各コレクションにはパーティションキーを1つだけ設定できます。コレクション作成時に設定されたパーティションキーは、その後変更できません。</p></li>
-</ul>
+- 各コレクションは1つのプライマリフィールドのみで構成されます。コレクション作成時に設定したプライマリフィールドは、後から変更したり、そのプロパティを変更したりすることはできません。
+
+- 各コレクションは1つのパーティションキーのみを持つことができます。コレクション作成時に設定したパーティションキーは、後から変更することはできません。
 
 </Admonition>
 
 ## VarChar フィールドの変更\{#alter-varchar-field}
 
-VarChar フィールドには `max_length` というプロパティがあり、フィールド値に含まれる文字数の上限を制限します。この `max_length` プロパティを変更できます。
+VarChar フィールドには `max_length` というプロパティがあり、フィールド値に含めることができる最大文字数を制限します。この `max_length` プロパティを変更できます。
 
-以下の例では、`varchar` という名前の VarChar フィールドを持つコレクションがあり、その `max_length` プロパティを設定するものとします。
+次の例は、コレクションに `varchar` という名前の VarChar フィールドがあることを前提とし、その `max_length` プロパティを設定します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -143,23 +144,44 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/collections/fields/alter_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
---data "{
+--header "Request-Timeout: 10" \
+--data '{
     "collectionName": "my_collection",
     "field_name": "varchar",
     "properties": {
         "max_length": "1024"
     }
-}"
+}'
 ```
 
 </TabItem>
 </Tabs>
 
-## ARRAYフィールドの変更\{#alter-array-field}
+```c++
+#include "milvus/MilvusClientV2.h"
 
-ARRAYフィールドには `element_type` および `max_capacity` の2つのプロパティがあります。前者は配列内の要素のデータ型を決定し、後者は配列内の要素数の上限を制限します。変更できるのは `max_capacity` プロパティのみです。
+auto client = milvus::MilvusClientV2::Create();
 
-以下の例では、コレクションに `array` という名前のARRAYフィールドが存在し、その `max_capacity` プロパティを設定することを前提としています。
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->AlterCollectionFieldProperties(milvus::AlterCollectionFieldPropertiesRequest()
+                    .WithCollectionName("my_collection")
+                    .WithFieldName("varchar")
+                    .AddProperty("max_length", "1024"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+## ARRAY フィールドの変更\{#alter-array-field}
+
+ARRAY フィールドには `element_type` と `max_capacity` の 2 つのプロパティがあります。前者は配列内の要素のデータ型を決定し、後者は配列内の要素の最大数を制限します。変更できるのは `max_capacity` プロパティのみです。
+
+次の例では、コレクションに `array` という名前の ARRAY フィールドがあり、その `max_capacity` プロパティを設定するものとします。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -223,23 +245,34 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/collections/fields/alter_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
---data "{
+--header "Request-Timeout: 10" \
+--data '{
     "collectionName": "my_collection",
     "field_name": "array",
     "properties": {
         "max_capacity": "64"
     }
-}"
+}'
 ```
 
 </TabItem>
 </Tabs>
 
-## Alter field-level mmap設定\{#alter-field-level-mmap-settings}
+```c++
+auto status = client->AlterCollectionFieldProperties(milvus::AlterCollectionFieldPropertiesRequest()
+                                                .WithCollectionName("my_collection")
+                                                .WithFieldName("array")
+                                                .AddProperty("max_capacity", "64"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
-メモリマッピング（mmap）により、ディスク上の大きなファイルに直接メモリアクセスが可能になり、Zilliz Cloud はインデックスとデータをメモリおよびハードドライブの両方に格納できます。このアプローチにより、アクセス頻度に基づいたデータ配置ポリシーを最適化し、検索パフォーマンスに影響を与えることなくコレクションのストレージ容量を拡張できます。
+## フィールドレベルの mmap 設定の変更\{#alter-field-level-mmap-settings}
 
-以下の例では、コレクションに `doc_chunk` という名前のフィールドが存在し、その `mmap_enabled` プロパティを設定することを前提としています。
+メモリマッピング（Mmap）を使用すると、ディスク上の大きなファイルに直接メモリアクセスできるようになり、Zilliz Cloud はインデックスやデータをメモリとハードドライブの両方に保存できるようになります。このアプローチにより、アクセス頻度に基づいてデータ配置ポリシーを最適化し、検索パフォーマンスに影響を与えることなくコレクションのストレージ容量を拡張できます。
+
+次の例では、コレクションに `doc_chunk` というフィールドがあることを前提として、その `mmap_enabled` プロパティを設定しています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -301,15 +334,25 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/collections/fields/alter_properties" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
---data "{
+--header "Request-Timeout: 10" \
+--data '{
     "collectionName": "my_collection",
     "field_name": "doc_chunk",
     "properties": {
         "mmap.enabled": True
     }
-}"
+}'
 ```
 
 </TabItem>
 </Tabs>
 
+```c++
+auto status = client->AlterCollectionFieldProperties(milvus::AlterCollectionFieldPropertiesRequest()
+                                                    .WithCollectionName("my_collection")
+                                                    .WithFieldName("doc_chunk")
+                                                    .AddProperty("mmap.enabled", "true"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```

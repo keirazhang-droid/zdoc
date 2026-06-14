@@ -5,14 +5,14 @@ sidebar_key: delete-entities
 sidebar_label: "削除"
 beta: FALSE
 notebook: FALSE
-description: "不要になったエンティティは、フィルタ条件または主キーを指定して削除できます。| BYOC"
+description: "フィルタリング条件またはプライマリキーを使用して、不要になったエンティティを削除できます。 | BYOC"
 type: origin
 token: RhKcwNACpi3WihkTzo8cr4BCnee
 sidebar_position: 4
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - コレクション
   - データ
   - 削除
@@ -26,11 +26,11 @@ import TabItem from '@theme/TabItem';
 
 # エンティティの削除
 
-不要になったエンティティを、フィルタリング条件または主キーを使って削除できます。
+不要になったエンティティは、フィルタリング条件またはプライマリキーを使用して削除できます。
 
 ## フィルタリング条件によるエンティティの削除\{#delete-entities-by-filtering-conditions}
 
-複数のエンティティを一括で削除する際に、それらが共通して持つ属性がある場合は、フィルタ式を使用できます。以下の例では、**in** 演算子を使って **color** フィールドが **red** または **purple** に設定されているすべてのエンティティを一括削除しています。その他の演算子も使用して、要件に応じたフィルタ式を構築できます。フィルタ式の詳細については、[フィルタリングの概要](./filtering-overview)をご参照ください。
+バッチで同じ属性を共有する複数のエンティティを削除する場合は、フィルタ式を使用できます。以下のコード例では、**in** 演算子を使用して、**color** フィールドが **red** および **purple** に設定されているすべてのエンティティを一括削除しています。要件に応じて、他の演算子を使用してフィルタ式を構築することもできます。フィルタ式の詳細については、[フィルタリングの説明](./filtering-overview) を参照してください。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -149,6 +149,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/delete" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "filter": "color in [\"red_7025\", \"purple_4976\"]"
@@ -158,9 +159,30 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::DeleteResponse response;
+status = client->Delete(milvus::DeleteRequest()
+                            .WithCollectionName("quick_setup")
+                            .WithFilter("color in ['red_7025', 'purple_4976']"),
+                        response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 ## プライマリキーによるエンティティの削除\{#delete-entities-by-primary-keys}
 
-ほとんどの場合、プライマリキーはエンティティを一意に識別します。削除リクエストにプライマリキーを指定することで、エンティティを削除できます。以下のコード例では、プライマリキーが **18** および **19** の2つのエンティティを削除する方法を示しています。
+ほとんどの場合、プライマリキーはエンティティを一意に識別します。削除リクエストでプライマリキーを設定することにより、エンティティを削除できます。以下のコード例は、プライマリキーが **18** と **19** の2つのエンティティを削除する方法を示しています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -239,6 +261,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/delete" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "filter": "id in [18, 19]"
@@ -249,9 +272,20 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-## Delete Entities from パーティション\{#delete-entities-from-partitions}
+```c++
+milvus::DeleteResponse response;
+auto status = client->Delete(milvus::DeleteRequest()
+                                .WithCollectionName("quick_setup")
+                                .WithIDs(std::vector<int64_t>{18, 19}),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
-特定のパーティションに保存されているエンティティを削除することもできます。以下のコードスニペットは、コレクション内に **PartitionA** という名前のパーティションが存在することを前提としています。
+## パーティションからエンティティを削除\{#delete-entities-from-partitions}
+
+特定のパーティションに保存されているエンティティを削除することもできます。以下のコードスニペットでは、コレクション内に **PartitionA** という名前のパーティションがあることを前提としています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -333,6 +367,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/delete" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "quick_setup",
     "partitionName": "partitionA",
@@ -349,3 +384,14 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+milvus::DeleteResponse response;
+auto status = client->Delete(milvus::DeleteRequest()
+                                .WithCollectionName("quick_setup")
+                                .AddPartitionName("partitionA")
+                                .WithIDs(std::vector<int64_t>{18, 19}),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```

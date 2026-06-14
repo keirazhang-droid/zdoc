@@ -5,10 +5,10 @@ sidebar_key: resource-planning
 sidebar_label: "リソース計画"
 beta: FALSE
 notebook: FALSE
-description: "データを Zilliz Cloud に移行する前のリソース計画に関するトピックです。| BYOC"
+description: "データをZilliz Cloudに移行する前のリソース計画に関するトピック。 | BYOC"
 type: origin
 token: NM2OwCcfVijX8DkNsIxcdajEnr7
-sidebar_position: 13
+sidebar_position: 14
 keywords: 
   - zilliz
   - ベクトルデータベース

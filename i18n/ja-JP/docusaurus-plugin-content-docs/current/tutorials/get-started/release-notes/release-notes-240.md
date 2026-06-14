@@ -1,18 +1,18 @@
 ---
-title: "リリースノート (2023年12月11日) | Cloud"
+title: "リリースノート (Dec 11, 2023) | Cloud"
 slug: /release-notes-240
 sidebar_key: release-notes-240
-sidebar_label: "2023年12月11日"
+sidebar_label: "December 11, 2023"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud のサービスが Azure で利用可能になりました。最初は East US リージョンから開始します。また、非構造化データをベクトル埋め込みに変換して取り込み・検索を行う Zilliz Cloud Pipelines (Beta) を導入しました。このリリースでは、クラスター内の RBAC と認証情報管理も改善され、ユーザー管理用に3つの事前定義ロール（admin、read-write、read-only）が用意されています。その他の更新として、エラーメッセージの内容強化と、より信頼性の高いサービスを実現する安定性の向上が含まれます。"
+description: "Zilliz Cloud サービスが Azure で利用可能になりました。最初に East US リージョンから開始します。さらに、Zilliz Cloud Pipelines（ベータ版）を導入します。これにより、非構造化データをベクトル埋め込みに変換して取り込みと検索が可能になります。今回のリリースでは、クラスター内の RBAC と資格情報管理が改善され、ユーザー管理用に3つの定義済みロール（admin、read-write、read-only）が用意されています。その他の更新として、エラーメッセージの内容の改善と、より信頼性の高いサービスのための安定性の向上が含まれています。 | Cloud"
 type: origin
 token: A5lpwIZcZiTLqakdt6rcCmPcnEe
-sidebar_position: 25
+sidebar_position: 26
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

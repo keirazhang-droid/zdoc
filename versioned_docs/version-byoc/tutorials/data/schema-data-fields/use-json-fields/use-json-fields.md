@@ -11,7 +11,7 @@ notebook: FALSE
 description: "This chapter introduces the JSON field type, and provides guides on how to index a JSON field. | BYOC"
 type: origin
 token: BkDMwo71MiZMazk7gbtc7fqknbh
-sidebar_position: 8
+sidebar_position: 9
 keywords: 
   - zilliz
   - vector database

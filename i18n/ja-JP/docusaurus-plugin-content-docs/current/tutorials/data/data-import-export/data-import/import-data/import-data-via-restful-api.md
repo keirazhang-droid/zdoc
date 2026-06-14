@@ -5,16 +5,16 @@ sidebar_key: import-data-via-restful-api
 sidebar_label: "RESTful API"
 beta: FALSE
 notebook: FALSE
-description: "このページでは、Zilliz Cloud RESTful API を使用して準備したデータをインポートする方法を紹介します。"
+description: "このページでは、Zilliz Cloud RESTful API を使用して準備されたデータをインポートする方法を紹介します。 | Cloud"
 type: origin
 token: ZOikw2pIUiAZj9kuLYRcdhLnnoc
 sidebar_position: 2
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - データインポート
-  - restful
+  - RESTful
 
 ---
 
@@ -22,27 +22,35 @@ import Admonition from '@theme/Admonition';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# データのインポート (RESTful API)
+# データインポート (RESTful API)
 
-このページでは、Zilliz Cloud RESTful API を使用して準備したデータをインポートする方法を紹介します。
+このページでは、Zilliz Cloud RESTful API を使用して準備済みデータをインポートする方法について説明します。
 
-## 開始前の準備\{#before-you-start}
+## 始める前に\{#before-you-start}
 
-以下の条件が満たされていることを確認してください：
+以下の条件が満たされていることを確認してください。
 
-- クラスター用の APIキー を取得していること。詳細については、[APIキー](./manage-api-keys) を参照してください。
+- クラスターの APIキー を取得していること。詳細については、[APIキー](./manage-api-keys) を参照してください。
 
 - サポートされている形式のいずれかでデータを準備していること。
 
-    データの準備方法の詳細については、[ストレージオプション](./data-import-storage-options) および [形式オプション](./data-import-format-options) を参照してください。また、エンドツーエンドのノートブック [データインポート Hands-On](./data-import-zero-to-hero) も参考にしてください。
+    データの準備方法の詳細については、[ストレージオプション](./data-import-storage-options) と [フォーマットオプション](./data-import-format-options) を参照してください。また、エンドツーエンドのノートブック [データインポートハンズオン](./data-import-zero-to-hero) を参照して詳細を確認することもできます。
 
-- サンプルデータセットと一致するスキーマでコレクションを作成していること。
+- サンプルデータセットに一致するスキーマを持つコレクションを作成していること。
 
      コレクションの作成の詳細については、[コレクションの管理 (コンソール)](./manage-collections-console) を参照してください。
 
-## ボリュームからデータをインポート\{#import-data-from-volumes}
+<Admonition type="info" icon="📘" title="Notes">
 
-ボリュームからクラスターにデータをインポートするには、まず [マネージドボリュームまたは外部ボリューム](./volume) を作成します。マネージドボリュームの場合は、データファイルをボリュームにアップロードします。外部ボリュームの場合は、データファイルがマッピングされたクラウドストレージバケットに存在することを確認します。その後、以下のようにデータをインポートします：
+Zilliz Cloud では、任意のオブジェクトストレージサービスから任意の Zilliz Cloud クラスター（クラスターをホストするクラウドプロバイダーに関係なく）にデータをインポートできるようになりました。たとえば、AWS S3 バケットから GCP にデプロイされた Zilliz Cloud クラスターにデータをインポートできます。
+
+低レイテンシで安定したエクスペリエンスを確保するために、ターゲットクラスターと同じプロバイダーとリージョンのバケットまたはブロブコンテナを使用することをお勧めします。
+
+</Admonition>
+
+## ボリュームからのデータインポート\{#import-data-from-volumes}
+
+ボリュームからクラスターにデータをインポートするには、まず [管理ボリュームまたは外部ボリューム](./volume) を作成します。管理ボリュームの場合は、データファイルをボリュームにアップロードします。外部ボリュームの場合は、データファイルがマッピングされたクラウドストレージバケットにあることを確認します。その後、次のようにデータをインポートします。
 
 <Tabs groupId="create-import">
 
@@ -113,7 +121,7 @@ curl --request POST \
 
 ## 外部ストレージからデータをインポート\{#import-data-from-external-storage}
 
-外部ストレージ経由でファイルからデータをインポートするには、まずファイルをオブジェクトストレージバケット（AWS S3 や Google Cloud Storage (GCS) など）にアップロードする必要があります。アップロード後、リモートバケット内のファイルへのパスと、Zilliz Cloud がバケットからデータをプルするためのバケット認証情報を取得します。サポートされているオブジェクトパスの詳細については、[ストレージオプション](./data-import-storage-options) を参照してください。
+外部ストレージからファイル経由でデータをインポートするには、まずファイルをオブジェクトストレージバケット（AWS S3 や Google Cloud Storage (GCS) など）にアップロードする必要があります。アップロード後、リモートバケット内のファイルへのパスと、Zilliz Cloud がバケットからデータを取得するためのバケット認証情報を取得します。サポートされているオブジェクトパスの詳細については、[ストレージオプション](./data-import-storage-options) を参照してください。
 
 データセキュリティ要件に応じて、データインポート時に長期認証情報または短期認証情報のいずれかを使用できます。
 
@@ -129,7 +137,7 @@ curl --request POST \
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>データインポートを成功させるには、対象コレクションの実行中または保留中のインポートジョブが 10,000 件未満であることを確認してください。</p>
+データインポートを成功させるには、対象コレクションの実行中または保留中のインポートジョブが 10,000 件未満であることを確認してください。
 
 </Admonition>
 

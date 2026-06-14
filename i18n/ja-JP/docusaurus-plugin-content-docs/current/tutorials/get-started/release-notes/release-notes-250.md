@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2024年1月18日） | Cloud"
+title: "リリースノート (2024年1月18日) | Cloud"
 slug: /release-notes-250
 sidebar_key: release-notes-250
 sidebar_label: "2024年1月18日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud は、データインポート機能のユーザーエクスペリエンスを最適化し、階層的な権限を持つ API キーを改善し、メトリクスとアラートの仕組みを強化しました。 | Cloud"
+description: "Zilliz Cloud は、データインポート機能のユーザーエクスペリエンスを最適化し、階層的権限を持つAPIキーを改良し、メトリクスとアラートのメカニズムを強化しました。 | Cloud"
 type: origin
 token: VbjiwU5RYi4bWdkC48Jceltnnpd
-sidebar_position: 24
+sidebar_position: 25
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

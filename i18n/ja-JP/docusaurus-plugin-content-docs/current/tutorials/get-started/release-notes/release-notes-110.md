@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2023年4月6日） | Cloud"
+title: "リリースノート (2023年4月6日) | Cloud"
 slug: /release-notes-110
 sidebar_key: release-notes-110
 sidebar_label: "2023年4月6日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud の最新アップデートを発表します。コスト見積もりのための料金計算ツール、データセキュリティ強化のためのデータバックアップと復元機能、グローバルユーザー向けのカスタマイズ可能なタイムゾーン設定、より良い整理のためのコレクション名変更ツール、制限なしの使用のためのストレージクォータの廃止、および非アクティブなデータベースのクレジット節約の改善などの機能を搭載しています。 | Cloud"
+description: "最新のZilliz Cloudアップデートをご紹介できることを嬉しく思います。これには、コスト見積もりのための料金計算ツール、データセキュリティ強化のためのデータバックアップおよび復元プロセス、グローバルユーザー向けのカスタマイズ可能なタイムゾーン設定、整理のためのコレクション名変更ツール、制限なし利用のためのストレージ容量制限解除、非アクティブなデータベースのクレジット消費改善が含まれています。 | Cloud"
 type: origin
 token: ZvSOwB7zkir7PjkzrOPciC5WnTe
-sidebar_position: 31
+sidebar_position: 32
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

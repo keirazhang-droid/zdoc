@@ -10,46 +10,54 @@ type: origin
 token: ZOikw2pIUiAZj9kuLYRcdhLnnoc
 sidebar_position: 2
 keywords: 
-  - zilliz
+  - Zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - データインポート
-  - restful
+  - RESTful
 
 ---
 
 import Admonition from '@theme/Admonition';
 
 
-# データのインポート (RESTful API)
+# データインポート (RESTful API)
 
-このページでは、Zilliz Cloud RESTful API を使用して準備したデータをインポートする方法を紹介します。
+このページでは、Zilliz Cloud RESTful API を使用して準備したデータをインポートする方法について説明します。
 
-## 開始前の準備\{#before-you-start}
+## 始める前に \{#before-you-start}
 
 以下の条件が満たされていることを確認してください。
 
-- クラスター用の APIキー を取得していること。詳細については、[APIキー](./manage-api-keys) を参照してください。
+- クラスターの APIキー を取得していること。詳細については、[APIキー](./manage-api-keys) を参照してください。
 
 - サポートされている形式のいずれかでデータを準備していること。
 
-    データの準備方法の詳細については、[ストレージオプション](./data-import-storage-options) および [形式オプション](./data-import-format-options) を参照してください。また、エンドツーエンドのノートブック [データインポート Hands-On](./data-import-zero-to-hero) も参考にしてください。
+    データの準備方法の詳細については、[ストレージオプション](./data-import-storage-options) と [形式オプション](./data-import-format-options) を参照してください。また、エンドツーエンドのノートブック [データインポート ハンズオン](./data-import-zero-to-hero) も参照して詳細を確認できます。
 
-- サンプルデータセットと一致するスキーマでコレクションを作成していること。
+- サンプルデータセットに一致するスキーマを持つコレクションを作成していること。
 
      コレクションの作成の詳細については、[コレクションの管理 (コンソール)](./manage-collections-console) を参照してください。
 
-## データのインポート\{#import-data}
+<Admonition type="info" icon="📘" title="Notes">
 
-外部ストレージからファイルをインポートするには、まずファイルをオブジェクトストレージバケットにアップロードする必要があります。アップロード後、リモートバケット内のファイルへのパスと、Zilliz Cloud がバケットからデータをプルするためのバケット認証情報を取得します。サポートされているオブジェクトパスの詳細については、[ストレージオプション](./data-import-storage-options) を参照してください。
+Zilliz Cloud では、クラスターをホストしているクラウドプロバイダーに関係なく、任意のオブジェクトストレージサービスから任意の Zilliz Cloud クラスターにデータをインポートできるようになりました。たとえば、AWS S3 バケットから GCP にデプロイされた Zilliz Cloud クラスターにデータをインポートできます。
 
-データセキュリティ要件に応じて、データインポート時に長期認証情報または短期認証情報のいずれかを使用できます。
+低レイテンシで安定したエクスペリエンスを実現するために、ターゲットクラスターと同じプロバイダーかつ同じリージョンのバケットまたはブロブコンテナを使用することをお勧めします。
+
+</Admonition>
+
+## データをインポートする \{#import-data}
+
+外部ストレージからファイルを介してデータをインポートするには、まずファイルをオブジェクトストレージバケットにアップロードする必要があります。アップロード後、リモートバケット内のファイルへのパスと、Zilliz Cloud がバケットからデータをプルするためのバケット認証情報を取得します。サポートされているオブジェクトパスの詳細については、[ストレージオプション](./data-import-storage-options) を参照してください。
+
+データのセキュリティ要件に応じて、データインポート時に長期認証情報または短期認証情報のいずれかを使用できます。
 
 認証情報の取得の詳細については、以下を参照してください。
 
 - Amazon S3: [長期認証情報を使用した認証](https://docs.aws.amazon.com/sdkref/latest/guide/access-iam-users.html)
 
-- Google Cloud Storage: [サービスアカウントの HMAC キーの管理](https://cloud.google.com/storage/docs/authentication/managing-hmackeys)
+- Google Cloud Storage: [サービスアカウントの HMAC キー管理](https://cloud.google.com/storage/docs/authentication/managing-hmackeys)
 
 - Azure Blob Storage: [アカウントアクセスキーの表示](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-portal#view-account-access-keys)
 
@@ -57,11 +65,11 @@ import Admonition from '@theme/Admonition';
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>データのインポートを成功させるには、対象のコレクションの実行中または保留中のインポートジョブが 10,000 件未満であることを確認してください。</p>
+データインポートを成功させるには、ターゲットコレクションの実行中または保留中のインポートジョブが 10,000 未満であることを確認してください。
 
 </Admonition>
 
-オブジェクトパスとバケット認証情報を取得したら、以下のように API を呼び出します。
+オブジェクトパスとバケット認証情報を取得したら、次のように API を呼び出します。
 
 ```bash
 # replace url and token with your own

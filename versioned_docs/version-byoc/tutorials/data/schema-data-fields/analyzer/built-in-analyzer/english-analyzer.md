@@ -138,6 +138,21 @@ analyzerParams='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        "lowercase", 
+        {{"type", "stemmer"}, {"language", "english"}},
+        {{"type", "stop"}, {"stop_words", "_english_"}}
+    }}
+};
+```
+
+</TabItem>
 </Tabs>
 
 ## Configuration\{#configuration}
@@ -189,6 +204,16 @@ analyzerParams = map[string]any{"type": "english"}
 analyzerParams='{
   "type": "english"
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "english"}
+};
 ```
 
 </TabItem>
@@ -266,6 +291,17 @@ analyzerParams='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "english"},
+    {"stop_words", {"a", "an", "the"}}
+};
+```
+
+</TabItem>
 </Tabs>
 
 After defining `analyzer_params`, you can apply them to a `VARCHAR` field when defining a collection schema. This allows Zilliz Cloud to process the text in that field using the specified analyzer for efficient tokenization and filtering. For details, refer to [Example use](./analyzer-overview#example-use).
@@ -327,6 +363,17 @@ analyzerParams='{
   ]
 }'
 
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "english"},
+    {"stop_words", {"a", "an", "the"}}
+};
 ```
 
 </TabItem>
@@ -429,6 +476,33 @@ if err != nil {
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "Milvus is a vector database built for scale!";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>

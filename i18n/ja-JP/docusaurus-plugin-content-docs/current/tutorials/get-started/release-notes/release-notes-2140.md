@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2025年3月27日） | Cloud"
+title: "リリースノート (2025年3月27日) | Cloud"
 slug: /release-notes-2140
 sidebar_key: release-notes-2140
 sidebar_label: "2025年3月27日"
 beta: FALSE
 notebook: FALSE
-description: "このリリースでは、PRIVATE PREVIEW で2つの新機能が導入されました。1つは BYOC-I と呼ばれる新しい BYOC デプロイメントオプションで、クロスアカウントの IAM 認可なしに完全なデータ主権を確保するように設計されています。もう1つはデータプレーン監査ログ機能で、データプレーンで実行されたアクションの詳細なログを提供することでデータセキュリティを強化することを目的としています。これらの機能のローンチに加えて、Zilliz Cloud はクレジット戦略も見直しました。 | Cloud"
+description: "このリリースでは、PRIVATE PREVIEW で2つの新機能を導入します。BYOC-I という新しい BYOC デプロイメントオプションと、データプレーン監査ログ機能です。前者は、クロスアカウント IAM 認証なしで完全なデータ主権を確保するために設計され、後者は、データプレーンで実行されたアクションの詳細なログを提供することでデータセキュリティを強化することを目的としています。これらの機能のローンチに加えて、Zilliz Cloud はクレジット戦略も改訂しました。 | Cloud"
 type: origin
 token: FSUqwEEIii9k2sklkcLcIFJJnbf
-sidebar_position: 13
+sidebar_position: 14
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

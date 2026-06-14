@@ -157,6 +157,14 @@ schema.add_field(field_name="binary_vector", datatype=DataType.BINARY_VECTOR, di
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
+```
+
+</TabItem>
 </Tabs>
 
 ### Define the MinHash function\{#define-the-minhash-function}
@@ -213,6 +221,14 @@ schema.add_function(minhash_function)
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>
@@ -316,6 +332,14 @@ index_params.add_index(
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
+```
+
+</TabItem>
 </Tabs>
 
 ### Create the collection\{#create-the-collection}
@@ -363,6 +387,14 @@ client.create_collection(
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>
@@ -416,6 +448,14 @@ client.insert(
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>
@@ -479,6 +519,14 @@ for hits in results:
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+// cpp
 ```
 
 </TabItem>

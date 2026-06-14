@@ -1,18 +1,18 @@
 ---
-title: "リリースノート（2025年1月27日） | Cloud"
+title: "リリースノート (2025年1月27日) | Cloud"
 slug: /release-notes-2130
 sidebar_key: release-notes-2130
 sidebar_label: "2025年1月27日"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud が Milvus 2.5 をパブリックプレビューでサポートし、セマンティック検索を補完する全文検索を導入しました。BM25 メトリックと疎ベクトルを使用して効率的なストレージと取得を実現し、この機能によりユーザーはテキストを変換せずに直接クエリできます。また、BYOC デプロイメントが Private Link で強化され、セキュリティの向上、コンプライアンスの簡略化、ネットワーク構成の簡素化が図られています。さらに、AWS CloudFormation による自動デプロイメントがサポートされ、大規模な小ファイルのインポート処理が最適化され、より高速なデータ取り込みが可能になりました。 | Cloud"
+description: "Zilliz Cloud は現在、パブリックプレビューで Milvus 2.5 をサポートしており、セマンティック検索を補完する全文検索を導入しています。BM25 メトリックと疎ベクトルを使用した効率的な保存と検索により、この機能によりユーザーは変換なしでテキストを直接クエリできます。また、このアップデートは BYOC デプロイメントを Private Link で強化し、セキュリティの向上、コンプライアンスの容易化、ネットワーク設定の簡素化を実現します。さらに、AWS CloudFormation による自動デプロイメントがサポートされ、大規模な小ファイルのインポート処理が最適化され、データ取り込みが高速化されます。 | Cloud"
 type: origin
 token: LRRVwYzxKioMiMk7cf6czQuhn7d
-sidebar_position: 14
+sidebar_position: 15
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

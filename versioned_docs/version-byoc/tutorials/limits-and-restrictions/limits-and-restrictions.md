@@ -11,7 +11,7 @@ notebook: FALSE
 description: "Learn about the limits and restrictions you should know about your operations on Zilliz Cloud. | BYOC"
 type: origin
 token: Tve5wxmTHio0LPk50jgcKHe1nWg
-sidebar_position: 18
+sidebar_position: 19
 keywords: 
   - zilliz
   - vector database

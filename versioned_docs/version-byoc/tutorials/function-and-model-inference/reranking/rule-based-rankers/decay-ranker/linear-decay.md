@@ -244,6 +244,20 @@ const rerank = {
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto rerank = std::make_shared<milvus::DecayRerank>("event_relevance");
+rerank->AddInputFieldName("event_date");
+rerank->SetFunction("exp");
+rerank->SetOrigin(1736870400);
+rerank->SetScale(7 * 24 * 60 * 60);
+rerank->SetOffset(12 * 60 * 60);
+rerank->SetDecay(0.5);
+```
+
+</TabItem>
 </Tabs>
 
 ### Apply to standard vector search\{#apply-to-standard-vector-search}
@@ -325,5 +339,30 @@ const result = await milvusClient.search({
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='c++'>
+
+```c++
+auto function_score = std::make_shared<milvus::FunctionScore>();
+function_score->AddFunction(rerank);
+
+auto request = milvus::SearchRequest()
+                   .WithCollectionName(collection_name)
+                   .WithAnnsField("dense")
+                   .WithRerank(function_score)
+                   .WithLimit(10)
+                   .AddOutputField("title")
+                   .AddOutputField("venue")
+                   .AddOutputField("event_date")
+                   .AddFloatVector(your_query_vector)
+                   .WithConsistencyLevel(milvus::ConsistencyLevel::BOUNDED);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+</Tabs>

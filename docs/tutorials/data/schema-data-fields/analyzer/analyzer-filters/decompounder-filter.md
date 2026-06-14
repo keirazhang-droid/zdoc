@@ -124,6 +124,18 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {
+            {"type", "decompounder"},
+            {"word_list", {"dampf", "schiff", "fahrt", "brot", "backen", "automat"}}
+        }
+    }}
+};
+```
+
 The `decompounder` filter accepts the following configurable parameters.
 
 <table>
@@ -224,6 +236,18 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "standard"},
+    {"filter", {
+        {
+            {"type", "decompounder"},
+            {"word_list", {"dampf", "schiff", "fahrt", "brot", "backen", "automat"}}
+        }
+    }}
+};
+```
+
 ### Verification using `run_analyzer`\{#verification-using-runanalyzer}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
@@ -321,6 +345,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "dampfschifffahrt brotbackautomat";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Expected output\{#expected-output}
 

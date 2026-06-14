@@ -5,15 +5,15 @@ sidebar_key: use-timestamptz-field
 sidebar_label: "TIMSTAMPTZ"
 beta: FALSE
 notebook: FALSE
-description: "e コマースシステム、コラボレーションツール、分散ログ記録など、地域をまたいで時間を追跡するアプリケーションでは、タイムゾーン付きのタイムスタンプを正確に処理する必要があります。Zilliz Cloud の `TIMESTAMPTZ` データ型は、関連するタイムゾーンとともにタイムスタンプを保存することで、この機能を提供します。 | Cloud"
+description: "タイムゾーンをまたいだ時間を追跡するアプリケーション（例：eコマースシステム、コラボレーションツール、分散ログなど）では、タイムゾーンを含むタイムスタンプを正確に処理する必要があります。Zilliz Cloud の TIMESTAMPTZ データ型は、タイムスタンプとそれに関連するタイムゾーンを保存することで、この機能を提供します。| Cloud"
 type: origin
 token: RxUiwJ77WiFKZGkC8rEcLeopnTf
-sidebar_position: 12
+sidebar_position: 13
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
+  - クラウド
+  - コレクション
   - スキーマ
   - タイムスタンプフィールド
   - タイムゾーン
@@ -26,13 +26,13 @@ import TabItem from '@theme/TabItem';
 
 # TIMESTAMPTZ フィールド
 
-eコマースシステム、コラボレーションツール、分散型ロギングなど、複数の地域にわたって時刻を追跡するアプリケーションでは、タイムゾーン付きのタイムスタンプを正確に扱う必要があります。Zilliz Cloud の `TIMESTAMPTZ` データ型は、タイムゾーン情報を含むタイムスタンプを格納することで、この要件に対応します。
+地域をまたがる時間を追跡するアプリケーション（例：eコマースシステム、コラボレーションツール、分散ログ）では、タイムゾーン付きタイムスタンプの正確な処理が必要です。Zilliz Cloud の `TIMESTAMPTZ` データ型は、タイムゾーンに関連付けられたタイムスタンプを保存することで、この機能を提供します。
 
-## TIMESTAMPTZ フィールドとは？\{#what-is-a-timestamptz-field}
+## TIMESTAMPTZ フィールドとは\{#what-is-a-timestamptz-field}
 
-`TIMESTAMPTZ` フィールドは、Zilliz Cloud におけるスキーマ定義済みのデータ型（`データType.TIMESTAMPTZ`）であり、タイムゾーンを考慮した入力を処理し、すべての時刻を内部的に UTC の絶対時刻として格納します。
+`TIMESTAMPTZ` フィールドは、Zilliz Cloud でスキーマ定義されたデータ型（`データType.TIMESTAMPTZ`）であり、タイムゾーン対応の入力を処理し、すべての時点を内部的に UTC 絶対時間として保存します：
 
-- **許容される入力形式**: `TIMESTAMPTZ` フィールドは [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) 互換のタイムスタンプ文字列を受け入れます。例:
+- **許容される入力形式**: `TIMESTAMPTZ` フィールドは [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) 互換のタイムスタンプ文字列を受け付けます。以下を含みます：
 
     - `"2024-12-31 22:00:00"`
 
@@ -42,37 +42,37 @@ eコマースシステム、コラボレーションツール、分散型ロギ�
 
     - `"2024-12-31T22:00:00Z"`
 
-- **タイムスタンプのパースルール**: タイムスタンプの解釈方法は、入力文字列に明示的にタイムゾーンが指定されているかどうかにより異なります。
+- **タイムスタンプのパースルール**: タイムスタンプの解釈方法は、入力文字列がタイムゾーンを明示的に指定しているかどうかによって異なります：
 
-    - 入力にタイムゾーンオフセット（例: **+08:00** や **Z**）が含まれている場合、その値は絶対時刻として扱われます。
+    - 入力にタイムゾーンオフセット（例：**+08:00** または **Z**）が含まれている場合、絶対時点として扱われます。
 
-    - 入力にタイムゾーンオフセットが含まれていない場合、コレクションに設定されたタイムゾーンに基づいて解釈されます。たとえば、コレクションのタイムゾーンが **Asia/Shanghai** の場合:
+    - 入力にタイムゾーンオフセットが含まれていない場合、コレクションに設定されたタイムゾーンを使用して解釈されます。例えば、コレクションのタイムゾーンが **Asia/Shanghai** の場合：
 
-        - `"2024-12-31 22:00:00"` は **2024-12-31T22:00:00+08:00** として解釈されます。
+        - `"2024-12-31 22:00:00"` は **2024-12-31T22:00:00+08:00** として解釈されます
 
-        - `"2024-12-31T22:00:00"` は **2024-12-31T22:00:00Z** として解釈され、これは **2025-01-01T06:00:00+08:00** に相当します。
+        - `"2024-12-31T22:00:00"` は **2024-12-31T22:00:00Z** として解釈され、これは **2025-01-01T06:00:00+08:00** に相当します
 
-- **内部ストレージ**: すべての `TIMESTAMPTZ` 値は正規化され、[協定世界時](https://en.wikipedia.org/wiki/Coordinated_Universal_Time)（UTC）で格納されます。
+- **内部ストレージ**: すべての `TIMESTAMPTZ` 値は正規化され、[協定世界時](https://en.wikipedia.org/wiki/Coordinated_Universal_Time)（UTC）で保存されます。
 
-- **比較とフィルタリング**: `TIMESTAMPTZ` フィールドに対するすべての比較・フィルタリング・並べ替え操作は、UTC 正規化後の値に対して実行されるため、異なるタイムゾーン間でも一貫した動作が保証されます。
+- **比較とフィルタリング**: TIMESTAMPTZ フィールドに対するすべての比較、フィルタリング、および順序付け操作は、UTC 正規化された値に対して実行されるため、異なるタイムゾーン間で一貫した動作が保証されます。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<ul>
-<li><p><code>TIMESTAMPTZ</code> フィールドには <code>nullable=True</code> を設定して、欠損値を許容できます。</p></li>
-<li><p><a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> 形式で <code>default_value</code> 属性を使用してデフォルトのタイムスタンプ値を指定できます。</p></li>
-</ul>
-<p>詳細については、<a href="./nullable-fields">NULL許容 & デフォルト値</a>を参照してください。</p>
+- `TIMESTAMPTZ` フィールドに対して `nullable=True` を設定し、欠損値を許容することができます。
+
+- `default_value` 属性を使用して、[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) 形式でデフォルトのタイムスタンプ値を指定できます。
+
+詳細については、[NULL許容 & デフォルト](./nullable-fields) を参照してください。
 
 </Admonition>
 
-## 基本的な操作\{#basic-operations}
+## 基本操作\{#basic-operations}
 
-`TIMESTAMPTZ` フィールドの基本的なワークフローは、Zilliz Cloud の他のスカラーフィールドと同様です：フィールドを定義 → データを挿入 → クエリ／フィルタリング。
+`TIMESTAMPTZ` フィールドを使用する基本的なワークフローは、Zilliz Cloud の他のスカラーフィールドと同様です：フィールドを定義する → データを挿入する → クエリ/フィルタリングする。
 
 ### ステップ 1: TIMESTAMPTZ フィールドを定義する\{#step-1-define-a-timestamptz-field}
 
-`TIMESTAMPTZ` フィールドを使用するには、コレクション作成時にスキーマ内で明示的に定義する必要があります。以下の例では、`データType.TIMESTAMPTZ` 型の `tsz` フィールドを持つコレクションを作成する方法を示しています。
+`TIMESTAMPTZ` フィールドを使用するには、コレクションの作成時にコレクションスキーマで明示的に定義します。以下の例は、`データType.TIMESTAMPTZ` 型の `tsz` フィールドを持つコレクションを作成する方法を示しています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -206,6 +206,7 @@ curl --request POST \
      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create \
      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \
      --header 'Content-Type: application/json' \
+     --header "Request-Timeout: 10" \
      --data '{
        "collectionName": "timestamptz_test123",
        "schema": {
@@ -231,15 +232,40 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-### Step 2: Insert data\{#step-2-insert-data}
+```c++
+#include "milvus/MilvusClientV2.h"
 
-タイムゾーンオフセット付きの ISO 8601 文字列を含むエンティティを挿入します。
+auto client = milvus::MilvusClientV2::Create();
 
-以下の例では、サンプルデータの 8,193 行をコレクションに挿入します。各行には以下が含まれます：
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 
-- ユニークな ID
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true});
+schema->AddField(milvus::FieldSchema("tsz", milvus::DataType::TIMESTAMPTZ));
+schema->AddField(milvus::FieldSchema("vec", milvus::DataType::FLOAT_VECTOR).WithDimension(4));
 
-- タイムゾーン情報を含むタイムスタンプ（上海時間）
+const std::string collection_name = "timestamptz_test123";
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName(collection_name)
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+### Step 2: データの挿入\{#step-2-insert-data}
+
+タイムゾーンオフセットを含む ISO 8601 文字列を持つエンティティを挿入します。
+
+以下の例では、コレクションに 8,193 行のサンプルデータを挿入します。各行には以下が含まれます。
+
+- 一意の ID
+
+- タイムゾーン対応のタイムスタンプ (上海時間)
 
 - 単純な 4 次元ベクトル
 
@@ -369,25 +395,65 @@ data: data,
 <TabItem value='java'>
 
 ```bash
-curl --request POST \      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert \      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      --header 'Content-Type: application/json' \      --data '{        "collectionName": "timestamptz_test123",        "data": [          { "id": 1, "tsz": "2026-01-14T19:50:00Z", "vec": [0.1, 0.2, 0.3, 0.4] },          { "id": 2, "tsz": "2026-01-14T12:00:00+08:00", "vec": [0.5, 0.6, 0.7, 0.8] },          { "id": 3, "vec": [0.9, 0.0, 0.1, 0.2] }        ]      }'
+curl --request POST \      
+    --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert \      
+    --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      
+    --header 'Content-Type: application/json' \      
+    --header "Request-Timeout: 10" \
+    --data '{        "collectionName": "timestamptz_test123",        "data": [          { "id": 1, "tsz": "2026-01-14T19:50:00Z", "vec": [0.1, 0.2, 0.3, 0.4] },          { "id": 2, "tsz": "2026-01-14T12:00:00+08:00", "vec": [0.5, 0.6, 0.7, 0.8] },          { "id": 3, "vec": [0.9, 0.0, 0.1, 0.2] }        ]      }'
 ```
 
 </TabItem>
 </Tabs>
 
-### ステップ 3: フィルタリング操作\{#step-3-filtering-operations}
+```c++
+std::string
+pad(int num, int width) {
+    std::ostringstream oss;
+    oss << std::setw(width) << std::setfill('0') << num;
+    return oss.str();
+}
 
-`TIMESTAMPTZ` はスカラー比較、間隔演算、および時間コンポーネントの抽出をサポートしています。
+std::string
+formatDateWithTimezone(int year, int month, int day, int hour, int minute, int second,
+                       std::string timezoneOffset = "+08:00") {
+    std::string ts = std::to_string(year) + "-" + pad(month, 2) + "-" + pad(day, 2) + "T" + pad(hour, 2) + ":" +
+                     pad(minute, 2) + ":" + pad(second, 2) + timezoneOffset;
+    return ts;
+}
 
-`TIMESTAMPTZ` フィールドに対してフィルタリング操作を実行する前に、以下の点を確認してください。
+milvus::EntityRows rows;
+for (auto i = 0; i < 10; i++) {
+    milvus::EntityRow row;
+    row["id"] = i;
+    row["vec"] = std::vector<float>{i/10, (i+1)/10, (i+2)/10, (i+3)/10};
+    std::string ts = formatDateWithTimezone(2025, 01, i + 1, 0, 0, 0);
+    row["tsz"] = ts;
+    rows.emplace_back(std::move(row));
+}
 
-- 各ベクターフィールドにインデックスを作成済みであること。
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName(collection_name)
+                                .WithRowsData(std::move(data)).
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
-- コレクションがメモリにロード済みであること。
+### ステップ3: フィルタリング操作\{#step-3-filtering-operations}
+
+`TIMESTAMPTZ` はスカラー比較、期間演算、および時間コンポーネントの抽出をサポートしています。
+
+`TIMESTAMPTZ` フィールドに対してフィルタリング操作を実行する前に、次のことを確認してください:
+
+- 各ベクトルフィールドにインデックスを作成していること。
+
+- コレクションがメモリにロードされていること。
 
 <details>
 
-<summary>コード例を表示</summary>
+<summary>サンプルコードを表示</summary>
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -463,26 +529,47 @@ await client.loadCollection({
 <TabItem value='java'>
 
 ```bash
-curl --request POST \      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/load \      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      --header 'Content-Type: application/json' \      --data '{ "collectionName": "timestamptz_test123" }'
+curl --request POST \      
+    --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/load \      
+    --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      
+    --header 'Content-Type: application/json' \      
+    --header "Request-Timeout: 10" \
+    --data '{ "collectionName": "timestamptz_test123" }'
 ```
 
 </TabItem>
 </Tabs>
 
+```c++
+milvus::IndexDesc index_vector("vec", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE);
+auto status = client->CreateIndex(milvus::CreateIndexRequest()
+                                    .WithCollectionName(collection_name)
+                                    .AddIndex(std::move(index_vector)));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->LoadCollection(milvus::LoadCollectionRequest().WithCollectionName(collection_name));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 </details>
 
-#### タイムスタンプフィルタリングによるクエリ\{#query-with-timestamp-filtering}
+#### タイムスタンプフィルタリングを使用したクエリ\{#query-with-timestamp-filtering}
 
-`==`、`!=`、`<`、`>`、`<=`、`>=` のような算術演算子を使用します。Zilliz Cloud で利用可能な算術演算子の完全なリストについては、[算術演算子](./basic-filtering-operators#arithmetic-operators) を参照してください。
+次のような算術演算子を使用します: `==`, `!=`, `<`, `>`, `<=`, `>=`。Zilliz Cloud で使用可能な算術演算子の完全なリストについては、[算術演算子](./basic-filtering-operators#arithmetic-operators) を参照してください。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>連鎖範囲式（例: <code>lower_bound &lt; tsz &lt; upper_bound</code>）はサポートされていません。</p>
-<p>代わりに論理積を使用してください: <code>tsz &gt; lower_bound AND tsz &lt; upper_bound</code>。</p>
+チェーンされた範囲式 (例: `lower_bound < tsz < upper_bound`) はサポートされていません。
+
+代わりに論理積を使用してください: `tsz > lower_bound AND tsz < upper_bound`。
 
 </Admonition>
 
-以下の例では、タイムスタンプ（`tsz`）が **2025-01-03T00:00:00+08:00** と等しくないエンティティをフィルタリングします:
+以下の例では、タイムスタンプ (`tsz`) が **2025-01-03T00:00:00+08:00** に等しくないエンティティをフィルタリングしています:
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -560,6 +647,7 @@ curl --request POST \
      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/query \
      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \
      --header 'Content-Type: application/json' \
+     --header "Request-Timeout: 10" \
      --data '{
        "collectionName": "timestamptz_test123",
        "filter": "tsz != ISO '\''2025-01-03T00:00:00+08:00'\''",
@@ -571,19 +659,41 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+std::string filter = "tsz != ISO '2025-01-03T00:00:00+08:00'";
+auto request = milvus::QueryRequest()
+                       .WithCollectionName(collection_name)
+                       .WithFilter(filter)
+                       .AddOutputField("id")
+                       .AddOutputField("tsz")
+                       .WithLimit(10);
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
+
 上記の例では、
 
-- `tsz` はスキーマで定義された `TIMESTAMPTZ` フィールド名です。
+- `tsz` は、スキーマで定義された `TIMESTAMPTZ` フィールド名です。
 
-- `ISO '2025-01-03T00:00:00+08:00'` はタイムゾーンオフセットを含む [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) 形式のタイムスタンプリテラルです。
+- `ISO '2025-01-03T00:00:00+08:00'` は、タイムゾーンオフセットを含む [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) 形式のタイムスタンプリテラルです。
 
-- `!=` はフィールド値とそのリテラルを比較します。その他のサポートされている演算子には、`==`、`<`、`<=`、`>`、`>=` があります。
+- `!=` は、フィールド値をそのリテラルと比較します。その他のサポートされている演算子には、`==`、`<`、`<=`、`>`、`>=` があります。
 
-#### Interval operations\{#interval-operations}
+#### 間隔演算\{#interval-operations}
 
-[ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations) の **INTERVAL** 値を使用して、`TIMESTAMPTZ` フィールドに対して算術演算を実行できます。これにより、データをフィルタリングする際に、日数、時間、分などの期間をタイムスタンプに加算または減算できます。
+`TIMESTAMPTZ` フィールドに対して、[ISO 8601 期間形式](https://en.wikipedia.org/wiki/ISO_8601#Durations) の **INTERVAL** 値を使用して算術演算を実行できます。これにより、データをフィルタリングする際に、タイムスタンプから日、時間、分などの期間を加算または減算できます。
 
-たとえば、次のクエリは、タイムスタンプ（`tsz`）にゼロ日を加算した値が **2025-01-03T00:00:00+08:00** と**等しくない**エンティティをフィルタリングします：
+たとえば、次のクエリは、タイムスタンプ (`tsz`) にゼロ日を加算した結果が **2025-01-03T00:00:00+08:00** と **等しくない** エンティティをフィルタリングします:
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -653,31 +763,57 @@ console.log(results);
 <TabItem value='java'>
 
 ```bash
-curl --request POST \      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/query \      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      --header 'Content-Type: application/json' \      --data '{        "collectionName": "timestamptz_test123",        "filter": "tsz + INTERVAL '\''P0D'\'' != ISO '\''2025-01-03T00:00:00+08:00'\''",        "outputFields": ["id", "tsz"],        "limit": 10      }'
+curl --request POST \      
+    --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/query \      
+    --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      
+    --header 'Content-Type: application/json' \      
+    --header "Request-Timeout: 10" \
+    --data '{        "collectionName": "timestamptz_test123",        "filter": "tsz + INTERVAL '\''P0D'\'' != ISO '\''2025-01-03T00:00:00+08:00'\''",        "outputFields": ["id", "tsz"],        "limit": 10      }'
 ```
 
 </TabItem>
 </Tabs>
 
+```c++
+std::string filter = "tsz + INTERVAL 'P0D' != ISO '2025-01-03T00:00:00+08:00'";
+auto request = milvus::QueryRequest()
+                       .WithCollectionName(collection_name)
+                       .WithFilter(filter)
+                       .AddOutputField("id")
+                       .AddOutputField("tsz")
+                       .WithLimit(10);
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::EntityRows output_rows;
+status = query_results.OutputRows(output_rows);
+for (const auto& row : output_rows) {
+    std::cout << "\t" << row << std::endl;
+}
+```
+
 <Admonition type="info" icon="📘" title="Notes">
 
-<p><code>INTERVAL</code> 値は <a href="https://www.w3.org/TR/xmlschema-2/#duration">ISO 8601 duration 構文</a> に従います。例:</p>
-<ul>
-<li><p><code>P1D</code> → 1 日</p></li>
-<li><p><code>PT3H</code> → 3 時間</p></li>
-<li><p><code>P2DT6H</code> → 2 日と 6 時間</p></li>
-</ul>
-<p>フィルター式内で直接 <code>INTERVAL</code> 演算を使用できます。例:</p>
-<ul>
-<li><p><code>tsz + INTERVAL 'P3D'</code> → 3 日を加算</p></li>
-<li><p><code>tsz - INTERVAL 'PT2H'</code> → 2 時間を減算</p></li>
-</ul>
+`INTERVAL` 値は [ISO 8601 期間構文](https://www.w3.org/TR/xmlschema-2/#duration) に従います。例：
+
+- `P1D` → 1 日
+- `PT3H` → 3 時間
+- `P2DT6H` → 2 日 6 時間
+
+`INTERVAL` 算術をフィルター式で直接使用できます。例：
+
+- `tsz + INTERVAL 'P3D'` → 3 日を追加
+- `tsz - INTERVAL 'PT2H'` → 2 時間を減算
 
 </Admonition>
 
-#### タイムスタンプによるフィルタリングを伴う検索\{#search-with-timestamp-filtering}
+#### タイムスタンプフィルタリングを使用した検索\{#search-with-timestamp-filtering}
 
-`TIMESTAMPTZ` フィルタリングとベクトル類似性検索を組み合わせて、時間と類似性の両方で結果を絞り込むことができます。
+`TIMESTAMPTZ` フィルタリングとベクトル類似検索を組み合わせて、時間と類似性の両方で結果を絞り込むことができます。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -755,25 +891,57 @@ console.log(results);
 <TabItem value='java'>
 
 ```bash
-curl --request POST \      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/search \      --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      --header 'Content-Type: application/json' \      --data '{        "collectionName": "timestamptz_test123",        "data": [[0.1, 0.2, 0.3, 0.4]],        "limit": 5,        "filter": "tsz > ISO '\''2025-01-05T00:00:00+08:00'\''",        "outputFields": ["id", "tsz"]      }'
+curl --request POST \      
+    --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/search \      
+    --header 'Authorization: Bearer YOUR_CLUSTER_TOKEN' \      
+    --header 'Content-Type: application/json' \      
+    --header "Request-Timeout: 10" \
+    --data '{        "collectionName": "timestamptz_test123",        "data": [[0.1, 0.2, 0.3, 0.4]],        "limit": 5,        "filter": "tsz > ISO '\''2025-01-05T00:00:00+08:00'\''",        "outputFields": ["id", "tsz"]      }'
 ```
 
 </TabItem>
 </Tabs>
 
+```c++
+std::string filter = "tsz > ISO '2025-01-05T00:00:00+08:00'";
+std::vector<float> query_vector = {0.1, 0.2, 0.3, 0.4};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName(collection_name)
+                   .WithFilter(filter)
+                   .WithLimit(5)
+                   .AddOutputField("id")
+                   .AddOutputField("tsz")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>コレクションに 2 つ以上のベクトルフィールドがある場合、タイムスタンプフィルタリングを用いたハイブリッド検索操作を実行できます。詳細については、<a href="./hybrid-search">Multi-Vector Hybrid Search</a> を参照してください。</p>
+コレクションに2つ以上のベクトルフィールドがある場合、タイムスタンプフィルタリングを使用したハイブリッド検索操作を実行できます。詳細については、[マルチベクトルハイブリッド検索](./hybrid-search) を参照してください。
 
 </Admonition>
 
-## 高度な使い方\{#advanced-usage}
+## Advanced usage\{#advanced-usage}
 
-高度な使い方として、異なるレベル（例：データベース、コレクション、またはクエリ）でタイムゾーンを管理したり、インデックスを使用して `TIMESTAMPTZ` フィールドに対するクエリの高速化を行ったりできます。
+高度な使い方として、異なるレベル（例：データベース、コレクション、クエリ）でタイムゾーンを管理したり、インデックスを使用して `TIMESTAMPTZ` フィールドのクエリを高速化したりできます。
 
-### 異なるレベルでのタイムゾーンの管理\{#manage-time-zones-at-different-levels}
+### Manage time zones at different levels\{#manage-time-zones-at-different-levels}
 
-**コレクション**レベルまたは**クエリ/検索**レベルで `TIMESTAMPTZ` フィールドのタイムゾーンを制御できます。
+`TIMESTAMPTZ` フィールドのタイムゾーンは、**コレクション**レベルまたは**クエリ/検索**レベルで制御できます。
 
 <table>
    <tr>
@@ -783,31 +951,31 @@ curl --request POST \      --url YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/sear
      <th><p>優先度</p></th>
    </tr>
    <tr>
-     <td><p>Collection</p></td>
+     <td><p>コレクション</p></td>
      <td><p><code>timezone</code></p></td>
-     <td><p>そのコレクションに対してデータベースのデフォルトタイムゾーン設定を上書きします</p></td>
+     <td><p>そのコレクションのデータベースデフォルトタイムゾーン設定を上書きします</p></td>
      <td><p>中</p></td>
    </tr>
    <tr>
      <td><p>クエリ/検索/ハイブリッド検索</p></td>
      <td><p><code>timezone</code></p></td>
-     <td><p>特定の 1 つの操作に対する一時的な上書き</p></td>
+     <td><p>1回の特定の操作に対する一時的な上書き</p></td>
      <td><p>最高</p></td>
    </tr>
 </table>
 
-手順とコードサンプルの詳細については、以下の専用ページを参照してください：
+手順とコードサンプルについては、専用のページを参照してください。
 
-- [Modify Collection](./modify-collections#example-7-set-collection-time-zone)
+- [コレクションの変更](./modify-collections#example-7-set-collection-time-zone)
 
-- [Query](./get-and-scalar-query#temporarily-set-a-timezone-for-a-query)
+- [クエリ](./get-and-scalar-query#temporarily-set-a-timezone-for-a-query)
 
-- [Basic Vector Search](./single-vector-search#temporarily-set-a-timezone-for-a-search)
+- [基本ベクトル検索](./single-vector-search#temporarily-set-a-timezone-for-a-search)
 
-- [Multi-Vector Hybrid Search](./hybrid-search)
+- [マルチベクトルハイブリッド検索](./hybrid-search)
 
 ### クエリの高速化\{#accelerate-queries}
 
-デフォルトでは、インデックスのない `TIMESTAMPTZ` フィールドに対するクエリはすべての行のフルスキャンを実行するため、大規模なデータセットでは遅くなる可能性があります。タイムスタンプクエリを高速化するには、`TIMESTAMPTZ` フィールドに AUTOINDEX インデックスを作成してください。
+デフォルトでは、インデックスのない `TIMESTAMPTZ` フィールドに対するクエリは全行のフルスキャンを実行するため、大規模データセットでは低速になる可能性があります。タイムスタンプクエリを高速化するには、`TIMESTAMPTZ` フィールドに AUTOINDEX インデックスを作成します。
 
-詳細については、[Index Scalar Fields](./index-scalar-fields) を参照してください。
+詳細については、[スカラーフィールドのインデックス作成](./index-scalar-fields) を参照してください。

@@ -313,6 +313,20 @@ const rerank = {
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto rerank = std::make_shared<milvus::DecayRerank>("time_decay");
+rerank->AddInputFieldName("timestamp");
+rerank->SetFunction("gauss");
+rerank->SetOrigin(1735689600);
+rerank->SetScale(7 * 24 * 60 * 60);
+rerank->SetOffset(24 * 60 * 60);
+rerank->SetDecay(0.5);
+```
+
+</TabItem>
 </Tabs>
 
 <table>
@@ -454,5 +468,27 @@ const result = await milvusClient.search({
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='c++'>
+
+```c++
+auto function_score = std::make_shared<milvus::FunctionScore>();
+function_score->AddFunction(rerank);
+
+auto request = milvus::SearchRequest()
+                   .WithCollectionName(collection_name)
+                   .WithAnnsField("dense")
+                   .WithRerank(function_score)
+                   .AddOutputField("document")
+                   .AddOutputField("timestamp")
+                   .AddFloatVector(your_query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+</Tabs>

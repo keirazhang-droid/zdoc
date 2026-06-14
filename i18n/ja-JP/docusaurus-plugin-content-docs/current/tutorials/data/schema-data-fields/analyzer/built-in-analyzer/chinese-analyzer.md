@@ -5,7 +5,7 @@ sidebar_key: chinese-analyzer
 sidebar_label: "中国語"
 beta: FALSE
 notebook: FALSE
-description: "`chinese` アナライザーは、中国語テキストを効果的にセグメンテーションおよびトークン化するために特別に設計されています。| Cloud"
+description: "`chinese` アナライザーは中国語テキストを処理するために特別に設計されており、効果的なセグメンテーションとトークン化を提供します。 | Cloud"
 type: origin
 token: Of8PwuunCihBfxksNJJcSCRYnsf
 sidebar_position: 3
@@ -16,7 +16,7 @@ keywords:
   - コレクション
   - スキーマ
   - アナライザー
-  - 組み込みアナライザー
+  - ビルトインアナライザー
   - 中国語アナライザー
 
 ---
@@ -27,17 +27,17 @@ import TabItem from '@theme/TabItem';
 
 # Chinese
 
-`chinese` アナライザーは中国語テキストを効果的に処理するために特別に設計されており、効率的なセグメンテーションとトークン化を提供します。
+`chinese` アナライザーは、中国語テキストを処理するために特別に設計されており、効果的なセグメンテーションとトークン化を提供します。
 
-### Definition\{#definition}
+### 定義\{#definition}
 
-`chinese` アナライザーは以下のコンポーネントで構成されています:
+`chinese` アナライザーは以下で構成されています：
 
-- **トークナイザー**: 語彙と文脈に基づいて中国語テキストをトークンに分割するための `jieba` トークナイザーを使用します。詳細については、[Jieba](./jieba-tokenizer) を参照してください。
+- **トークナイザー**: `jieba` トークナイザーを使用して、語彙とコンテキストに基づいて中国語テキストをトークンに分割します。詳細については、[Jieba](./jieba-tokenizer) を参照してください。
 
-- **Filter**: 中国語以外の文字を含むトークンを削除する `cnalphanumonly` フィルターを使用します。詳細については、[Cnalphanumonly](./cnalphanumonly-filter) を参照してください。
+- **フィルター**: `cnalphanumonly` フィルターを使用して、中国語以外の文字を含むトークンを削除します。詳細については、[Cnalphanumonly](./cnalphanumonly-filter) を参照してください。
 
-`chinese` アナライザーの機能は、次のカスタムアナライザー設定と同等です:
+`chinese` アナライザーの機能は、以下のカスタムアナライザー設定と同等です：
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -96,9 +96,16 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "jieba"},
+    {"filter", {"cnalphanumonly"}}
+};
+```
+
 ### 設定\{#configuration}
 
-フィールドに `chinese` アナライザーを適用するには、`analyzer_params` 内で `type` を `chinese` に設定します。
+`chinese` アナライザーをフィールドに適用するには、`analyzer_params` で `type` を `chinese` に設定するだけです。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -150,17 +157,23 @@ analyzerParams='{
 </TabItem>
 </Tabs>
 
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "chinese"}
+};
+```
+
 <Admonition type="info" icon="📘" title="Notes">
 
-<p><code>chinese</code> アナライザーはオプションのパラメータを受け付けません。</p>
+`chinese` アナライザーはオプションパラメーターを受け付けません。
 
 </Admonition>
 
 ## 例\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を検証してください。
+アナライザー構成をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
 
-### アナライザー設定\{#analyzer-configuration}
+### アナライザー構成\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -209,6 +222,12 @@ analyzerParams='{"type": "chinese"}'
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"type", "chinese"}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -330,6 +349,29 @@ curl -X POST "YOUR_CLUSTER_ENDPOINT/v2/vectordb/common/run_analyzer" \
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "Milvus 是一个高性能、可扩展的向量数据库！";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

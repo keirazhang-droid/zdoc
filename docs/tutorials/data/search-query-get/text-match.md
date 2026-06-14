@@ -207,6 +207,18 @@ export schema='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, true});
+schema->AddField(milvus::FieldSchema("text", milvus::DataType::VARCHAR).WithMaxLength(1000).EnableAnalyzer(true).EnableMatch(true));
+schema->AddField(milvus::FieldSchema("embeddings", milvus::DataType::FLOAT_VECTOR).WithDimension(5));
+
+```
+
+</TabItem>
 </Tabs>
 
 ### Optional: Configure an analyzer\{#optional-configure-an-analyzer}
@@ -330,6 +342,21 @@ export schema='{
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+nlohmann::json analyzer_params = {{"type", "english"}};
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, true});
+schema->AddField(milvus::FieldSchema("text", milvus::DataType::VARCHAR).WithMaxLength(1000)
+                    .EnableAnalyzer(true).EnableMatch(true).WithAnalyzerParams(analyzer_params));
+schema->AddField(milvus::FieldSchema("embeddings", milvus::DataType::FLOAT_VECTOR).WithDimension(5));
+
+```
+
+</TabItem>
 </Tabs>
 
 Zilliz Cloud also provides various other analyzers suited to different languages and scenarios. For more details, refer to [Analyzer Overview](./analyzer-overview).
@@ -392,6 +419,14 @@ export filter="\"TEXT_MATCH(text, 'machine deep')\""
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+const auto filter = R"(TEXT_MATCH(text, "machine deep"))";
+```
+
+</TabItem>
 </Tabs>
 
 You can also combine multiple `TEXT_MATCH` expressions using logical operators to perform **AND** matching. 
@@ -438,6 +473,14 @@ You can also combine multiple `TEXT_MATCH` expressions using logical operators t
     ```
 
     </TabItem>
+
+    <TabItem value='c++'>
+
+    ```c++
+    const auto filter = R"(TEXT_MATCH(text, 'machine') and TEXT_MATCH(text, 'deep'))";
+    ```
+
+    </TabItem>
     </Tabs>
 
 - To search for documents containing both `machine` and `learning` but without `deep` in the `text` field, use the following expressions:
@@ -479,6 +522,14 @@ You can also combine multiple `TEXT_MATCH` expressions using logical operators t
 
     ```bash
     export filter="\"not TEXT_MATCH(text, 'deep') and TEXT_MATCH(text, 'machine') and TEXT_MATCH(text, 'learning')\""
+    ```
+
+    </TabItem>
+
+    <TabItem value='c++'>
+
+    ```c++
+    const auto filter = R"(not TEXT_MATCH(text, 'deep') and TEXT_MATCH(text, 'machine') and TEXT_MATCH(text, 'learning'))";
     ```
 
     </TabItem>
@@ -583,6 +634,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "annsField": "embeddings",
@@ -596,6 +648,29 @@ curl --request POST \
     "limit": 10,
     "outputFields": ["text","id"]
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+const auto filter = R"(TEXT_MATCH(text, 'keyword1 keyword2'))";
+std::vector<float> query_vector = {0.19886812562848388, 0.06023560599112088, 0.6976963061752597, 0.2614474506242501, 0.838729485096104};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("embeddings")
+                   .WithFilter(filter)
+                   .WithLimit(10)
+                   .AddOutputField("text")
+                   .AddOutputField("id")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -684,11 +759,32 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/query" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d '{
     "collectionName": "my_collection",
     "filter": '"$filter"',
     "outputFields": ["id", "text"]
 }'
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+const auto filter = R"(TEXT_MATCH(text, 'keyword1') and TEXT_MATCH(text, 'keyword2'))";
+
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter(filter)
+                       .AddOutputField("id")
+                       .AddOutputField("text");
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -699,6 +795,8 @@ curl --request POST \
 - Enabling term matching for a field triggers the creation of an inverted index, which consumes storage resources. Consider storage impact when deciding to enable this feature, as it varies based on text size, unique tokens, and the analyzer used.
 
 - Once you've defined an analyzer in your schema, its settings become permanent for that collection. If you decide that a different analyzer would better suit your needs, you may consider dropping the existing collection and creating a new one with the desired analyzer configuration.
+
+- Phrase match performance depends on how text is tokenized. Before applying an analyzer to your entire collection, use the `run_analyzer` method to review the tokenization output. For more information, refer to [Analyzer Overview](./analyzer-overview#built-in-analyzer).
 
 - Escape rules in `filter` expressions:
 

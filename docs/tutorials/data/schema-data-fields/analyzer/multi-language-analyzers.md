@@ -199,6 +199,18 @@ export multi_analyzer_params='{
 </TabItem>
 </Tabs>
 
+```c++
+nlohmann::json multi_analyzer_params = {
+    {"analyzers", {
+        {"english", {{"type", "english"}}},
+        {"chinese", {{"type", "chinese"}}},
+        {"default", {{"tokenizer", "icu"}}}
+    }},
+    {"by_field", "language"},
+    {"alias", {{"cn", "chinese"}, {"en", "english"}}}
+};
+```
+
 <table>
    <tr>
      <th><p>Parameter</p></th>
@@ -473,6 +485,27 @@ export sparseField='{
 </TabItem>
 </Tabs>
 
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, true});
+schema->AddField(milvus::FieldSchema("language", milvus::DataType::VARCHAR)
+                    .WithMaxLength(255))
+                    .EnableAnalyzer(true)
+                    .WithMultiAnalyzerParams(multi_analyzer_params));
+schema->AddField(milvus::FieldSchema("text", milvus::DataType::VARCHAR).WithMaxLength(255));
+schema->AddField(milvus::FieldSchema("sparse", milvus::DataType::SPARSE_FLOAT_VECTOR));
+```
+
 ### Step 2: Define BM25 function\{#step-2-define-bm25-function}
 
 Define a BM25 function to generate sparse vector representations from your raw text data:
@@ -566,6 +599,13 @@ export schema="{
 </TabItem>
 </Tabs>
 
+```c++
+milvus::FunctionPtr function = std::make_shared<milvus::Function>("text_to_vector", milvus::FunctionType::BM25);
+function->AddInputFieldName("text");
+function->AddOutputFieldName("sparse");
+schema->AddFunction(function);
+```
+
 This function automatically applies the appropriate analyzer to each text entry based on its language identifier. For more information on BM25-based text retrieval, refer to [Full Text Search](./full-text-search).
 
 ### Step 3: Configure index params\{#step-3-configure-index-params}
@@ -639,6 +679,10 @@ export IndexParams='[
 
 </TabItem>
 </Tabs>
+
+```c++
+milvus::IndexDesc index_vector("sparse", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::BM25);
+```
 
 The index improves search performance by organizing sparse vectors for efficient BM25 similarity calculations.
 
@@ -740,6 +784,16 @@ curl --request POST \
 
 </TabItem>
 </Tabs>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("multilingual_documents")
+                                        .AddIndex(std::move(index_vector))
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 At this point, Zilliz Cloud creates an empty collection with multi-language analyzer support, ready to receive data.
 
@@ -918,6 +972,24 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<milvus::EntityRow> documents = {
+    {{"text", "Artificial intelligence is transforming technology"}, {"language", "english"}},
+    {{"text", "Machine learning models require large datasets"}, {"language", "en"}},
+    {{"text", "人工智能正在改变技术领域"}, {"language", "chinese"}},
+    {{"text", "机器学习模型需要大型数据集"}, {"language", "cn"}}
+};
+
+milvus::InsertResponse resp_insert;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("multilingual_documents")
+                                .WithRowsData(std::move(documents)),
+                            resp_insert);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 During insertion, Zilliz Cloud:
 
 1. Reads each document's `language` field
@@ -1094,6 +1166,26 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("multilingual_documents")
+                   .AddEmbeddedText("artificial intelligence");
+                   .WithAnnsField("sparse")
+                   .WithLimit(3)
+                   .AddExtraParam("metric_type", "BM25")
+                   .AddExtraParam("analyzer_name", "english")
+                   .AddExtraParam("drop_ratio_search", "9")
+                   .AddOutputField("text")
+                   .AddOutputField("language")
+                   .WithConsistencyLevel(milvus::ConsistencyLevel::STRONG);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 ### Use Chinese analyzer\{#use-chinese-analyzer}
 
 This example demonstrates switching to the Chinese analyzer (using its alias `"cn"`) for different query text. All other parameters remain the same, but now the query text is processed using Chinese-specific tokenization rules.
@@ -1234,3 +1326,22 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("multilingual_documents")
+                   .AddEmbeddedText("人工智能");
+                   .WithAnnsField("sparse")
+                   .WithLimit(3)
+                   .AddExtraParam("metric_type", "BM25")
+                   .AddExtraParam("analyzer_name", "cn")
+                   .AddExtraParam("drop_ratio_search", "0")
+                   .AddOutputField("text")
+                   .AddOutputField("language")
+                   .WithConsistencyLevel(milvus::ConsistencyLevel::STRONG);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```

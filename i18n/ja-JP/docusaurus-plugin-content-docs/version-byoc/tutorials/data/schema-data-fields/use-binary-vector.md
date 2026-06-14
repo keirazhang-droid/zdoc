@@ -5,17 +5,17 @@ sidebar_key: use-binary-vector
 sidebar_label: "バイナリベクトル"
 beta: FALSE
 notebook: FALSE
-description: "バイナリベクトルは、従来の高次元浮動小数点ベクトルを 0 と 1 のみで構成されるバイナリベクトルに変換する特殊なデータ表現形式です。この変換により、ベクトルのサイズが圧縮され、ストレージおよび計算コストが削減されると同時に、意味情報が保持されます。重要度の低い特徴に対する精度が必須でない場合、バイナリベクトルは元の浮動小数点ベクトルの完全性と有用性の大部分を効果的に維持できます。 | BYOC"
+description: "バイナリベクトルは、従来の高次元浮動小数点ベクトルを0と1のみで構成されるバイナリベクトルに変換する、特殊なデータ表現形式です。この変換により、ベクトルのサイズが圧縮されるだけでなく、意味情報を保持しつつ、ストレージと計算コストも削減されます。重要な特徴以外の精度が必須でない場合、バイナリベクトルは元の浮動小数点ベクトルの整合性と有用性の大部分を効果的に維持できます。 | BYOC"
 type: origin
 token: NTwawtvYdiXTkukbss7ccw2RnXc
 sidebar_position: 4
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - binary vector
+  - クラウド
+  - コレクション
+  - スキーマ
+  - バイナリベクトル
 
 ---
 
@@ -25,37 +25,37 @@ import TabItem from '@theme/TabItem';
 
 # バイナリベクトル
 
-バイナリベクトルは、従来の高次元浮動小数点ベクトルを 0 と 1 のみで構成されるバイナリベクトルに変換する特殊なデータ表現形式です。この変換により、ベクトルのサイズが圧縮され、ストレージおよび計算コストが削減されると同時に、セマンティック情報も保持されます。非重要な特徴量において精度がそれほど重要でない場合、バイナリベクトルは元の浮動小数点ベクトルの大部分の完全性と有用性を効果的に維持できます。
+バイナリベクトルは、従来の高次元浮動小数点ベクトルを0と1のみを含むバイナリベクトルに変換する特殊なデータ表現形式です。この変換により、ベクトルのサイズが圧縮されるだけでなく、ストレージと計算コストが削減されながらも、セマンティック情報が保持されます。非重要な特徴の精度が必須でない場合、バイナリベクトルは元の浮動小数点ベクトルの大部分の完全性と有用性を効果的に維持できます。
 
-バイナリベクトルは、計算効率やストレージ最適化が極めて重要な状況で幅広く活用されています。検索エンジンやレコメンデーションシステムなどの大規模 AI システムでは、膨大なデータをリアルタイムで処理することが鍵となります。ベクトルのサイズを小さくすることで、バイナリベクトルはレイテンシや計算コストを大幅に削減しつつ、精度を大きく犠牲にすることなく処理を可能にします。また、メモリや処理能力が制限されたモバイルデバイスや組込みシステムなどのリソース制約環境でも有効です。バイナリベクトルを活用することで、こうした制限された環境でも高性能を維持しながら複雑な AI 機能を実装できます。
+バイナリベクトルは幅広い応用があり、特に計算効率とストレージの最適化が重要な状況で有用です。大規模なAIシステム（検索エンジンや推薦システムなど）では、大量のデータのリアルタイム処理が鍵となります。ベクトルのサイズを削減することで、バイナリベクトルは精度を大きく犠牲にすることなく、レイテンシと計算コストを削減するのに役立ちます。さらに、バイナリベクトルは、メモリと処理能力が限られたモバイルデバイスや組み込みシステムなど、リソースが制約された環境でも有用です。バイナリベクトルを使用することで、これらの制約された環境でも複雑なAI機能を高いパフォーマンスを維持しながら実装できます。
 
 ## 概要\{#overview}
 
-バイナリベクトルは、画像・テキスト・音声などの複雑なオブジェクトを固定長のバイナリ値にエンコードする手法です。Zilliz Cloud クラスタでは、バイナリベクトルは通常、ビット配列またはバイト配列として表現されます。たとえば、8次元のバイナリベクトルは `[1, 0, 1, 1, 0, 0, 1, 0]` のように表されます。
+バイナリベクトルは、画像、テキスト、音声などの複雑なオブジェクトを固定長のバイナリ値にエンコードする方法です。Zilliz Cloud クラスタでは、バイナリベクトルは通常、ビット配列またはバイト配列として表現されます。例えば、8次元のバイナリベクトルは `[1, 0, 1, 1, 0, 0, 1, 0]` と表現できます。
 
-以下の図は、テキストコンテンツにおけるキーワードの有無をバイナリベクトルで表現する方法を示しています。この例では、10次元のバイナリベクトルを使って2つの異なるテキスト（**テキスト1** および **テキスト2**）を表現しており、各次元が語彙内の単語に対応しています。1 はその単語がテキスト内に存在することを、0 は存在しないことを示します。
+以下の図は、バイナリベクトルがテキストコンテンツ内のキーワードの存在をどのように表現するかを示しています。この例では、10次元のバイナリベクトルを使用して2つの異なるテキスト（**テキスト1** と **テキスト2**）を表現しており、各次元は語彙内の単語に対応しています。1はテキスト内にその単語が存在することを示し、0は存在しないことを示します。
 
 ![TuIGwtyEkh9g04bvo0icsWdynBd](https://zdoc-images.s3.us-west-2.amazonaws.com/TuIGwtyEkh9g04bvo0icsWdynBd.png)
 
-バイナリベクトルには以下のような特徴があります。
+バイナリベクトルには以下の特徴があります。
 
-- **効率的なストレージ:** 各次元は 1 ビットしか必要とせず、ストレージ容量を大幅に削減できます。
+- **効率的なストレージ:** 各次元には1ビットのストレージのみが必要であり、ストレージスペースを大幅に削減できます。
 
-- **高速な計算:** XOR などのビット演算を用いて、ベクトル間の類似度を迅速に計算できます。
+- **高速な計算:** ベクトル間の類似度は、XORなどのビット演算を使用して高速に計算できます。
 
-- **固定長:** ベクトルの長さは元のテキストの長さにかかわらず一定であり、インデックス作成や検索が容易になります。
+- **固定長:** 元のテキストの長さに関わらず、ベクトルの長さは一定であり、インデックス作成と検索が容易になります。
 
-- **シンプルで直感的:** キーワードの有無を直接反映するため、特定の専門的な検索タスクに適しています。
+- **シンプルで直感的:** キーワードの存在を直接的に反映し、特定の専門的な検索タスクに適しています。
 
-バイナリベクトルはさまざまな方法で生成できます。テキスト処理では、事前に定義された語彙に基づき、単語の有無に応じて対応するビットを設定します。画像処理では、知覚的ハッシュアルゴリズム（[pHash](https://en.wikipedia.org/wiki/Perceptual_hashing) など）を用いて画像のバイナリ特徴量を生成します。機械学習アプリケーションでは、モデルの出力を二値化してバイナリベクトル表現を得ることも可能です。
+バイナリベクトルは様々な方法で生成できます。テキスト処理では、事前定義された語彙を使用して単語の存在に基づいて対応するビットを設定できます。画像処理では、[pHash](https://en.wikipedia.org/wiki/Perceptual_hashing) などの知覚ハッシュアルゴリズムを使用して画像のバイナリ特徴を生成できます。機械学習アプリケーションでは、モデルの出力を二値化してバイナリベクトル表現を取得できます。
 
-バイナリベクトル化後、データは Zilliz Cloud クラスタに保存され、管理およびベクトル検索が可能になります。以下の図はその基本的なプロセスを示しています。
+バイナリベクトル化後、データは Zilliz Cloud クラスタに保存され、管理およびベクトル検索が行われます。以下の図は基本的なプロセスを示しています。
 
 ![TF1uw4AQVhFdmBbrhyVcJO6WnXe](https://zdoc-images.s3.us-west-2.amazonaws.com/TF1uw4AQVhFdmBbrhyVcJO6WnXe.png)
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>バイナリベクトルは特定のシナリオで優れた性能を発揮しますが、表現力に制限があるため、複雑なセマンティック関係を捉えるのは困難です。そのため、実際のユースケースでは、効率性と表現力のバランスを取るために、バイナリベクトルを他のベクトルタイプと併用することがよくあります。詳細については、<a href="./use-dense-vector">Dense Vector</a> および <a href="./use-sparse-vector">Sparse Vector</a> を参照してください。</p>
+バイナリベクトルは特定のシナリオで優れた性能を発揮しますが、表現能力には限界があり、複雑なセマンティック関係を捉えるのが難しい場合があります。そのため、実際のシナリオでは、バイナリベクトルは効率と表現力のバランスを取るために、他のベクトルタイプと併用されることが多いです。詳細については、[Dense Vector](./use-dense-vector) と [Sparse Vector](./use-sparse-vector) を参照してください。
 
 </Admonition>
 
@@ -63,11 +63,11 @@ import TabItem from '@theme/TabItem';
 
 ### ベクトルフィールドの追加\{#add-vector-field}
 
-Zilliz Cloud クラスタでバイナリベクトルを使用するには、コレクション作成時にバイナリベクトルを格納するためのベクトルフィールドを定義する必要があります。この手順には以下が含まれます。
+Zilliz Cloud クラスタでバイナリベクトルを使用するには、コレクションの作成時にバイナリベクトルを保存するためのベクトルフィールドを定義する必要があります。このプロセスには以下が含まれます。
 
-1. `datatype` をサポートされているバイナリベクトルのデータ型、すなわち `BINARY_VECTOR` に設定します。
+1. `datatype` をサポートされているバイナリベクトルデータタイプ、すなわち `BINARY_VECTOR` に設定します。
 
-1. `dim` パラメータを使用してベクトルの次元数を指定します。ただし、バイナリベクトルは挿入時にバイト配列に変換される必要があるため、`dim` は必ず 8 の倍数である必要があります。8 個のブール値（0 または 1）が 1 バイトにパックされます。たとえば、`dim=128` の場合、挿入には 16 バイトの配列が必要です。
+1. `dim` パラメータを使用してベクトルの次元を指定します。バイナリベクトルは挿入時にバイト配列に変換する必要があるため、`dim` は8の倍数である必要があることに注意してください。8つのブール値（0または1）が1バイトにパックされます。例えば、`dim=128` の場合、挿入には16バイトの配列が必要です。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -211,11 +211,28 @@ export schema="{
 </TabItem>
 </Tabs>
 
-この例では、バイナリベクトルを格納するための `binary_vector` という名前のベクトルフィールドが追加されています。このフィールドのデータ型は `BINARY_VECTOR` で、次元数は 128 です。
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->SetEnableDynamicField(true);
+schema->AddField(milvus::FieldSchema("pk", milvus::DataType::VARCHAR, "", true, true).WithMaxLength(100));
+schema->AddField(milvus::FieldSchema("binary_vector", milvus::DataType::BINARY_VECTOR).WithDimension(128));
+```
+
+この例では、バイナリベクトルを格納するために、`binary_vector` という名前のベクトルフィールドが追加されます。このフィールドのデータ型は `BINARY_VECTOR` で、次元は128です。
 
 ### ベクトルフィールドのインデックスパラメータを設定する\{#set-index-params-for-vector-field}
 
-検索を高速化するには、バイナリベクトルフィールドに対してインデックスを作成する必要があります。インデックス作成により、大規模なベクトルデータの検索効率を大幅に向上させることができます。
+検索を高速化するには、バイナリベクトルフィールドにインデックスを作成する必要があります。インデックス作成により、大規模なベクトルデータの検索効率が大幅に向上します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -291,11 +308,17 @@ export indexParams='[
 </TabItem>
 </Tabs>
 
-上記の例では、`binary_vector` フィールドに対して `binary_vector_index` という名前のインデックスが作成され、インデックスタイプとして `AUTOINDEX` が使用されています。また、`metric_type` は `HAMMING` に設定されており、類似度測定にハミング距離が使用されることを示しています。
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("binary_vector", "binary_vector_index", milvus::IndexType::AUTOINDEX, milvus::MetricType::HAMMING)
+}
+```
 
-さらに、Zilliz Cloud はバイナリベクトル向けに他の類似度メトリックもサポートしています。詳細については、[メトリックタイプs](./search-metrics-explained) を参照してください。
+上記の例では、`binary_vector` フィールドに対して `binary_vector_index` という名前のインデックスが作成され、インデックスタイプは `AUTOINDEX` が使用されています。`metric_type` は `HAMMING` に設定されており、類似度測定にハミング距離が使用されることを示しています。
 
-### Create collection\{#create-collection}
+さらに、Zilliz Cloud はバイナリベクトルに対して他の類似度メトリックもサポートしています。詳細については、[メトリックタイプ](./search-metrics-explained) を参照してください。
+
+### コレクションの作成\{#create-collection}
 
 バイナリベクトルとインデックスの設定が完了したら、バイナリベクトルを含むコレクションを作成します。以下の例では、`create_collection` メソッドを使用して `my_collection` という名前のコレクションを作成しています。
 
@@ -362,6 +385,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"schema\": $schema,
@@ -372,11 +396,21 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                        .WithCollectionName("my_collection")
+                                        .WithIndexes(std::move(indexes))
+                                        .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 ### データの挿入\{#insert-data}
 
-コレクションを作成した後、`insert` メソッドを使用してバイナリベクトルを含むデータを追加します。バイナリベクトルはバイト配列の形式で提供する必要があり、各バイトは8つのブール値を表します。
+コレクションを作成した後、`insert` メソッドを使用してバイナリベクトルを含むデータを追加します。バイナリベクトルはバイト配列の形式で指定する必要があり、各バイトは8つのブール値を表します。
 
-たとえば、128次元のバイナリベクトルの場合、16バイトの配列が必要です（128ビット ÷ 8ビット/バイト = 16バイト）。以下にデータ挿入の例を示します：
+たとえば、128次元のバイナリベクトルの場合、16バイトの配列が必要です（128ビット ÷ 8ビット/バイト = 16バイト）。以下はデータを挿入するためのコード例です。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -492,6 +526,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"data\": $data,
     \"collectionName\": \"my_collection\"
@@ -501,11 +536,43 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
+```c++
+std::vector<uint8_t>
+ConvertToBinaryVector(const std::vector<bool>& bools) {
+    size_t num_bytes = (bools.size() + 7) / 8;
+    std::vector<uint8_t> bytes(num_bytes, 0);
+    for (size_t i = 0; i < bools.size(); ++i) {
+        size_t byte_index = i / 8;
+        size_t bit_pos = i % 8;
+
+        if (bools[i]) {
+            bytes[byte_index] |= (1U << bit_pos);
+        }
+    }
+
+    return bytes;
+}
+
+std::vector<bool> vector1 = {true, false, false, true, true, false, true, true, false, true, false, false, true, true, false, true};
+std::vector<bool> vector2 = {false, true, false, true, false, true, false, false, true, true, false, false, true, true, false, true};
+milvus::EntityRows data = {{{"binary_vector", ConvertToBinaryVector(vector1)}},
+                           {{"binary_vector", ConvertToBinaryVector(vector2)}}}};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
 ### 類似性検索を実行する\{#perform-similarity-search}
 
-類似性検索は Zilliz Cloud クラスターの中核機能の一つであり、ベクトル間の距離に基づいてクエリベクトルに最も類似したデータを高速に検索できます。バイナリベクトルを使用して類似性検索を実行するには、クエリベクトルと検索パラメータを準備し、`search` メソッドを呼び出します。
+類似性検索は、Zilliz Cloud クラスターの中核機能の一つであり、ベクトル間の距離に基づいてクエリベクトルに最も類似したデータを迅速に見つけることができます。バイナリベクトルを使用して類似性検索を実行するには、クエリベクトルと検索パラメータを準備し、`search` メソッドを呼び出します。
 
-検索操作時には、バイナリベクトルもバイト配列の形式で提供する必要があります。クエリベクトルの次元数が `dim` 定義時に指定した次元数と一致していること、および8つのブール値ごとに1バイトに変換されていることを確認してください。
+検索操作では、バイナリベクトルもバイト配列の形式で提供する必要があります。クエリベクトルの次元数が `dim` を定義する際に指定した次元と一致し、かつ8つのブール値ごとに1バイトに変換されていることを確認してください。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -623,6 +690,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"my_collection\",
     \"data\": $data,
@@ -636,5 +704,29 @@ curl --request POST \
 </TabItem>
 </Tabs>
 
-類似度検索パラメータの詳細については、[基本的なANN検索](./single-vector-search)を参照してください。
+```c++
+std::vector<bool> query_vector = {true, false, false, true, true, false, true, true, false, true, false, false, true, true, false, true};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("binary_vector")
+                   .WithLimit(5)
+                   .AddOutputField("pk")
+                   .AddFloatVector(ConvertToBinaryVector(query_vector));
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
+類似度検索パラメータの詳細については、[基本ANN検索](./single-vector-search) を参照してください。
 

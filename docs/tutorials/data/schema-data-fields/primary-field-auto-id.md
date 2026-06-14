@@ -264,6 +264,7 @@ export SCHEMA='{
 
 curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create' \
 -H 'Content-Type: application/json' \
+-H "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"demo_autoid\",
     \"schema\": $SCHEMA
@@ -272,6 +273,35 @@ curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create' \
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "Primary field", true, true});
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR, "Vector field").WithDimension(4));
+schema->AddField(milvus::FieldSchema("category", milvus::DataType::VARCHAR, "Scalar field").WithMaxLength(1000));
+
+status = client->DropCollection(milvus::DropCollectionRequest().WithCollectionName("demo_autoid"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("demo_autoid")
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Step 2: Insert Data\{#step-2-insert-data}
 
@@ -366,6 +396,7 @@ export INSERT_DATA='[
 
 curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert' \
 -H 'Content-Type: application/json' \
+-H "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"demo_autoid\",
     \"data\": $INSERT_DATA
@@ -374,6 +405,21 @@ curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert' \
 
 </TabItem>
 </Tabs>
+
+```c++
+milvus::EntityRows data = {{{"embedding", std::vector<float>{0.1, 0.2, 0.3, 0.4}}, {"category", "book"}},
+                           {{"embedding", std::vector<float>{0.2, 0.3, 0.4, 0.5}}, {"category", "toy"}}};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("demo_autoid")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto ids = response.Results().IdArray().IntIDArray();
+```
 
 <Admonition type="info" icon="📘" title="Notes">
 
@@ -550,6 +596,7 @@ export SCHEMA='{
 
 curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create' \
 -H 'Content-Type: application/json' \
+-H "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"demo_manual_ids\",
     \"schema\": $SCHEMA
@@ -558,6 +605,35 @@ curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create' \
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField(milvus::FieldSchema("product_id", milvus::DataType::VARCHAR, "", true, false).WithMaxLength(100));
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR).WithDimension(4));
+schema->AddField(milvus::FieldSchema("category", milvus::DataType::VARCHAR).WithMaxLength(1000));
+
+status = client->DropCollection(milvus::DropCollectionRequest().WithCollectionName("demo_manual_ids"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("demo_manual_ids")
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### Step 2: Insert data with your IDs\{#step-2-insert-data-with-your-ids}
 
@@ -659,6 +735,7 @@ export INSERT_DATA='[
 # 插入数据
 curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert' \
 -H 'Content-Type: application/json' \
+-H "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"demo_manual_ids\",
     \"data\": $INSERT_DATA
@@ -667,6 +744,21 @@ curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert' \
 
 </TabItem>
 </Tabs>
+
+```c++
+milvus::EntityRows data = {{{"product_id", "PROD-001"}, {"embedding", std::vector<float>{0.1, 0.2, 0.3, 0.4}}, {"category", "book"}},
+                           {{"product_id", "PROD-002"}, {"embedding", std::vector<float>{0.2, 0.3, 0.4, 0.5}}, {"category", "toy"}}};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("demo_manual_ids")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto ids = response.Results().IdArray().StrIDArray()
+```
 
 Your responsibilities:
 

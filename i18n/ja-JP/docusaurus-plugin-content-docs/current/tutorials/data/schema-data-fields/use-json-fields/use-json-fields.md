@@ -1,21 +1,21 @@
 ---
-title: "JSON フィールド | Cloud"
+title: "JSONフィールド | Cloud"
 slug: /use-json-fields
 sidebar_key: use-json-fields
 sidebar_label: "JSON"
 beta: FALSE
 notebook: FALSE
-description: "この章では、JSON フィールド型について紹介し、JSON フィールドのインデックス作成方法に関するガイドを提供します。| Cloud"
+description: "この章ではJSONフィールド型を紹介し、JSONフィールドのインデックス作成方法についてのガイドを提供します。 | Cloud"
 type: origin
 token: BkDMwo71MiZMazk7gbtc7fqknbh
-sidebar_position: 8
+sidebar_position: 9
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - json フィールド
+  - クラウド
+  - コレクション
+  - スキーマ
+  - JSONフィールド
 
 ---
 

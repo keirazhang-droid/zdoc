@@ -1,11 +1,11 @@
 ---
-title: "ホストモデル | Cloud"
+title: "ホステッドモデル | Cloud"
 slug: /hosted-models
 sidebar_key: hosted-models
-sidebar_label: "ホストモデル"
+sidebar_label: "ホステッドモデル"
 beta: PRIVATE
 notebook: FALSE
-description: "Zilliz Cloud では、埋め込みモデルや再ランキングモデルを Zilliz が管理するインフラストラクチャ上でホストできます。専用かつ完全に管理されたモデルインスタンスをデプロイし、Zilliz Cloud から直接利用することで、安定性と高性能な推論を実現できます。 | Cloud"
+description: "Zilliz Cloud は、Zilliz 管理のインフラストラクチャ上で埋め込みモデルと再ランキングモデルをホストできます。専用のフルマネージドモデルインスタンスをデプロイし、Zilliz Cloud から直接使用することで、安定した高性能な推論を実現できます。 | Cloud"
 type: origin
 token: DMrCwn4LXi1uKBkbHGfcpGnsnyh
 sidebar_position: 6
@@ -15,55 +15,55 @@ keywords:
   - クラウド
   - モデル
   - 推論
-  - ホストモデル
+  - ホステッドモデル
 
 ---
 
 import Admonition from '@theme/Admonition';
 
 
-# Hosted Models
+# ホステッドモデル
 
-Zilliz Cloud は、**embedding** モデルおよび **reranking** モデルを Zilliz が管理するインフラストラクチャ上でホストできます。専用のフルマネージドモデルインスタンスをデプロイし、Zilliz Cloud から直接利用して、安定性と高性能な推論を実現できます。
+Zilliz Cloud は、Zilliz 管理のインフラ上で **埋め込み** モデルと **再ランキング** モデルをホストできます。専用の完全管理型モデルインスタンスをデプロイし、Zilliz Cloud から直接使用することで、安定した高性能な推論が可能です。
 
-マネージドモデルインスタンスを使用すると、生データをコレクションに挿入できます。Zilliz Cloud は、取り込み時にデプロイ済みのモデルを使って自動的にベクトル埋め込みを生成します。セマンティック検索では、生のクエリテキストを提供するだけで済みます。Zilliz Cloud は同じモデルを使用してクエリベクトルを作成し、保存済みのベクトルと比較して最も関連性の高い結果を返します。
+管理されたモデルインスタンスを使用すると、コレクションに生データを挿入できます。Zilliz Cloud は、データ取り込み時にデプロイされたモデルを使用して自動的にベクトル埋め込みを生成します。セマンティック検索では、生のクエリテキストのみを提供します。Zilliz Cloud は同じモデルを使用してクエリベクトルを作成し、保存されたベクトルと比較して、最も関連性の高い結果を返します。
 
-次の図は、ホストモデルを使用する手順を示しています。
+次の図は、ホステッドモデルの使用手順を示しています。
 
 ![NkgEwmrJDhyXiubY6HpcssaynHg](https://zdoc-images.s3.us-west-2.amazonaws.com/NkgEwmrJDhyXiubY6HpcssaynHg.png)
 
-## Deploy a model\{#deploy-a-model}
+## モデルのデプロイ \{#deploy-a-model}
 
-現在、Zilliz Cloud は以下のリージョン、インスタンスタイプ、およびモデルをサポートしています。
+現在、Zilliz Cloud は以下のリージョン、インスタンスタイプ、モデルをサポートしています。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>ホストモデルについて特定の要件がある場合は、<a href="http://support.zilliz.com">お問い合わせください</a>。</p>
+ホステッドモデルに関する特定の要件がある場合は、[お問い合わせください](http://support.zilliz.com)。
 
 </Admonition>
 
-### Supported regions\{#supported-regions}
+### サポート対象リージョン \{#supported-regions}
 
-モデルのデプロイリージョンは、クラスターリージョンと一致している必要があります。利用可能なオプションは以下のとおりです。
+モデルのデプロイリージョンは、クラスターのリージョンと一致している必要があります。利用可能なオプションは次のとおりです。
 
 <table>
    <tr>
-     <th><p><strong>Region</strong></p></th>
-     <th><p><strong>Location</strong></p></th>
+     <th><p><strong>リージョン</strong></p></th>
+     <th><p><strong>場所</strong></p></th>
    </tr>
    <tr>
      <td><p>aws-us-west-2</p></td>
-     <td><p>Oregon, USA</p></td>
+     <td><p>米国オレゴン州</p></td>
    </tr>
 </table>
 
-### Supported instance type\{#supported-instance-type}
+### サポート対象インスタンスタイプ \{#supported-instance-type}
 
-インスタンスタイプは、利用可能なコンピュートリソースを決定します。利用可能なオプションは以下のとおりです。
+インスタンスタイプは、利用可能なコンピューティングリソースを決定します。利用可能なオプションは次のとおりです。
 
 <table>
    <tr>
-     <th><p><strong>Instance Type</strong></p></th>
+     <th><p><strong>インスタンスタイプ</strong></p></th>
      <th><p><strong>リソース</strong></p></th>
    </tr>
    <tr>
@@ -72,68 +72,84 @@ Zilliz Cloud は、**embedding** モデルおよび **reranking** モデルを Z
    </tr>
 </table>
 
-### Supported models\{#supported-models}
+### サポート対象モデル \{#supported-models}
 
-利用可能なオプションは以下のとおりです。
+利用可能なオプションは次のとおりです。
 
 <table>
    <tr>
-     <th><p><strong>Type</strong></p></th>
-     <th><p><strong>Model</strong></p></th>
+     <th><p><strong>タイプ</strong></p></th>
+     <th><p><strong>モデル</strong></p></th>
+     <th><p><strong>説明</strong></p></th>
    </tr>
    <tr>
      <td rowspan="9"><p>Embedding</p></td>
-     <td><p>Qwen/Qwen3-Embedding-0.6B</p></td>
+     <td><p><code>Qwen/Qwen3-Embedding-0.6B</code></p></td>
+     <td><p>効率的なセマンティック検索、コード検索、分類、クラスタリングのための軽量マルチリンガル埋め込みモデル。100以上の言語、32Kのコンテキスト、最大1024次元の埋め込みをサポート。</p></td>
    </tr>
    <tr>
-     <td><p>Qwen/Qwen3-Embedding-4B</p></td>
+     <td><p><code>Qwen/Qwen3-Embedding-4B</code></p></td>
+     <td><p>バランスの取れたQwen3埋め込みモデル。8Bモデルよりもデプロイコストを抑えつつ、より強力な多言語・言語横断検索品質を実現。32Kコンテキストと最大2560次元の埋め込みをサポート。</p></td>
    </tr>
    <tr>
-     <td><p>Qwen/Qwen3-Embedding-8B</p></td>
+     <td><p><code>Qwen/Qwen3-Embedding-8B</code></p></td>
+     <td><p>最高容量のQwen3埋め込みモデル。精度重視の多言語、長文、コード検索ワークロード向け。32Kコンテキストと最大4096次元の埋め込みをサポート。</p></td>
    </tr>
    <tr>
-     <td><p>BAAI/bge-small-en-v1.5</p></td>
+     <td><p><code>BAAI/bge-small-en-v1.5</code></p></td>
+     <td><p>低コスト・低レイテンシのセマンティック検索と検索のためのコンパクトな英語BGE埋め込みモデル。384次元の埋め込みを使用。</p></td>
    </tr>
    <tr>
-     <td><p>BAAI/bge-small-zh-v1.5</p></td>
+     <td><p><code>BAAI/bge-small-zh-v1.5</code></p></td>
+     <td><p>効率的な中国語セマンティック検索と検索のためのコンパクトな中国語BGE埋め込みモデル。512次元の埋め込みを使用。</p></td>
    </tr>
    <tr>
-     <td><p>BAAI/bge-base-en-v1.5</p></td>
+     <td><p><code>BAAI/bge-base-en-v1.5</code></p></td>
+     <td><p>検索品質と効率のバランスが取れた中規模の英語BGE埋め込みモデル。768次元の埋め込みを使用。</p></td>
    </tr>
    <tr>
-     <td><p>BAAI/bge-base-zh-v1.5</p></td>
+     <td><p><code>BAAI/bge-base-zh-v1.5</code></p></td>
+     <td><p>中国語検索ワークロードの品質と効率のバランスが取れた中規模の中国語BGE埋め込みモデル。768次元の埋め込みを使用。</p></td>
    </tr>
    <tr>
-     <td><p>BAAI/bge-large-en-v1.5</p></td>
+     <td><p><code>BAAI/bge-large-en-v1.5</code></p></td>
+     <td><p>精度重視のセマンティック検索、RAG、検索ワークロード向けの高品質な英語BGE埋め込みモデル。1024次元の埋め込みを使用。</p></td>
    </tr>
    <tr>
-     <td><p>BAAI/bge-large-zh-v1.5</p></td>
+     <td><p><code>BAAI/bge-large-zh-v1.5</code></p></td>
+     <td><p>精度重視の中国語セマンティック検索と検索向けの高品質な中国語BGE埋め込みモデル。1024次元の埋め込みを使用。</p></td>
    </tr>
    <tr>
      <td rowspan="5"><p>Reranking</p></td>
-     <td><p>BAAI/bge-reranker-base</p></td>
+     <td><p><code>BAAI/bge-reranker-base</code></p></td>
+     <td><p>高速推論と簡単なデプロイを実現する、軽量の英語・中国語クロスエンコーダー再ランキングモデル。検索候補の再順序付けに使用。</p></td>
    </tr>
    <tr>
-     <td><p>BAAI/bge-reranker-large</p></td>
+     <td><p><code>BAAI/bge-reranker-large</code></p></td>
+     <td><p>より高い品質の再ランキングを実現する、より大規模な英語・中国語クロスエンコーダー再ランキングモデル。推論コストよりも精度が重要な場合に最適。</p></td>
    </tr>
    <tr>
-     <td><p>Qwen/Qwen3-Reranker-0.6B</p></td>
+     <td><p><code>Qwen/Qwen3-Reranker-0.6B</code></p></td>
+     <td><p>効率的な多言語・コード関連検索ワークフローのための軽量Qwen3テキスト再ランキングモデル。100以上の言語、32Kコンテキスト、命令認識型再ランキングをサポート。</p></td>
    </tr>
    <tr>
-     <td><p>Qwen/Qwen3-Reranker-4B</p></td>
+     <td><p><code>Qwen/Qwen3-Reranker-4B</code></p></td>
+     <td><p>バランスの取れたQwen3再ランキングモデル。8Bモデルよりもデプロイコストを抑えながら、多言語、言語横断、長文、コード検索品質を強化。</p></td>
    </tr>
    <tr>
-     <td><p>Qwen/Qwen3-Reranker-8B</p></td>
+     <td><p><code>Qwen/Qwen3-Reranker-8B</code></p></td>
+     <td><p>最高容量のQwen3再ランキングモデル。強力な多言語、長文脈、命令認識型のランキング性能が必要な、精度重視の検索シナリオ向け。</p></td>
    </tr>
    <tr>
-     <td><p>Semantic ハイライター</p></td>
-     <td><p>zilliz/semantic-highlight-bilingual-v1</p></td>
+     <td><p>セマンティックハイライター</p></td>
+     <td><p><code>zilliz/semantic-highlight-bilingual-v1</code></p></td>
+     <td><p>RAGや検索ワークフロー向けの軽量バイリンガルセマンティックハイライトモデル。クエリと意味的に関連する英語または中国語のテキストセグメントを特定し、ユーザーが有用なコンテキストを強調表示し、生成前に不要なトークンを削減するのに役立ちます。</p></td>
    </tr>
 </table>
 
-## Obtain a デプロイメントID\{#obtain-a-deployment-id}
+## デプロイメントIDの取得 \{#obtain-a-deployment-id}
 
-お客様が提供した情報をもとに、Zilliz がモデルをデプロイします（所要時間は約15分）。デプロイが完了すると、Zilliz Cloud サポートから **デプロイメントID** が返されます。このデプロイメントID は、embedding 関数または reranking 関数を作成する際に使用します。
+提供された情報に基づいて、Zilliz がモデルをデプロイします。これには約15分かかります。デプロイの準備が整うと、Zilliz Cloud サポートから **デプロイメントID** が返されます。これは、埋め込み関数または再ランキング関数を作成するときに使用します。
 
 ```bash
 "deploymentId": "68f8889be4b01215a275972a"
@@ -288,9 +304,9 @@ for hits in results:
 
 ## 請求\{#billing}
 
-ホスト型モデルの利用に伴う料金は、機能およびモデルサービスの利用料のみが発生します。推論処理は Zilliz Cloud 内で実行されるため、データがパブリックインターネットを通過することはありません。したがって、データ転送料金は発生しません。
+ホストモデルの使用には、関数およびモデルサービスの料金のみが発生します。推論は Zilliz Cloud 内で実行されるため、データはパブリックインターネットを経由せず、データ転送料金は発生しません。
 
-地域別のモデル単価については、[営業担当までお問い合わせください](http://zilliz.com/contact-sales)。
+リージョン別のモデル単価については、[営業部門にお問い合わせ](http://zilliz.com/contact-sales)ください。
 
 ### コスト計算\{#cost-calculation}
 
@@ -298,7 +314,7 @@ for hits in results:
 Function and Model Services Cost = Model Unit Price x Usage Time
 ```
 
-- **Model 単価**: 詳細については、[営業担当にお問い合わせください](http://zilliz.com/contact-sales)。
+- **Model 単価**: 詳細については、[営業にお問い合わせ](http://zilliz.com/contact-sales) ください。
 
-- **使用時間**: モデルのデプロイが実行されている合計時間（モデルが実際に使用されているかどうかにかかわらず）、時間単位で測定されます。
+- **使用時間**: モデルがアクティブに使用されているかどうかに関わらず、モデルデプロイメントが実行されている総時間を時間単位で測定します。
 

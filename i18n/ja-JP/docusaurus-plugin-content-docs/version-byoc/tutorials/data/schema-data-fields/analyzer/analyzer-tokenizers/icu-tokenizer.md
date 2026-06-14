@@ -5,17 +5,17 @@ sidebar_key: icu-tokenizer
 sidebar_label: "ICU"
 beta: FALSE
 notebook: FALSE
-description: "`icu` トークナイザーは、ソフトウェアの国際化に必要な主要なツールを提供する Unicode のオープンソースプロジェクト「Internationalization Components of Unicode」に基づいて構築されています。ICU の単語区切りアルゴリズムを使用することで、このトークナイザーは世界中のほとんどの言語においてテキストを正確に単語へ分割できます。| BYOC"
+description: "`icu` トークナイザーは、Unicode の国際化コンポーネント（ICU）オープンソースプロジェクトに基づいて構築されており、ソフトウェアの国際化のための主要なツールを提供します。ICU の単語分割アルゴリズムを使用することで、世界中のほとんどの言語でテキストを正確に単語に分割できます。 | BYOC"
 type: origin
 token: Q3gKwc5lkilAbKkalCWcW2AbnLe
 sidebar_position: 5
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
-  - analyzer
+  - クラウド
+  - コレクション
+  - スキーマ
+  - アナライザー
   - 組み込みトークナイザー
   - icu-tokenizer
 
@@ -27,17 +27,17 @@ import TabItem from '@theme/TabItem';
 
 # ICU
 
-`icu` トークナイザーは、ソフトウェアの国際化に必要な主要なツールを提供するオープンソースプロジェクトである [Internationalization Components of Unicode](http://site.icu-project.org/)（ICU）に基づいて構築されています。ICU の単語区切りアルゴリズムを使用することで、このトークナイザーは世界中のほとんどの言語においてテキストを正確に単語単位に分割できます。
+`icu` トークナイザーは、[Internationalization Components of Unicode](http://site.icu-project.org/)（ICU）オープンソースプロジェクトをベースに構築されています。ICU はソフトウェアの国際化に不可欠なツールを提供しており、その単語分割アルゴリズムを使用することで、世界のほとんどの言語においてテキストを正確に単語に分割できます。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p><code>icu</code> トークナイザーは、句読点やスペースを出力内の独立したトークンとして保持します。例えば、<code>"Привет! Как дела?"</code> は <code>["Привет", "!", " ", "Как", " ", "дела", "?"]</code> になります。このような独立した句読点トークンを削除するには、<a href="./remove-punct-filter"><code>removepunct</code></a> フィルターを使用してください。</p>
+`icu` トークナイザーは、出力において句読点とスペースを個別のトークンとして保持します。例えば、`"Привет! Как дела?"` は `["Привет", "!", " ", "Как", " ", "дела", "?"]` となります。これらの独立した句読点トークンを削除するには、[`removepunct`](./remove-punct-filter) フィルターを使用してください。
 
 </Admonition>
 
 ## 設定\{#configuration}
 
-`icu` トークナイザーを使用してアナライザーを設定するには、`analyzer_params` 内で `tokenizer` を `icu` に設定します。
+`icu` トークナイザーを使用してアナライザーを設定するには、`analyzer_params` で `tokenizer` を `icu` に設定します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -84,7 +84,14 @@ analyzerParams = map[string]any{"tokenizer": "icu"}
 </TabItem>
 </Tabs>
 
-`icu` トークナイザーは、1つ以上のフィルターと連携して動作できます。たとえば、次のコードは `icu` トークナイザーと[remove punct filter](./remove-punct-filter)を使用するアナライザーを定義しています。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "icu"}
+};
+
+```
+
+`icu`トークナイザーは、1つ以上のフィルターと連携して動作できます。例えば、次のコードは、`icu`トークナイザーと[remove punct フィルター](./remove-punct-filter)を使用するアナライザーを定義しています:
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -133,13 +140,20 @@ analyzerParams = map[string]any{"tokenizer": "icu", "filter": []string{"removepu
 </TabItem>
 </Tabs>
 
-`analyzer_params` を定義した後、コレクションスキーマを定義する際に `VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールド内のテキストを処理し、効率的なトークン化とフィルタリングを実現します。詳細については、[使用例](./analyzer-overview#example-use)を参照してください。
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "icu"},
+    {"filter", {"removepunct"}}
+};
+```
+
+`analyzer_params` を定義した後、コレクションスキーマを定義する際に、`VARCHAR` フィールドに適用できます。これにより、Zilliz Cloud は指定されたアナライザーを使用してそのフィールドのテキストを処理し、効率的なトークン化とフィルタリングを実行できます。詳細については、[使用例](./analyzer-overview#example-use) を参照してください。
 
 ## 例\{#examples}
 
-コレクションスキーマにアナライザー設定を適用する前に、`run_analyzer` メソッドを使用してその動作を検証してください。
+アナライザー構成をコレクションスキーマに適用する前に、`run_analyzer` メソッドを使用してその動作を確認してください。
 
-### アナライザー設定\{#analyzer-configuration}
+### アナライザー構成\{#analyzer-configuration}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -185,6 +199,12 @@ analyzerParams = map[string]any{"tokenizer": "icu"}
 
 </TabItem>
 </Tabs>
+
+```c++
+nlohmann::json analyzer_params = {
+    {"tokenizer", "icu"}
+};
+```
 
 ### `run_analyzer` を使用した検証\{#verification-using-runanalyzer}
 
@@ -287,6 +307,29 @@ if err != nil {
 
 </TabItem>
 </Tabs>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+std::string text = "Привет! Как дела?";
+auto request = milvus::RunAnalyzerRequest()
+                       .AddText(text)
+                       .WithAnalyzerParams(analyzer_params);
+
+milvus::RunAnalyzerResponse response;
+status = client->RunAnalyzer(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
 
 ### 期待される出力\{#expected-output}
 

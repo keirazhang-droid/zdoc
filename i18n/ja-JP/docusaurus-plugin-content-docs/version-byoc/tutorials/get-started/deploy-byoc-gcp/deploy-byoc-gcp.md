@@ -1,11 +1,11 @@
 ---
-title: "GCP での BYOC のデプロイ | BYOC"
+title: "GCPにBYOCをデプロイ | BYOC"
 slug: /deploy-byoc-gcp
 sidebar_key: deploy-byoc-gcp
-sidebar_label: "GCP での BYOC のデプロイ"
+sidebar_label: "GCPにBYOCをデプロイ"
 beta: CONTACT SALES
 notebook: FALSE
-description: "このページでは、Zilliz Cloud コンソールとカスタム GCP 設定を使用して、Google Cloud Platform (GCP) の Virtual Private Cloud (VPC) 内に完全に管理された Bring-Your-Own-Cloud (BYOC) データプレーンを手動で作成する方法について説明します。| BYOC"
+description: "このページでは、Zilliz CloudコンソールとカスタムGCP設定を使用して、お使いのGoogle Cloud Platform (GCP) Virtual Private Cloud (VPC)内に完全管理型のBring-Your-Own-Cloud (BYOC) データプレーンを手動で作成する方法について説明します。 | BYOC"
 type: origin
 token: KmYgwHNOFiPQ9sk4bSDcMuIHnjC
 sidebar_position: 6
@@ -26,206 +26,220 @@ import Admonition from '@theme/Admonition';
 
 import Procedures from '@site/src/components/Procedures';
 
-# GCP での BYOC デプロイ
+# GCP上でのBYOCのデプロイ
 
-このページでは、Zilliz Cloud コンソールとカスタム GCP 構成を使用して、Google Cloud Platform (GCP) Virtual プライベート Cloud (VPC) 内に完全に管理された Bring-Your-Own-Cloud (BYOC) データプレーンを手動で作成する方法について説明します。
+このページでは、Zilliz CloudコンソールとカスタムGCP設定を使用して、Google Cloud Platform（GCP）のVirtual プライベート Cloud（VPC）内に完全マネージドのBring-Your-Own-Cloud（BYOC）データプレーンを手動で作成する方法について説明します。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<ul>
-<li><p>Zilliz BYOC は現在<strong>一般提供</strong>されています。アクセスおよび実装の詳細については、<a href="https://zilliz.com/contact-sales">Zilliz Cloud 営業担当者</a>までお問い合わせください。</p></li>
-<li><p>このガイドでは、AWS コンソールで必要なリソースを段階的に作成する方法を示しています。Terraform スクリプトを使用してインフラストラクチャをプロビジョニングする場合は、<a href="./terraform-provider">Terraform Provider</a> をご覧ください。</p></li>
-</ul>
+- Zilliz BYOCは現在、**一般提供** されています。アクセスと実装の詳細については、[Zilliz Cloud 営業](https://zilliz.com/contact-sales) にお問い合わせください。
+
+- このガイドでは、GCPコンソールで必要なリソースを段階的に作成する方法を示します。Terraformスクリプトを使用してインフラストラクチャをプロビジョニングする場合は、[Terraform Provider](./terraform-provider) を参照してください。
 
 </Admonition>
 
 ## 前提条件\{#prerequisites}
 
-- BYOC 組織オーナーである必要があります。
+- BYOC組織のオーナーである必要があります。
 
-- [必要な GCP API サービス](./required-api-services-gcp) を有効にしている必要があります。
+- [必要なGCP APIサービス](./required-api-services-gcp) を有効にしている必要があります。
 
 ## 手順\{#procedure}
 
-GCP に BYOC をデプロイするには、Zilliz Cloud が顧客管理下の VPC 内にある Cloud Storage バケットと GKE クラスターにアクセスするために、特定のロールを引き受ける必要があります。その結果、Zilliz Cloud はお客様の Cloud Storage バケット、GKE クラスター、VPC に関する情報と、これらのインフラリソースにアクセスするために必要なロールを取得する必要があります。
+GCP上にBYOCをデプロイするために、Zilliz Cloudは、お客様の代わりにCloud StorageバケットとGKEクラスターにアクセスするための特定のロールを引き受ける必要があります。そのため、Zilliz Cloudは、Cloud Storageバケット、GKEクラスター、VPC、およびこれらのインフラストラクチャリソースへのアクセスに必要なロールに関する情報を収集する必要があります。
 
-BYOC 組織内で、**Create Project and Deploy データプレーン** ボタンをクリックしてデプロイを開始します。
+BYOC組織内で、「プロジェクトの作成」ボタンをクリックしてデプロイを開始します。
 
-![Cl50bi7eVoxSoHxk4jrcclh6n5O](https://zdoc-images.s3.us-west-2.amazonaws.com/cl50bi7evoxsohxk4jrcclh6n5o.png "Cl50bi7eVoxSoHxk4jrcclh6n5O")
+![LyCiw8o03hUOnebv2CJc0vianpf](https://zdoc-images.s3.us-west-2.amazonaws.com/LyCiw8o03hUOnebv2CJc0vianpf.png)
 
-### ステップ 1: プロジェクトの作成\{#step-1-create-a-project}
+### ステップ1: データプレーンのデプロイ\{#step-1-deploy-the-data-plane}
 
-このステップでは、Zilliz BYOC プロジェクト名の設定、クラウドプロバイダーとリージョンの決定、およびデプロイの初期プロジェクトサイズの決定を行います。
-
-![A8VVbPbJgobXzzxEdumcpxJ4nMg](https://zdoc-images.s3.us-west-2.amazonaws.com/a8vvbpbjgobxzzxedumcpxj4nmg.png "A8VVbPbJgobXzzxEdumcpxJ4nMg")
+このステップでは、Zilliz BYOCプロジェクト名を設定し、クラウドプロバイダーとリージョン、およびデプロイの初期プロジェクトサイズを決定する必要があります。
 
 <Procedures>
 
-1. **Zilliz BYOC プロジェクト名** を設定します。
+1. **データプレーン名** と **クラウドリージョン** を設定し、**次へ** をクリックします。
 
-1. **クラウドプロバイダー** と **クラウドリージョン** を選択します。
+    **キャンセル** をクリックすると、データプレーンのデプロイを停止できます。ただし、上記で作成したプロジェクトは引き続き利用可能です。プロジェクト内でいつでもデータプレーンのデプロイを開始でき、1つのプロジェクトに複数のデータプレーンを追加できます。
+
+    ![SVVZwpbNphBfYGb5IgmckSkan6b](https://zdoc-images.s3.us-west-2.amazonaws.com/SVVZwpbNphBfYGb5IgmckSkan6b.png)
 
 1. **GCP プライベート Service Connect** を有効にするかどうかを決定します。
 
-    このオプションにより、現在のプロジェクト内のクラスターへのプライベート接続が可能になります。このオプションを有効にする場合は、プライベート接続用に プライベート Service Connect エンドポイントを作成する必要があります。詳細については、[クラスター接続の準備](./prepare-for-cluster-connection#private-endpoint-access) を参照してください。
+    このオプションを有効にすると、現在のプロジェクト内のクラスターへのプライベート接続が可能になります。このオプションを有効にする場合は、プライベート接続用に プライベート Service Connect エンドポイントを作成する必要があります。詳細については、[クラスター接続の準備](./prepare-for-cluster-connection#private-endpoint-access) を参照してください。
 
-1. **Architecture** で、アプリケーションに適合するアーキテクチャタイプを選択します。
+1. **アーキテクチャ** で、アプリケーションに適したアーキテクチャタイプを選択します。
 
-    これにより、使用する Zilliz BYOC イメージのアーキテクチャタイプが決定されます。利用可能なオプションは **X86** と **ARM** です。
+    これにより、使用するZilliz BYOCイメージのアーキテクチャタイプが決まります。利用可能なオプションは **X86** と **ARM** です。
 
-1. **リソース設定** で、以下の操作を行います。
+1. **リソース設定** で、以下を行う必要があります。
 
-    1. **オートスケーリング** を有効または無効にして、Zilliz Cloud がプロジェクトのワークロードに基づいて定義された範囲内で EC2 インスタンスの数を自動的に調整できるようにし、リソースの効率的な使用を確保します。
+    1. **オートスケーリング** を有効または無効にして、Zilliz Cloudがプロジェクトのワークロードに基づいて定義された範囲内でGCEインスタンスの数を自動的に調整し、リソースを効率的に使用できるようにします。
 
     1. **初期プロジェクトサイズ** を構成します。
 
-        BYOC プロジェクトでは、クエリノード、インデックスサービス、Milvus コンポーネント、および依存関係が異なる Google Compute Engine (GCE) インスタンスを使用します。これらのサービスとコンポーネントのインスタンスタイプを設定できます。
+        BYOCプロジェクトでは、クエリノード、インデックスサービス、Milvusコンポーネント、および依存関係に異なるGoogle Compute Engine（GCE）インスタンスが使用されます。これらのサービスとコンポーネントのインスタンスタイプを設定できます。
 
-        **オートスケーリング** が無効になっている場合は、対応する **Count** フィールドに各プロジェクトコンポーネントに必要な GCE インスタンスの数を指定するだけです。
+        **オートスケーリング** が無効になっている場合は、各プロジェクトコンポーネントに必要なGCEインスタンスの数を、対応する **カウント** フィールドに指定するだけです。
 
-        ![CxACbbwtYo2dMNxG33qcMIyinBe](https://zdoc-images.s3.us-west-2.amazonaws.com/cxacbbwtyo2dmnxg33qcmiyinbe.png "CxACbbwtYo2dMNxG33qcMIyinBe")
+        ![Tl4Zbuwi5oT1KdxKVaIcnf05nEr](https://zdoc-images.s3.us-west-2.amazonaws.com/tl4zbuwi5ot1kdxkvaicnf05ner.png "Tl4Zbuwi5oT1KdxKVaIcnf05nEr")
 
-        **オートスケーリング** が有効になると、対応する **Min** および **Max** フィールドを設定することで、実際のプロジェクトワークロードに基づいて GCE インスタンスの数を Zilliz Cloud が自動的にスケールするための範囲を指定する必要があります。
+        一旦 **オートスケーリング** を有効にすると、対応する **最小** フィールドと **最大** フィールドを設定して、実際のプロジェクトワークロードに基づいてZilliz CloudがGCEインスタンスの数を自動的にスケーリングする範囲を指定する必要があります。
 
-        ![QzCHbFIFRoyCUex6u8vcoEZMn6f](https://zdoc-images.s3.us-west-2.amazonaws.com/qzchbfifroycuex6u8vcoezmn6f.png "QzCHbFIFRoyCUex6u8vcoEZMn6f")
+        ![Gq0GbQWJxoJf85xg6KJcppLDnZS](https://zdoc-images.s3.us-west-2.amazonaws.com/gq0gbqwjxojf85xg6kjcppldnzs.png "Gq0GbQWJxoJf85xg6KJcppLDnZS")
 
-        リソース設定を容易にするために、4 つの事前定義されたプロジェクトサイズオプションがあります。以下の表は、これらのプロジェクトサイズオプションと、プロジェクト内で作成できるクラスター数、およびこれらのクラスターが含めることができるエンティティ数のマッピングを示しています。
+        リソース設定を容易にするために、4つの定義済みプロジェクトサイズオプションがあります。次の表は、これらのプロジェクトサイズオプションと、プロジェクト内で作成できるクラスターの数、およびこれらのクラスターに含めることができるエンティティの数とのマッピングを示しています。
 
         <table>
            <tr>
              <th rowspan="2"><p>サイズ</p></th>
              <th rowspan="2"><p>最大クラスター数</p></th>
-             <th colspan="2"><p>最大エンティティ数（百万）</p></th>
+             <th colspan="3"><p>最大エンティティ数 (百万)</p></th>
            </tr>
            <tr>
              <td><p>パフォーマンス最適化済み CU</p></td>
              <td><p>容量最適化済み CU</p></td>
+             <td><p>階層型ストレージ CU</p></td>
            </tr>
            <tr>
              <td><p>小</p></td>
-             <td><p>8～16 CU の 3 クラスター</p></td>
-             <td><p>1,000 万～2,500 万</p></td>
-             <td><p>4,000 万～8,000 万</p></td>
+             <td><p>8～16 CUのクラスター 3つ</p></td>
+             <td><p>2000万～4000万</p></td>
+             <td><p>6400万～1億2800万</p></td>
+             <td><p>3億2000万～6億4000万</p></td>
            </tr>
            <tr>
              <td><p>中</p></td>
-             <td><p>16～64 CU の 7 クラスター</p></td>
-             <td><p>2,500 万～1 億</p></td>
-             <td><p>8,000 万～3 億 5,000 万</p></td>
+             <td><p>16～64 CUのクラスター 7つ</p></td>
+             <td><p>4000万～1億6000万</p></td>
+             <td><p>1億2800万～5億1200万</p></td>
+             <td><p>6億4000万～26億</p></td>
            </tr>
            <tr>
              <td><p>大</p></td>
-             <td><p>64～192 CU の 12 クラスター</p></td>
-             <td><p>1 億～3 億</p></td>
-             <td><p>3 億 5,000 万～10 億</p></td>
+             <td><p>64～192 CUのクラスター 12つ</p></td>
+             <td><p>1億6000万～4億8000万</p></td>
+             <td><p>5億1200万～15億</p></td>
+             <td><p>26億～77億</p></td>
            </tr>
            <tr>
              <td><p>特大</p></td>
-             <td><p>192～576 CU の 17 クラスター</p></td>
-             <td><p>3 億～9 億</p></td>
-             <td><p>10 億～30 億</p></td>
+             <td><p>192～576 CUのクラスター 17つ</p></td>
+             <td><p>4億8000万～14億4000万</p></td>
+             <td><p>15億～46億</p></td>
+             <td><p>77億～230億</p></td>
            </tr>
         </table>
 
-        また、**初期プロジェクトサイズ** で **Custom** を選択し、すべてのデータプレーンコンポーネントの GCE インスタンスタイプと数を変更することで、設定をカスタマイズすることもできます。希望する GCE インスタンスタイプが一覧に表示されていない場合は、さらなるサポートのために [Zilliz サポート](https://zilliz.com/contact) にお問い合わせください。
+        **初期プロジェクトサイズ** で **カスタム** を選択し、すべてのデータプレーンコンポーネントのGCEインスタンスタイプと数を調整して設定をカスタマイズすることもできます。希望するGCEインスタンスタイプがリストにない場合は、[Zillizサポートにお問い合わせ](https://zilliz.com/contact) ください。
 
-1. **Next** をクリックして認証情報を設定します。
+    1. **階層型クエリノード** を有効にするかどうかを決定します。
+
+        このオプションは、階層型ストレージクラスターを作成できるかどうかを決定します。このオプションを選択すると、階層型クエリノードのインスタンスタイプと数を設定できます。
+
+        ![CFISbr4gloeeYoxStjuc7VuanM5](https://zdoc-images.s3.us-west-2.amazonaws.com/cfisbr4gloeeyoxstjuc7vuanm5.png "CFISbr4gloeeYoxStjuc7VuanM5")
+
+        <Admonition type="info" icon="📘" title="Notes">
+
+        - **プロジェクトサイズ** の選択は **階層型ストレージノード** の設定に影響しません。
+
+        - **オートスケーリング** が無効の場合、**デフォルトクエリノード** 数と **階層型クエリノード** 数の合計は正の整数にする必要があります。
+
+        - **オートスケーリング** が有効の場合、**デフォルトクエリノード** と **階層型クエリノード** の両方の **Min** 値の合計は正の整数にする必要があります。
+
+        </Admonition>
+
+1. **次へ** をクリックして認証情報を設定します。
 
 </Procedures>
 
-### ステップ 2: 認証情報の設定\{#step-2-set-up-credentials}
+### ステップ2: 認証情報の設定\{#step-2-set-up-credentials}
 
-**認証情報設定** では、ストレージアクセス、GKE クラスター管理、およびデータプレーンデプロイ用のストレージと複数のサービスアカウントを設定する必要があります。
+**認証情報設定** では、ストレージアクセス、GKEクラスター管理、およびデータプレーンのデプロイのために、ストレージと複数のサービスアカウントを設定する必要があります。
 
 ![BbOOboWZAo5eu2xplJWcXyLonph](https://zdoc-images.s3.us-west-2.amazonaws.com/bboobowzao5eu2xpljwcxylonph.png "BbOOboWZAo5eu2xplJWcXyLonph")
 
 <Procedures>
 
-1. **Google Cloud Platform プロジェクトID** に、GCP プロジェクトの ID を入力します。
+1. **Google Cloud Platform プロジェクトID** に、GCPプロジェクトのIDを入力します。
 
-1. **ストレージ設定** で、GCP から取得した **バケット名** と **Service アカウント Eメール** を設定します。
+1. **ストレージ設定** で、GCPから取得した **バケット名** と **サービスアカウントメール** を設定します。
 
-    Zilliz Cloud は、指定されたバケットをデータプレーンストレージとして使用し、指定されたサービスアカウントを使用してお客様に代わってアクセスします。
+    Zilliz Cloudは、指定されたバケットをデータプレーンストレージとして使用し、指定されたサービスアカウントを使用してお客様の代わりにアクセスします。
 
     バケットの設定とサービスアカウントの作成の詳細については、[Cloud Storage バケットとサービスアカウントの作成](./create-bucket-and-service-account) を参照してください。
 
-1. **GKE設定** で、GKE 管理用の **GKE クラスター名** と **Service アカウント Eメール** を設定します。
+1. **GKE設定** で、GKE管理用の **GKEクラスター名** と **サービスアカウントメール** を設定します。
 
-    Zilliz Cloud は、指定されたサービスアカウントを使用して、指定された名前の GKE クラスターをお客様に代わってデプロイし、その GKE クラスター内にデータプレーンをデプロイします。
+    Zilliz Cloudは、指定されたサービスアカウントを使用して、指定された名前のGKEクラスターをお客様の代わりにデプロイし、そのGKEクラスター内にデータプレーンをデプロイします。
 
-    サービスアカウントの作成の詳細については、[GKE サービスアカウントの作成](./create-gke-service-account) を参照してください。
+    サービスアカウントの作成の詳細については、[GKEサービスアカウントの作成](./create-gke-service-account) を参照してください。
 
 1. **クロスアカウント設定** で、データプレーンデプロイ用の **サービスアカウント名** を設定します。
 
-    サービスアカウントの準備ができたら、下の読み取り専用テキストボックスに表示される Zilliz BYOC プリンシパルをコピーし、GCP コンソールに貼り付けて、Zilliz Cloud BYOC プロジェクトのデータプレーンをデプロイするために必要な権限を Zilliz BYOC に付与します。
+    サービスアカウントの準備ができたら、読み取り専用のテキストボックスに記載されているZilliz BYOCプリンシパルをコピーし、GCPコンソールに貼り付けて、Zilliz Cloud BYOCプロジェクトのデータプレーンをデプロイするために必要な権限をZilliz BYOCに付与します。
 
     クロスアカウントサービスアカウントの作成の詳細については、[クロスアカウントサービスアカウントの作成](./create-cross-account-sa) を参照してください。
 
-1. **Next** をクリックしてネットワーク設定を構成します。
+1. **次へ** をクリックしてネットワーク設定を構成します。
 
 </Procedures>
 
-### ステップ 3: ネットワーク設定の構成\{#step-3-configure-network-settings}
+### ステップ3: ネットワーク設定の構成\{#step-3-configure-network-settings}
 
-**ネットワーク設定** では、VPC と、サブネット名やオプションの プライベート Service Connect エンドポイントなどのいくつかのリソースタイプを作成します。
+**ネットワーク設定** では、VPCと、サブネット名やオプションのプライベート Service Connectエンドポイントなど、VPC内の複数のタイプのリソースを作成します。
 
 ![YVPNbLCjOoCkDTx9TEMcbV9LnPd](https://zdoc-images.s3.us-west-2.amazonaws.com/yvpnblcjoockdtx9temcbv9lnpd.png "YVPNbLCjOoCkDTx9TEMcbV9LnPd")
 
 <Procedures>
 
-1. **ネットワーク設定** で、**VPC名**、**サブネット Names**、およびオプションの **プライベート Service Connect Endpoint** を設定します。
+1. **ネットワーク設定** で、**VPC名**、**サブネット名**、およびオプションの **プライベート Service Connect エンドポイント** を設定します。
 
-    指定された VPC 内で、Zilliz Cloud は以下を必要とします。
+    指定されたVPC内で、Zilliz Cloudは以下を必要とします。
 
-    - 2 つのセカンダリサブネットを持つプライマリサブネット、
-
+    - 2つのセカンダリサブネットを持つプライマリサブネット、
     - ロードバランサーサブネット、および
+    - オプションのプライベート Service Connectエンドポイント。
 
-    - オプションの プライベート Service Connect エンドポイント。
+    **プライベート Service Connect エンドポイント** は、上記の **一般設定** で **GCP プライベート Service Connect** をオンにした場合にのみ使用できることに注意してください。
 
-    **プライベート Service Connect Endpoint** は、上記の **一般設定** で **GCP プライベート Service Connect** をオンにした場合にのみ利用可能です。
-
-1. **Next** をクリックして概要を表示します。
+1. **次へ** をクリックしてサマリーを表示します。
 
 1. **デプロイ概要** で、構成設定を確認します。
 
-1. すべてが期待通りであれば、**Create** をクリックします。
+1. すべてが期待通りであれば **作成** をクリックします。
 
 </Procedures>
 
-## デプロイ詳細の表示\{#view-deployment-details}
+## デプロイの詳細を表示する\{#view-deployment-details}
 
-プロジェクトを作成した後、プロジェクトページでそのステータスを表示できます。
+プロジェクトを作成した後、プロジェクトページでそのステータスを確認できます。
 
 ![BE13bnOpGo9ZAVxTx3acX2J8nEe](https://zdoc-images.s3.us-west-2.amazonaws.com/be13bnopgo9zavxtx3acx2j8nee.png "BE13bnOpGo9ZAVxTx3acX2J8nEe")
 
-プロジェクトのデータプレーンをデプロイし、クラスターを作成したら、直接 VPC アクセスまたは GCP プライベート Service Connect を介してこれらのクラスターに接続できます。詳細については、[BYOC クラスターへの接続](./prepare-for-cluster-connection) を参照してください。
+プロジェクトのデータプレーンをデプロイし、クラスターを作成したら、直接VPCアクセスまたはGCP プライベート Service Connectを介してこれらのクラスターに接続できます。詳細については、[BYOCクラスターへの接続](./prepare-for-cluster-connection) を参照してください。
 
 ## 一時停止と再開\{#suspend-and-resume}
 
-プロジェクトを一時停止すると、データプレーンが停止し、プロジェクトをサポートする GKE クラスターに関連付けられたすべての GCE インスタンスが終了します。このアクションは、プロジェクト内の一時停止された Zilliz Cloud クラスターには影響せず、データプレーンが復元されると再開できます。
+プロジェクトを一時停止すると、データプレーンが停止し、そのプロジェクトをサポートするGKEクラスターに関連付けられたすべてのGCEインスタンスが終了します。このアクションは、プロジェクト内の一時停止されたZilliz Cloudクラスターには影響を与えず、データプレーンが復元されると再開できます。
 
-![YC2YbM9oyo6IcUxDQ5Bc3AzDnPc](https://zdoc-images.s3.us-west-2.amazonaws.com/yc2ybm9oyo6icuxdq5bc3azdnpc.png "YC2YbM9oyo6IcUxDQ5Bc3AzDnPc")
+![Lq7AwLshAh64ZObMKeFcIXBwn5g](https://zdoc-images.s3.us-west-2.amazonaws.com/Lq7AwLshAh64ZObMKeFcIXBwn5g.png)
 
-プロジェクト内にクラスターが存在しない場合、またはすべてのクラスターがすでに一時停止されている場合にのみ、実行中のプロジェクトを一時停止できます。
+実行中のプロジェクトは、プロジェクト内にクラスターがない場合、またはすべてのクラスターがすでに一時停止されている場合にのみ一時停止できます。
 
 ![SVLQbgURIoRqHBx2tWwc5caWnx7](https://zdoc-images.s3.us-west-2.amazonaws.com/svlqbguriorqhbx2twwc5cawnx7.png "SVLQbgURIoRqHBx2tWwc5caWnx7")
 
-プロジェクトカードのステータスタグが **一時停止ed** と表示されたら、プロジェクト内のクラスターを操作することはできません。その場合は、**Resume** をクリックしてプロジェクトを再開できます。ステータスタグが再び **Running** に変わったら、プロジェクト内のクラスターの操作を続行できます。
-
-![EQKqbumOxoT1tVxw1ZRcZahXnDd](https://zdoc-images.s3.us-west-2.amazonaws.com/eqkqbumoxot1tvxw1zrczahxndd.png "EQKqbumOxoT1tVxw1ZRcZahXnDd")
+プロジェクトカードのステータスタグが「一時停止済み」と表示された場合、そのプロジェクト内のクラスターを操作することはできません。その場合は、「再開」をクリックしてプロジェクトを再開できます。ステータスタグが再び「実行中」に変わると、プロジェクト内のクラスターの操作を続行できます。
 
 ## テクニカルサポートアクセス\{#technical-support-access}
 
-トラブルシューティングとメンテナンス操作をサポートするため、Zilliz Cloud はデフォルトでテクニカルサポートがプロジェクトのデータプレーンにアクセスできるようにしています。
+トラブルシューティングとメンテナンス操作を支援するために、Zilliz Cloudはデフォルトでテクニカルサポートがプロジェクトのデータプレーンにアクセスできるようにします。
 
-![LxiUbIQCqoJf2Zx7pincPOCnnyf](https://zdoc-images.s3.us-west-2.amazonaws.com/lxiubiqcqojf2zx7pincpocnnyf.png "LxiUbIQCqoJf2Zx7pincPOCnnyf")
+![OHNUwYrFHhEUeIbgOW9coc5hngb](https://zdoc-images.s3.us-west-2.amazonaws.com/OHNUwYrFHhEUeIbgOW9coc5hngb.png)
 
-対象プロジェクトのドロップダウンメニューから **テクニカルサポートアクセス** をクリックすると、現在の設定を表示できます。
+対象プロジェクトのドロップダウンメニューから「テクニカルサポートアクセス」をクリックすると、現在の設定を表示できます。
 
-![WbyNbPrfioPvmpxTe9ocowainnh](https://zdoc-images.s3.us-west-2.amazonaws.com/wbynbprfiopvmpxte9ocowainnh.png "WbyNbPrfioPvmpxTe9ocowainnh")
-
-データガバナンスとセキュリティの要件を満たすために、これを無効にすることができます。
+データガバナンスとセキュリティ要件を満たすために、これを無効にすることができます。
 
 ## 手順\{#procedures}
 

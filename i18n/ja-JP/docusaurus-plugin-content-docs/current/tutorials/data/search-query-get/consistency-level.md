@@ -5,16 +5,16 @@ sidebar_key: consistency-level
 sidebar_label: "一貫性レベル"
 beta: FALSE
 notebook: FALSE
-description: "分散型ベクトルデータベースである Zilliz Cloud は、読み取りおよび書き込み操作中に各ノードまたはレプリカが同じデータにアクセスできるように、複数の一貫性レベルを提供します。現在サポートされている一貫性レベルには、Strong、Bounded、Eventually、Session があり、デフォルトの一貫性レベルは Bounded です。 | Cloud"
+description: "分散ベクトルデータベースである Zilliz Cloud は、各ノードまたはレプリカが読み取りおよび書き込み操作中に同じデータにアクセスできるように、複数の一貫性レベルを提供します。現在、サポートされている一貫性レベルには Strong、Bounded、Eventually、Session があり、Bounded がデフォルトの一貫性レベルとして使用されています。 | Cloud"
 type: origin
 token: Xx9EwWtekinLZfkWKqic37dDnFb
-sidebar_position: 21
+sidebar_position: 22
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - data
+  - クラウド
+  - コレクション
+  - データ
   - 一貫性レベル
 
 ---
@@ -25,53 +25,53 @@ import TabItem from '@theme/TabItem';
 
 # 一貫性レベル
 
-分散型ベクトルデータベースとして、Zilliz Cloud は複数の一貫性レベルを提供し、読み取りおよび書き込み操作中に各ノードまたはレプリカが同じデータにアクセスできるようにします。現在サポートされている一貫性レベルには、**Strong**（強い一貫性）、**Bounded**（限定的古さ許容）、**Eventually**（結果整合性）、**Session**（セッション一貫性）があり、デフォルトで使用される一貫性レベルは **Bounded** です。
+分散ベクトルデータベースとして、Zilliz Cloud は複数の一貫性レベルを提供し、各ノードまたはレプリカが読み取りおよび書き込み操作中に同じデータにアクセスできるようにしています。現在サポートされている一貫性レベルには **Strong**、**Bounded**、**Eventually**、**Session** が含まれ、デフォルトで使用される一貫性レベルは **Bounded** です。
 
 ## 概要\{#overview}
 
-Zilliz Cloud はストレージとコンピューティングを分離したシステムです。このシステムにおいて、**データNode** はデータの永続化を担当し、最終的に MinIO/S3 などの分散オブジェクトストレージにデータを保存します。一方、**QueryNode** は Search などの計算タスクを処理します。これらのタスクでは、**バッチデータ**と**ストリーミングデータ**の両方を処理します。簡単に言うと、バッチデータとはすでにオブジェクトストレージに保存されたデータであり、ストリーミングデータとはまだオブジェクトストレージに保存されていないデータを指します。ネットワーク遅延のため、QueryNode は最新のストリーミングデータを保持していないことがよくあります。追加の保護措置がなければ、ストリーミングデータに対して直接 Search を実行すると、多くの未コミットデータが失われ、検索結果の精度に影響を与える可能性があります。
+Zilliz Cloud は、ストレージと計算を分離したシステムです。このシステムでは、**データNodes** がデータの永続化を担当し、最終的に MinIO/S3 などの分散オブジェクトストレージにデータを保存します。**QueryNodes** は Search などの計算タスクを処理します。これらのタスクでは、**バッチデータ** と **ストリーミングデータ** の両方を処理します。簡単に言えば、バッチデータはすでにオブジェクトストレージに保存されているデータと理解でき、ストリーミングデータはまだオブジェクトストレージに保存されていないデータを指します。ネットワーク遅延により、QueryNodes は最新のストリーミングデータを保持していないことが多いです。追加の保護策なしにストリーミングデータに対して直接 Search を実行すると、多くの未コミットのデータポイントが失われる可能性があり、検索結果の精度に影響を与えます。
 
 ![UlOJwpWuKhj5LAbGSp9cwMFznEb](https://zdoc-images.s3.us-west-2.amazonaws.com/UlOJwpWuKhj5LAbGSp9cwMFznEb.png)
 
-上図のように、QueryNode は Search リクエストを受け取った後、ストリーミングデータとバッチデータの両方を同時に受信できます。しかしネットワーク遅延のため、QueryNode が取得するストリーミングデータは不完全な場合があります。
+上図に示すように、QueryNodes は Search リクエストを受信した後、ストリーミングデータとバッチデータの両方を同時に受信できます。ただし、ネットワーク遅延により、QueryNodes が取得するストリーミングデータは不完全である可能性があります。
 
-この問題に対処するため、Zilliz Cloud はデータキュー内の各レコードにタイムスタンプを付与し、継続的に同期タイムスタンプ（syncTs）をデータキューに挿入します。QueryNode が同期タイムスタンプ（syncTs）を受信すると、それを ServiceTime として設定します。つまり、QueryNode はその ServiceTime より前のすべてのデータを参照可能になります。この ServiceTime を基に、Zilliz Cloud はユーザーの異なる一貫性および可用性要件を満たすために保証タイムスタンプ（GuaranteeTs）を提供できます。ユーザーは Search リクエスト内で GuaranteeTs を指定することで、QueryNode に指定時刻以前のデータを検索範囲に含めるよう指示できます。
+この問題に対処するため、Zilliz Cloud はデータキュー内の各レコードにタイムスタンプを付与し、データキューに同期タイムスタンプを継続的に挿入します。同期タイムスタンプ（syncTs）を受信するたびに、QueryNodes はそれを ServiceTime として設定します。これは、QueryNodes がその Service Time より前のすべてのデータを確認できることを意味します。ServiceTime に基づいて、Zilliz Cloud は異なるユーザー要件の一貫性と可用性を満たすために保証タイムスタンプ（GuaranteeTs）を提供できます。ユーザーは、Search リクエストで GuaranteeTs を指定することにより、指定された時点より前のデータを検索範囲に含める必要があることを QueryNodes に通知できます。
 
 ![Owddb7D3Fo8zyFxJgWWcZCxanIf](https://zdoc-images.s3.us-west-2.amazonaws.com/owddb7d3fo8zyfxjgwwczcxanif.png "Owddb7D3Fo8zyFxJgWWcZCxanIf")
 
-上図のように、GuaranteeTs が ServiceTime より小さい場合、指定時刻以前のすべてのデータがディスクに完全に書き込まれていることを意味し、QueryNode は直ちに Search 操作を実行できます。一方、GuaranteeTs が ServiceTime より大きい場合、QueryNode は ServiceTime が GuaranteeTs を超えるまで待機し、その後で Search 操作を実行できます。
+上図に示すように、GuaranteeTs が ServiceTime より小さい場合、指定された時点より前のすべてのデータが完全にディスクに書き込まれていることを意味し、QueryNodes はすぐに Search 操作を実行できます。GuaranteeTs が ServiceTime より大きい場合、QueryNodes は ServiceTime が GuaranteeTs を超えるまで待つ必要があり、その後で Search 操作を実行できます。
 
-ユーザーは、クエリ精度とクエリレイテンシの間でトレードオフを行う必要があります。一貫性要件が高く、クエリレイテンシに敏感でない場合は、GuaranteeTs を可能な限り大きな値に設定できます。一方、検索結果を迅速に受け取りたい場合やクエリ精度に対する許容度が高い場合は、GuaranteeTs をより小さな値に設定できます。
+ユーザーは、クエリ精度とクエリレイテンシの間でトレードオフを行う必要があります。ユーザーが高い一貫性を要求し、クエリレイテンシに敏感でない場合、GuaranteeTs をできるだけ大きな値に設定できます。ユーザーが迅速に検索結果を受信したい場合、およびクエリ精度により寛容である場合、GuaranteeTs をより小さな値に設定できます。
 
 ![Y9YabwvmjoWMXhxt9kRc8Atmnid](https://zdoc-images.s3.us-west-2.amazonaws.com/y9yabwvmjowmxhxt9krc8atmnid.png "Y9YabwvmjoWMXhxt9kRc8Atmnid")
 
-Zilliz Cloud は、異なる GuaranteeTs を持つ以下の4種類の一貫性レベルを提供します。
+Zilliz Cloud は、異なる GuaranteeTs を持つ 4 種類の一貫性レベルを提供します。
 
 - **Strong**
 
-    最新のタイムスタンプを GuaranteeTs として使用し、QueryNode は ServiceTime が GuaranteeTs に到達するまで待機してから Search リクエストを実行します。
+    最新のタイムスタンプが GuaranteeTs として使用され、QueryNodes は ServiceTime が GuaranteeTs を満たすまで待ってから Search リクエストを実行する必要があります。
 
 - **Eventual**
 
-    GuaranteeTs を 1 のような極めて小さな値に設定し、一貫性チェックを回避することで、QueryNode はバッチデータに対して直ちに Search リクエストを実行できます。
+    GuaranteeTs は 1 などの極めて小さな値に設定され、一貫性チェックを回避して、QueryNodes がすべてのバッチデータに対してすぐに Search リクエストを実行できるようにします。
 
 - **Bounded Staleness**
 
-    GuaranteeTs を最新タイムスタンプよりも前の時点に設定し、QueryNode が一定のデータ損失を許容しながら検索を実行できるようにします。
+    GuranteeTs は最新のタイムスタンプより前の時点に設定され、QueryNodes は一定のデータ損失を許容して検索を実行します。
 
 - **Session**
 
-    クライアントがデータを挿入した最新の時点を GuaranteeTs として使用し、QueryNode がそのクライアントによって挿入されたすべてのデータに対して検索を実行できるようにします。
+    クライアントがデータを挿入した最新の時点が GuaranteeTs として使用され、QueryNodes はクライアントによって挿入されたすべてのデータに対して検索を実行できます。
 
-Zilliz Cloud はデフォルトで Bounded Staleness を一貫性レベルとして使用します。GuaranteeTs が明示されない場合、最新の ServiceTime が GuaranteeTs として使用されます。
+Zilliz Cloud は、デフォルトの一貫性レベルとして Bounded Staleness を使用します。GuaranteeTs が指定されていない場合、最新の ServiceTime が GuaranteeTs として使用されます。
 
 ## 一貫性レベルの設定\{#set-consistency-level}
 
-コレクション作成時や Search・Query 実行時に、異なる一貫性レベルを設定できます。Search や Query で一貫性レベルが指定されない場合、コレクション作成時に指定された一貫性レベルが適用されます。
+コレクションの作成時および Search や Query の実行時に、異なる一貫性レベルを設定できます。Search または Query で一貫性レベルが指定されていない場合、コレクション作成時に指定された一貫性レベルが適用されます。
 
-### コレクション作成時の一貫性レベル設定\{#set-consistency-level-upon-creating-collection}
+### コレクション作成時の一貫性レベルの設定\{#set-consistency-level-upon-creating-collection}
 
-コレクション作成時に、そのコレクション内で実行される Search や Query の一貫性レベルを設定できます。以下のコード例では、一貫性レベルを **Bounded** に設定しています。
+コレクションを作成する際に、コレクション内の Search および Query の一貫性レベルを設定できます。次のコード例では、一貫性レベルを **Bounded** に設定しています。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -161,6 +161,21 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateSimpleCollectionRequest()
+                                          .WithCollectionName("my_collection")
+                                          .WithCollectionSchema(schema)
+                                          .WithConsistencyLevel(milvus::ConsistencyLevel::BOUNDED));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+```
+
+</TabItem>
 </Tabs>
 
 `consistency_level` パラメータの可能な値は、`Strong`、`Bounded`、`Eventually`、および `Session` です。
@@ -176,8 +191,7 @@ curl --request POST \
 res = client.search(
     collection_name="my_collection",
     data=[query_vector],
-    limit=3,
-    search_params={"metric_type": "IP"}，
+    limit=3
     # highlight-start
     consistency_level="Bounded",
     # highlight-next
@@ -234,6 +248,25 @@ curl --request POST \
     "limit": 3,
     "consistencyLevel": "Bounded"
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::vector<float> query_vector = {0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592};
+auto request = milvus::SearchRequest()
+                           .WithCollectionName("my_collection")
+                           .WithLimit(3)
+                           .AddFloatVector(std::move(query_vector))
+                           .WithConsistencyLevel(milvus::ConsistencyLevel::BOUNDED);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -307,6 +340,24 @@ curl --request POST \
     "consistencyLevel": "Bounded",
     "limit": 3
 }'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto request = milvus::QueryRequest()
+                       .WithCollectionName("my_collection")
+                       .WithFilter(R"(color like "red%")")
+                       .WithLimit(3)
+                       .WithConsistencyLevel(milvus::ConsistencyLevel::BOUNDED);
+
+milvus::QueryResponse response;
+auto status = client->Query(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>

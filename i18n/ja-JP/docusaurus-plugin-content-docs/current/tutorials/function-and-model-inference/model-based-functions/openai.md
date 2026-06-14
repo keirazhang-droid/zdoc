@@ -5,20 +5,20 @@ sidebar_key: openai
 sidebar_label: "OpenAI"
 beta: FALSE
 notebook: FALSE
-description: "埋め込みモデルを選択し、テキスト埋め込み関数を持つコレクションを作成することで、Zilliz Cloud で OpenAI 埋め込みモデルを利用できます。| Cloud"
+description: "Zilliz Cloud で OpenAI のエンベディングモデルを使用するには、エンベディングモデルを選択し、テキストエンベディング関数を使用してコレクションを作成します。 | Cloud"
 type: origin
 token: IrQ2wm2oaiAWl4kqQhkc303Rnlg
 sidebar_position: 2
 keywords: 
-  - zilliz
+  - Zilliz
   - ベクトルデータベース
-  - cloud
-  - function
-  - model
-  - inference
-  - text
-  - embedding
-  - openai
+  - クラウド
+  - 関数
+  - モデル
+  - 推論
+  - テキスト
+  - エンベディング
+  - OpenAI
 
 ---
 
@@ -28,11 +28,11 @@ import TabItem from '@theme/TabItem';
 
 # OpenAI
 
-Zilliz Cloud で OpenAI の埋め込みモデルを使用するには、埋め込みモデルを選択し、テキスト埋め込み関数付きのコレクションを作成します。
+Zilliz CloudでOpenAIの埋め込みモデルを使用するには、埋め込みモデルを選択し、テキスト埋め込み関数を使用してコレクションを作成します。
 
-## モデルの選択肢\{#model-choices}
+## モデルの選択\{#model-choices}
 
-Zilliz Cloud は、OpenAI が提供するすべての埋め込みモデルをサポートしています。以下は、参照用に整理した利用可能な OpenAI 埋め込みモデルの一覧です：
+Zilliz CloudはOpenAIが提供するすべての埋め込みモデルをサポートしています。以下は、すぐに参照できるOpenAIの埋め込みモデルです。
 
 <table>
    <tr>
@@ -43,63 +43,60 @@ Zilliz Cloud は、OpenAI が提供するすべての埋め込みモデルをサ
    </tr>
    <tr>
      <td><p>text-embedding-3-small</p></td>
-     <td><p>デフォルト: 1,536（1,536未満の次元数に短縮可能）</p></td>
+     <td><p>デフォルト: 1,536 (1,536未満の次元サイズに短縮可能)</p></td>
      <td><p>8,191</p></td>
-     <td><p>コスト感度の高いスケーラブルなセマンティック検索に最適で、低価格で強力なパフォーマンスを提供します。</p></td>
+     <td><p>コスト重視でスケーラブルなセマンティック検索に最適—低価格で高いパフォーマンスを提供します。</p></td>
    </tr>
    <tr>
      <td><p>text-embedding-3-large</p></td>
-     <td><p>デフォルト: 3,072（3,072未満の次元数に短縮可能）</p></td>
+     <td><p>デフォルト: 3,072 (3,072未満の次元サイズに短縮可能)</p></td>
      <td><p>8,191</p></td>
-     <td><p>より高い検索精度と豊かなセマンティック表現を必要とするアプリケーションに最適です。</p></td>
+     <td><p>検索精度の向上とよりリッチなセマンティック表現が求められるアプリケーションに最適です。</p></td>
    </tr>
    <tr>
      <td><p>text-embedding-ada-002</p></td>
-     <td><p>固定: 1,536（短縮不可）</p></td>
+     <td><p>固定: 1,536 (短縮不可)</p></td>
      <td><p>8,191</p></td>
-     <td><p>レガシーパイプラインや下位互換性が必要なシナリオ向けの前世代モデルです。</p></td>
+     <td><p>レガシーパイプラインや下位互換性が必要なシナリオに適した従来世代のモデルです。</p></td>
    </tr>
 </table>
 
-第3世代の埋め込みモデル（**text-embedding-3**）は、`dim` パラメータを使用して埋め込みのサイズを小さくできます。通常、より大きな埋め込みは計算・メモリ・ストレージの観点から高コストになります。次元数を調整できることで、全体的なコストとパフォーマンスをより細かく制御できます。各モデルの詳細については、[Embedding models](https://platform.openai.com/docs/guides/embeddings#embedding-models) および [OpenAI announcement blog post](https://openai.com/blog/new-embedding-models-and-api-updates) を参照してください。
+第3世代の埋め込みモデル（**text-embedding-3**）は、`dim`パラメータを使用して埋め込みのサイズを縮小することをサポートしています。通常、より大きな埋め込みは、計算、メモリ、ストレージの観点からコストが高くなります。次元数を調整できることで、全体的なコストとパフォーマンスをより細かく制御できます。各モデルの詳細については、[埋め込みモデル](https://platform.openai.com/docs/guides/embeddings#embedding-models)および[OpenAI発表ブログ記事](https://openai.com/blog/new-embedding-models-and-api-updates)を参照してください。
 
-## 事前準備\{#before-you-start}
+## 始める前に\{#before-you-start}
 
-テキスト埋め込み関数を使用する前に、以下の前提条件を満たしていることを確認してください：
+テキスト埋め込み関数を使用する前に、以下の前提条件を満たしていることを確認してください。
 
 - **埋め込みモデルを選択**
 
-    使用する埋め込みモデルを決定してください。この選択により、埋め込みの動作と出力形式が決まります。詳細については、[埋め込みモデルを選択](./openai#model-choices) を参照してください。
+    使用する埋め込みモデルを決定します。この選択により、埋め込みの動作と出力形式が決まります。詳細については、[埋め込みモデルを選択](./openai#model-choices) を参照してください。
 
-- **OpenAI と連携し、統合IDを取得**
+- **OpenAIと統合し、統合IDを取得**
 
-    OpenAI が提供する埋め込みモデルを使用するには、事前に OpenAI とのモデルプロバイダー連携を作成し、統合IDを取得する必要があります。詳細については、[モデルプロバイダーとの連携](./integrate-with-model-providers) を参照してください。
+    OpenAIとのモデルプロバイダー連携を作成し、その統合IDを取得する必要があります。詳細については、[モデルプロバイダーとの連携](./integrate-with-model-providers) を参照してください。
 
 - **互換性のあるコレクションスキーマを設計**
 
-    コレクションスキーマには以下のフィールドを含める必要があります：
+    コレクションスキーマに以下を含めるように計画してください：
 
-    - 生の入力テキストを格納するテキストフィールド（`VARCHAR`）
+    - 生の入力テキスト用のテキストフィールド（`VARCHAR`）
+    - 選択した埋め込みモデルにデータ型と次元が一致する密ベクトルフィールド
 
-    - 選択した埋め込みモデルのデータ型および次元数に一致する密ベクトルフィールド
-
-- **挿入時および検索時に生テキストを扱う準備をする**
+- **挿入時および検索時に生テキストを扱う準備**
 
     テキスト埋め込み関数を有効にすると、生テキストを直接挿入およびクエリできます。埋め込みはシステムによって自動的に生成されます。
 
-## ステップ 1: テキスト埋め込み関数付きのコレクションを作成\{#step-1-create-a-collection-with-a-text-embedding-function}
+## ステップ1: テキスト埋め込み関数を使用したコレクションの作成\{#step-1-create-a-collection-with-a-text-embedding-function}
 
 ### スキーマフィールドの定義\{#define-schema-fields}
 
-埋め込み関数を使用するには、特定のスキーマを持つコレクションを作成する必要があります。このスキーマには、少なくとも以下の3つの必須フィールドを含める必要があります：
+埋め込み関数を使用するには、特定のスキーマを持つコレクションを作成します。このスキーマには、少なくとも次の3つの必須フィールドを含める必要があります。
 
-- コレクション内の各エンティティを一意に識別する主キーとなるフィールド
+- コレクション内の各エンティティを一意に識別するプライマリフィールド。
+- 埋め込む生データを保存する`VARCHAR`フィールド。
+- テキスト埋め込み関数が`VARCHAR`フィールドに対して生成する密ベクトル埋め込みを保存するために予約されたベクトルフィールド。
 
-- 埋め込み対象の生データを格納する `VARCHAR` フィールド
-
-- テキスト埋め込み関数が `VARCHAR` フィールドに対して生成する密ベクトル埋め込みを格納するためのベクトルフィールド
-
-以下の例では、テキストデータを格納する `VARCHAR` フィールド `"document"` と、テキスト埋め込み関数によって生成される密埋め込みを格納するベクトルフィールド `"dense"` を持つスキーマを定義しています。選択した埋め込みモデルの出力に合わせて、ベクトルの次元数（`dim`）を正しく設定することを忘れないでください。
+次の例では、テキストデータを保存するための1つの`VARCHAR`フィールド`"document"`と、テキスト埋め込み関数によって生成される密埋め込みを保存するための1つのベクトルフィールド`"dense"`を持つスキーマを定義しています。選択した埋め込みモデルの出力に合わせてベクトル次元（`dim`）を設定することを忘れないでください。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -198,6 +195,28 @@ schema.addField(AddFieldReq.builder()
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("document", milvus::DataType::VARCHAR).WithMaxLength(9000));
+schema->AddField(milvus::FieldSchema("dense", milvus::DataType::FLOAT_VECTOR).WithDimension(1536));
+
+```
+
+</TabItem>
 </Tabs>
 
 ### テキスト埋め込み関数の定義\{#define-the-text-embedding-function}
@@ -277,6 +296,22 @@ schema.addFunction(function);
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::FunctionPtr function = std::make_shared<milvus::Function>("openai_embedding", milvus::FunctionType::TEXTEMBEDDING);
+function->AddInputFieldName("document");
+function->AddOutputFieldName("dense");
+function->AddParam("provider", "openai");
+function->AddParam("model_name", "text-embedding-3-small");
+
+function->AddParam("integration_id", "YOUR_INTEGRATION_ID");
+
+collection_schema->AddFunction(function);
+```
+
+</TabItem>
 </Tabs>
 
 ### インデックスの設定\{#configure-the-index}
@@ -338,6 +373,17 @@ indexes.add(IndexParam.builder()
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("dense", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+
+```
+
+</TabItem>
 </Tabs>
 
 ### コレクションの作成\{#create-the-collection}
@@ -393,6 +439,20 @@ client.createCollection(requestCreate);
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("demo")
+                                    .WithIndexes(std::move(indexes))
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -458,6 +518,27 @@ client.insert(InsertReq.builder()
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::EntityRows data = {
+    {{"id", 1}, {"document", "Milvus simplifies semantic search through embeddings."}},
+    {{"id", 2}, {"document", "Vector embeddings convert text into searchable numeric data."}},
+    {{"id", 3}, {"document", "Semantic search helps users find relevant information quickly."}}
+};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("demo")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -531,6 +612,26 @@ for (List<SearchResp.SearchResult> results : searchResults) {
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("demo")
+                   .AddEmbeddedText("How does Milvus handle semantic search?")
+                   .WithLimit(1)
+                   .WithAnnsField("dense")
+                   .AddOutputField("document");
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+
 </Tabs>
 
-検索およびクエリ操作の詳細については、[基本的なベクトル検索](./single-vector-search) および [クエリ](./get-and-scalar-query) を参照してください。
+詳細については、[基本ベクトル検索](./single-vector-search) と [クエリ](./get-and-scalar-query) を参照してください。

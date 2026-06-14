@@ -55,7 +55,7 @@ When creating a cluster user, you need to:
 
 <Admonition type="info" icon="📘" title="Notes">
 
-Each cluster can have up to 100 cluster users.
+Each cluster can have up to 500 cluster users.
 
 </Admonition>
 

@@ -1,21 +1,21 @@
 ---
-title: "主キーフィールドと AutoID | Cloud"
+title: "プライマリフィールドとAutoID | Cloud"
 slug: /primary-field-auto-id
 sidebar_key: primary-field-auto-id
-sidebar_label: "主キーフィールド"
+sidebar_label: "プライマリフィールド"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud のすべてのコレクションには、各エンティティを一意に識別するための主キーフィールドが必要です。このフィールドにより、すべてのエンティティを曖昧さなく挿入、更新、クエリ、または削除できます。 | Cloud"
+description: "Zilliz Cloudの各コレクションには、エンティティを一意に識別するためのプライマリフィールドが必要です。このフィールドにより、あいまいさなくエンティティの挿入、更新、クエリ、削除が保証されます。 | Cloud"
 type: origin
 token: D2ctwKZhNilLY0ke1vpcHL62n5G
 sidebar_position: 2
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
+  - クラウド
+  - コレクション
   - スキーマ
-  - 主キーフィールド
+  - プライマリフィールド
   - autoId
   - autoid
 
@@ -25,27 +25,27 @@ import Admonition from '@theme/Admonition';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# プライマリフィールドと AutoID
+# プライマリフィールドとAutoID
 
-Zilliz Cloud のすべてのコレクションには、各エンティティを一意に識別するためのプライマリフィールドが必要です。このフィールドにより、各エンティティを曖昧さなく挿入・更新・照会・削除できます。
+Zilliz Cloud のすべてのコレクションには、各エンティティを一意に識別するためのプライマリフィールドが必要です。このフィールドにより、すべてのエンティティを曖昧さなく挿入、更新、クエリ、または削除できます。
 
-ユースケースに応じて、Zilliz Cloud に自動的に ID を生成させる（AutoID）か、自分で ID を手動で割り当てるかを選択できます。
+ユースケースに応じて、Zilliz Cloud に ID を自動生成させる（AutoID）か、手動で独自の ID を割り当てるかを選択できます。
 
-## プライマリフィールドとは？\{#what-is-a-primary-field}
+## プライマリフィールドとは何か？\{#what-is-a-primary-field}
 
-プライマリフィールドは、コレクション内の各エンティティを一意に識別するキーとして機能し、従来のデータベースにおける主キー（Primary キー）と同様の役割を果たします。Zilliz Cloud は、エンティティの挿入、アップサート、削除、および照会操作中にプライマリフィールドを使用してエンティティを管理します。
+プライマリフィールドは、コレクション内の各エンティティの一意のキーとして機能し、従来のデータベースの主キーに似ています。Zilliz Cloud は、挿入、アップサート、削除、およびクエリ操作時にエンティティを管理するためにプライマリフィールドを使用します。
 
-主な要件:
+キー要件：
 
-- 各コレクションには**ちょうど1つ**のプライマリフィールドが必要です。
+- 各コレクションには、**ちょうど1つ**のプライマリフィールドが必要です。
 
 - プライマリフィールドの値は null にできません。
 
-- データ型は作成時に指定する必要があり、後から変更することはできません。
+- データ型は作成時に指定する必要があり、後で変更することはできません。
 
-## サポートされているデータ型\{#supported-data-types}
+## サポートされるデータ型\{#supported-data-types}
 
-プライマリフィールドには、エンティティを一意に識別できるスカラー型のデータ型を使用する必要があります。
+プライマリフィールドには、エンティティを一意に識別できるサポートされるスカラーデータ型を使用する必要があります。
 
 <table>
    <tr>
@@ -54,52 +54,51 @@ Zilliz Cloud のすべてのコレクションには、各エンティティを�
    </tr>
    <tr>
      <td><p><code>INT64</code></p></td>
-     <td><p>64ビット整数型。AutoID と組み合わせてよく使用されます。ほとんどのユースケースで推奨されるオプションです。</p></td>
+     <td><p>64ビット整数型で、AutoID と共に一般的に使用されます。これはほとんどのユースケースで推奨されるオプションです。</p></td>
    </tr>
    <tr>
      <td><p><code>VARCHAR</code></p></td>
-     <td><p>可変長文字列型。エンティティ識別子が外部システム（例：商品コードやユーザーID）から提供される場合に使用します。<code>max_length</code> プロパティを設定して、各値に許容される最大バイト数を定義する必要があります。</p></td>
+     <td><p>可変長文字列型。エンティティ識別子が外部システムから来る場合（例えば、製品コードやユーザー ID）に使用します。値あたりの最大バイト数を定義する <code>max_length</code> プロパティが必要です。</p></td>
    </tr>
 </table>
 
 ## AutoID と手動 ID の選択\{#choose-between-autoid-and-manual-ids}
 
-Zilliz Cloud では、プライマリキーの値を割り当てる方法として2つのモードをサポートしています。
+Zilliz Cloud は、プライマリキー値の割り当てに対して2つのモードをサポートしています。
 
 <table>
    <tr>
      <th><p>モード</p></th>
      <th><p>説明</p></th>
-     <th><p>推奨用途</p></th>
+     <th><p>推奨対象</p></th>
    </tr>
    <tr>
      <td><p>AutoID</p></td>
-     <td><p>Zilliz Cloud が挿入またはインポートされたエンティティに対して自動的に一意の識別子を生成します。</p></td>
+     <td><p>Zilliz Cloud が挿入またはインポートされたエンティティの一意の識別子を自動生成します。</p></td>
      <td><p>ID を手動で管理する必要がないほとんどのシナリオ。</p></td>
    </tr>
    <tr>
      <td><p>手動 ID</p></td>
-     <td><p>データの挿入またはインポート時に、自分で一意の ID を提供します。</p></td>
-     <td><p>ID を外部システムや既存のデータセットと整合させる必要がある場合。</p></td>
+     <td><p>データの挿入またはインポート時に、独自の一意の ID を提供します。</p></td>
+     <td><p>ID を外部システムや既存のデータセットと一致させる必要がある場合。</p></td>
    </tr>
 </table>
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<ul>
-<li><p>どちらのモードを選べばよいかわからない場合は、<a href="./primary-field-auto-id#quickstart-use-autoid">AutoID から始めて</a>、シンプルなデータ取り込みと一意性の保証を活用してください。</p></li>
-<li><p>手動でプライマリキーを設定することが有益でない限り、すべてのケースで <code>autoId</code> を使用することをお勧めします。</p></li>
-</ul>
+- どちらのモードを選択するか迷っている場合は、よりシンプルな取り込みと保証された一意性のために [AutoID から始める](./primary-field-auto-id#quickstart-use-autoid) とよいでしょう。
+
+- 手動でプライマリキーを設定することが有益でない限り、すべてのケースで `autoId` に依存することをお勧めします。
 
 </Admonition>
 
 ## クイックスタート: AutoID の使用\{#quickstart-use-autoid}
 
-Zilliz Cloud に ID の自動生成を任せることができます。
+Zilliz Cloud に ID 生成を自動的に処理させることができます。
 
-### ステップ 1: AutoID を有効にしてコレクションを作成\{#step-1-create-a-collection-with-autoid}
+### ステップ 1: AutoID を使用したコレクションの作成\{#step-1-create-a-collection-with-autoid}
 
-プライマリフィールド定義で `auto_id=True` を有効にします。これにより、Zilliz Cloud が自動的に ID を生成します。
+プライマリフィールド定義で `auto_id=True` を有効にします。Zilliz Cloud が ID 生成を自動的に処理します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -262,6 +261,7 @@ export SCHEMA='{
 
 curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create' \
 -H 'Content-Type: application/json' \
+-H "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"demo_autoid\",
     \"schema\": $SCHEMA
@@ -271,9 +271,38 @@ curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create' \
 </TabItem>
 </Tabs>
 
-### Step 2: データの挿入\{#step-2-insert-data}
+```c++
+#include "milvus/MilvusClientV2.h"
 
-**重要:** データに主キー列を含めないでください。Zilliz Cloud は ID を自動的に生成します。
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "Primary field", true, true});
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR, "Vector field").WithDimension(4));
+schema->AddField(milvus::FieldSchema("category", milvus::DataType::VARCHAR, "Scalar field").WithMaxLength(1000));
+
+status = client->DropCollection(milvus::DropCollectionRequest().WithCollectionName("demo_autoid"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("demo_autoid")
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+### ステップ2: データの挿入\{#step-2-insert-data}
+
+**重要:** データにプライマリフィールドのカラムを含めないでください。Zilliz Cloud が自動的に ID を生成します。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -364,6 +393,7 @@ export INSERT_DATA='[
 
 curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert' \
 -H 'Content-Type: application/json' \
+-H "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"demo_autoid\",
     \"data\": $INSERT_DATA
@@ -373,17 +403,32 @@ curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert' \
 </TabItem>
 </Tabs>
 
+```c++
+milvus::EntityRows data = {{{"embedding", std::vector<float>{0.1, 0.2, 0.3, 0.4}}, {"category", "book"}},
+                           {{"embedding", std::vector<float>{0.2, 0.3, 0.4, 0.5}}, {"category", "toy"}}};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("demo_autoid")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto ids = response.Results().IdArray().IntIDArray();
+```
+
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>既存のエンティティを扱う際は、重複IDエラーを回避するために <code>insert()</code> の代わりに <code>upsert()</code> を使用してください。</p>
+既存のエンティティを扱う際には、重複IDエラーを避けるために `insert()` の代わりに `upsert()` を使用してください。
 
 </Admonition>
 
 ## 手動IDを使用する\{#use-manual-ids}
 
-IDを手動で制御する必要がある場合は、AutoIDを無効にして独自の値を指定します。
+IDを手動で制御する必要がある場合は、AutoIDを無効にして独自の値を指定してください。
 
-### ステップ 1: AutoIDなしでコレクションを作成する\{#step-1-create-a-collection-without-autoid}
+### ステップ1：AutoIDなしでコレクションを作成する\{#step-1-create-a-collection-without-autoid}
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -548,6 +593,7 @@ export SCHEMA='{
 
 curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create' \
 -H 'Content-Type: application/json' \
+-H "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"demo_manual_ids\",
     \"schema\": $SCHEMA
@@ -557,9 +603,38 @@ curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/collections/create' \
 </TabItem>
 </Tabs>
 
-### ステップ 2: 自分の ID を使ってデータを挿入する\{#step-2-insert-data-with-your-ids}
+```c++
+#include "milvus/MilvusClientV2.h"
 
-すべての insert 操作には、主キー（primary field）カラムを含める必要があります。
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField(milvus::FieldSchema("product_id", milvus::DataType::VARCHAR, "", true, false).WithMaxLength(100));
+schema->AddField(milvus::FieldSchema("embedding", milvus::DataType::FLOAT_VECTOR).WithDimension(4));
+schema->AddField(milvus::FieldSchema("category", milvus::DataType::VARCHAR).WithMaxLength(1000));
+
+status = client->DropCollection(milvus::DropCollectionRequest().WithCollectionName("demo_manual_ids"));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("demo_manual_ids")
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+### ステップ2：ご自身のIDでデータを挿入する\{#step-2-insert-data-with-your-ids}
+
+すべての挿入操作において、プライマリフィールド列を含める必要があります。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -657,6 +732,7 @@ export INSERT_DATA='[
 # 插入数据
 curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert' \
 -H 'Content-Type: application/json' \
+-H "Request-Timeout: 10" \
 -d "{
     \"collectionName\": \"demo_manual_ids\",
     \"data\": $INSERT_DATA
@@ -666,11 +742,24 @@ curl -X POST 'YOUR_CLUSTER_ENDPOINT/v2/vectordb/entities/insert' \
 </TabItem>
 </Tabs>
 
-あなたの責任:
+```c++
+milvus::EntityRows data = {{{"product_id", "PROD-001"}, {"embedding", std::vector<float>{0.1, 0.2, 0.3, 0.4}}, {"category", "book"}},
+                           {{"product_id", "PROD-002"}, {"embedding", std::vector<float>{0.2, 0.3, 0.4, 0.5}}, {"category", "toy"}}};
 
-- すべてのエンティティ間で ID が一意になるようにすること
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("demo_manual_ids")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+auto ids = response.Results().IdArray().StrIDArray()
+```
 
-- 挿入/インポート操作ごとに主キーを含めること
+- すべてのエンティティ間でIDが一意であることを確認してください。
 
-- ID の競合および重複検出を自分で処理すること
+- すべての挿入/インポート操作にプライマリフィールドを含めてください。
+
+- IDの競合と重複検出は自分で処理してください。
 

@@ -5,15 +5,15 @@ sidebar_key: schema-best-practices
 sidebar_label: "ベストプラクティス"
 beta: FALSE
 notebook: FALSE
-description: "この章では、データセットに関連するスキーマ設計のベストプラクティスについて説明します。| Cloud"
+description: "この章では、データセットに関連するスキーマ設計のベストプラクティスについて説明します。 | Cloud"
 type: origin
 token: Gi6KwjOlKiBhdOkxlL3cdobBnLe
-sidebar_position: 19
+sidebar_position: 20
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
+  - クラウド
+  - コレクション
   - スキーマ
   - ベストプラクティス
   - スキーマ設計

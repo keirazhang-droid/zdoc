@@ -5,10 +5,10 @@ sidebar_key: understand-basics
 sidebar_label: "概念"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud の使用方法について議論する際に使用する一般的な用語の説明です。| Cloud"
+description: "Zilliz Cloudの使用方法について議論する際に使用する一般的な用語の説明。 | Cloud"
 type: origin
 token: L4qDwChWLi1Vy6kbt30cd7W4ntC
-sidebar_position: 11
+sidebar_position: 12
 keywords: 
   - zilliz
   - ベクトルデータベース

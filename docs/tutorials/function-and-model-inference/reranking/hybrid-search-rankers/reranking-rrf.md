@@ -312,6 +312,16 @@ const rerank = {
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto rerank = std::make_shared<milvus::Function>("rrf", milvus::FunctionType::RERANK);
+rerank->AddParam("reranker", "rrf");
+rerank->AddParam("k", "100");
+```
+
+</TabItem>
 </Tabs>
 
 <table>
@@ -481,6 +491,38 @@ const search = await milvusClient.search({
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto text_search = milvus::SubSearchRequest()
+                    .WithLimit(10)
+                    .WithAnnsField("text_vector")
+                    .AddEmbeddedText("modern dining table");
+
+auto image_search = milvus::SubSearchRequest()
+                    .WithLimit(10)
+                    .WithAnnsField("image_vector")
+                    .AddFloatVector(image_embedding);
+
+auto request = milvus::HybridSearchRequest()
+                    .WithCollectionName(collection_name)
+                    .WithLimit(10)
+                    .AddSubRequest(std::make_shared<milvus::SubSearchRequest>(std::move(text_search)))
+                    .AddSubRequest(std::make_shared<milvus::SubSearchRequest>(std::move(image_search)))
+                    .WithRerank(rerank)
+                    .AddOutputField("product_name")
+                    .AddOutputField("price")
+                    .AddOutputField("category");
+
+milvus::SearchResponse response;
+auto status = client->HybridSearch(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>

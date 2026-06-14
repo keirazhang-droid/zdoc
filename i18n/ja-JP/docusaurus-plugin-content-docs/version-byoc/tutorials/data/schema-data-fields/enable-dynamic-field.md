@@ -5,16 +5,16 @@ sidebar_key: enable-dynamic-field
 sidebar_label: "動的フィールド"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud では、動的フィールドと呼ばれる特別な機能を使用して、柔軟で進化する構造を持つエンティティを挿入できます。このフィールドは `$meta` という名前の非表示 JSON フィールドとして実装されており、コレクションスキーマで明示的に定義されていないデータ内のすべてのフィールドを自動的に保存します。| BYOC"
+description: "Zilliz Cloud では、動的フィールドと呼ばれる特別な機能を使用して、柔軟で進化する構造を持つエンティティを挿入できます。このフィールドは、`$meta` という名前の非表示の JSON フィールドとして実装されており、コレクションスキーマで明示的に定義されていないデータ内のフィールドを自動的に保存します。 | BYOC"
 type: origin
 token: OVxRwZWxNi4pYrkdKxCcOuY2nf1
-sidebar_position: 13
+sidebar_position: 14
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - collection
-  - schema
+  - クラウド
+  - コレクション
+  - スキーマ
   - 動的フィールド
 
 ---
@@ -280,11 +280,40 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/collections/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data "{
   \"collectionName\": \"my_collection\",
   \"schema\": $schema
 }"
 
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->SetEnableDynamicField(true);
+schema->AddField({"my_id", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("my_vector", milvus::DataType::FLOAT_VECTOR).WithDimension(5));
+
+status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("my_collection")
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -414,6 +443,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/insert" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data '{
   "data": [
     {
@@ -435,37 +465,67 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::EntityRows data = {
+    {
+        {"my_id", 1},
+        {"my_vector", std::vector<float>{0.1, 0.2, 0.3, 0.4, 0.5}},
+        {"overview", "Great product"},
+        {"words", 150},
+        {"dynamic_json", {
+                {"varchar", "some text"},
+                {"nested", {"value", 42.5}},
+                {"string_price", "99.99"},
+            }
+        }
+    }
+};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("my_collection")
+                                .WithRowsData(std::move(data)),
+                             response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
-## 動的フィールド内のキーのインデックス作成\{#index-keys-in-the-dynamic-field}
+## ダイナミックフィールド内のインデックスキー\{#index-keys-in-the-dynamic-field}
 
-Zilliz Cloudでは、**JSONパスインデックス**を使用して動的フィールド内の特定のキーに対してインデックスを作成できます。これらのキーはスカラー値でもJSONオブジェクト内のネストされた値でも構いません。
+Zilliz Cloud では、**JSONパスインデックス**を使用して、ダイナミックフィールド内の特定のキーにインデックスを作成できます。これらはスカラー値でも、JSONオブジェクト内のネストされた値でもかまいません。
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>動的フィールドのキーに対するインデックス作成は<strong>任意</strong>です。インデックスなしでも動的フィールドのキーでクエリやフィルタリングが可能ですが、ブルートフォース検索による遅延が発生する可能性があります。</p>
+ダイナミックフィールドのキーに対するインデックス作成は**オプション**です。インデックスがなくても、ダイナミックフィールドのキーによるクエリやフィルタリングは可能ですが、ブルートフォース検索のためパフォーマンスが低下する可能性があります。
 
 </Admonition>
 
 ### JSONパスインデックスの構文\{#json-path-indexing-syntax}
 
-JSONパスインデックスを作成するには、以下の項目を指定します。
+JSONパスインデックスを作成するには、以下を指定します。
 
 - **JSONパス** (`json_path`): インデックスを作成したいJSONオブジェクト内のキーまたはネストされたフィールドへのパス。
 
     - 例: `metadata["category"]`
 
-        これは、インデックスエンジンがJSON構造内のどこを参照すべきかを定義します。
+        これにより、インデックスエンジンがJSON構造内でどこを参照すべきかが定義されます。
 
-- **JSONキャストタイプ** (`json_cast_type`): Zilliz Cloudが指定されたパスの値を解釈・インデックス作成する際に使用するデータ型。
+- **JSONキャストタイプ** (`json_cast_type`): 指定されたパスの値を解釈してインデックス作成する際に、Zilliz Cloud が使用すべきデータ型。
 
-    - この型は、インデックス対象のフィールドの実際のデータ型と一致している必要があります。
+    - この型は、インデックス作成対象のフィールドの実際のデータ型と一致している必要があります。
 
-    - サポートされている型の完全な一覧については、[サポートされているJSONキャストタイプ](./use-json-fields)を参照してください。
+    - 完全なリストについては、[サポートされているJSONキャストタイプ](./use-json-fields) を参照してください。
 
-### JSONパスを使用して動的フィールドのキーをインデックス作成する\{#use-json-path-to-index-dynamic-field-keys}
+### JSONパスを使用したダイナミックフィールドキーのインデックス作成\{#use-json-path-to-index-dynamic-field-keys}
 
-動的フィールドはJSONフィールドであるため、JSONパス構文を使用してその中の任意のキーをインデックス作成できます。これは単純なスカラー値だけでなく、複雑なネスト構造にも適用可能です。
+ダイナミックフィールドはJSONフィールドであるため、JSONパス構文を使用してその内部の任意のキーにインデックスを作成できます。これは、単純なスカラー値と複雑なネスト構造の両方で機能します。
 
 **JSONパスの例:**
 
@@ -711,6 +771,33 @@ export nestedIndex='{
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::IndexDesc overview_index("overview", "overview_index", milvus::IndexType::AUTOINDEX);
+overview_index.AddExtraParam("json_cast_type", "varchar");
+overview_index.AddExtraParam("json_path", "overview");
+
+milvus::IndexDesc words_index("words", "words_index", milvus::IndexType::AUTOINDEX);
+words_index.AddExtraParam("json_cast_type", "double");
+words_index.AddExtraParam("json_path", "words");
+
+milvus::IndexDesc json_nested_index("dynamic_json", "json_nested_index", milvus::IndexType::AUTOINDEX);
+json_nested_index.AddExtraParam("json_cast_type", "double");
+json_nested_index.AddExtraParam("json_path", "dynamic_json['nested']['value']");
+
+auto status = client->CreateIndex(milvus::CreateIndexRequest()
+                                     .WithCollectionName(collection_name)
+                                     .AddIndex(std::move(overview_index))
+                                     .AddIndex(std::move(words_index))
+                                     .AddIndex(std::move(json_nested_index)));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
 ### 型変換に JSON キャスト関数を使用する\{#use-json-cast-functions-for-type-conversion}
@@ -802,20 +889,31 @@ export stringPriceIndex='{
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::IndexDesc string_price_index("dynamic_json", "json_string_price_index", milvus::IndexType::AUTOINDEX);
+string_price_index.AddExtraParam("json_cast_type", "double");
+string_price_index.AddExtraParam("json_path", "dynamic_json['string_price']");
+string_price_index.AddExtraParam("json_cast_function", "STRING_TO_DOUBLE");
+
+```
+
+</TabItem>
 </Tabs>
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<ul>
-<li><p>型変換に失敗した場合（例: 値 <code>"not_a_number"</code> を数値に変換できない場合）、その値はスキップされ、インデックスされません。</p></li>
-<li><p>キャスト関数のパラメータの詳細については、<a href="./use-json-fields">JSON フィールド</a>を参照してください。</p></li>
-</ul>
+- 型変換に失敗した場合（例：値 `"not_a_number"` を数値に変換できない場合）、その値はスキップされ、インデックスが作成されません。
+
+- キャスト関数のパラメータの詳細については、[JSON フィールド](./use-json-fields) を参照してください。
 
 </Admonition>
 
-### コレクションにインデックスを適用する\{#apply-indexes-to-the-collection}
+### コレクションへのインデックス適用\{#apply-indexes-to-the-collection}
 
-インデックスパラメータを定義した後、`create_index()` を使用してコレクションに適用できます。
+インデックスパラメータを定義した後、`create_index()` を使用してコレクションに適用できます：
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -893,6 +991,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/indexes/create" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data "{
   \"collectionName\": \"my_collection\",
   \"indexParams\": $indexParams
@@ -901,17 +1000,33 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateIndex(milvus::CreateIndexRequest()
+                                     .WithCollectionName(collection_name)
+                                     .AddIndex(std::move(overview_index))
+                                     .AddIndex(std::move(words_index))
+                                     .AddIndex(std::move(json_nested_index))
+                                     .AddIndex(std::move(string_price_index)));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
 </Tabs>
 
 ## 動的フィールドキーによるフィルタリング\{#filter-by-dynamic-field-keys}
 
-動的フィールドキーを持つエンティティを挿入した後、標準的なフィルター式を使用してそれらをフィルタリングできます。
+動的フィールドキーを持つエンティティを挿入した後、標準のフィルタ式を使用してフィルタリングできます。
 
-- JSON以外のキー（例：文字列、数値、ブール値）の場合、キー名を直接参照できます。
+- JSON以外のキー（文字列、数値、ブール値など）の場合、キー名を直接参照できます。
 
 - JSONオブジェクトを格納するキーの場合、JSONパス構文を使用してネストされた値にアクセスします。
 
-[前のセクション](./enable-dynamic-field#insert-entities-to-the-collection)の[サンプルエンティティ](./enable-dynamic-field#insert-entities-to-the-collection)に基づくと、有効なフィルター式の例は次のとおりです：
+前のセクションの[例のエンティティ](./enable-dynamic-field#insert-entities-to-the-collection)に基づくと、有効なフィルタ式には以下が含まれます：
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -961,6 +1076,16 @@ filter := 'dynamic_json["nested"]["value"] < 50'
 export filter='overview == "Great product"'
 export filter='words >= 100'
 export filter='dynamic_json["nested"]["value"] < 50'
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::string filter = R"(overview == "Great product")";
+std::string filter = R"(words >= 100)";
+std::string filter = R"(dynamic_json["nested"]["value"] < 50)";
 ```
 
 </TabItem>
@@ -1095,6 +1220,7 @@ curl --request POST \
 --url "${CLUSTER_ENDPOINT}/v2/vectordb/entities/search" \
 --header "Authorization: Bearer ${TOKEN}" \
 --header "Content-Type: application/json" \
+--header "Request-Timeout: 10" \
 --data "{
   \"collectionName\": \"my_collection\",
   \"data\": [
@@ -1108,64 +1234,97 @@ curl --request POST \
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::vector<float> query_vector = {0.1, 0.2, 0.3, 0.4, 0.5};
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("my_collection")
+                   .WithAnnsField("my_vector")
+                   .WithLimit(5)
+                   .WithFilter(filter)
+                   .AddOutputField("overview")
+                   .AddOutputField("dynamic_json")
+                   .AddFloatVector(query_vector);
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+auto search_results = response.Results();
+for (auto& result : search_results.Results()) {
+    milvus::EntityRows output_rows;
+    status = result.OutputRows(output_rows);
+    for (const auto& row : output_rows) {
+        std::cout << "\t" << row << std::endl;
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
 <Admonition type="info" icon="📘" title="Notes">
 
-<p>動的フィールドのキーはデフォルトで結果に含まれず、明示的にリクエストする必要があります。</p>
+動的フィールドキーはデフォルトでは結果に含まれず、明示的にリクエストする必要があります。
 
 </Admonition>
 
-サポートされている演算子およびフィルター式の完全な一覧については、[Filtered Search](./filtered-search) を参照してください。
+サポートされている演算子とフィルター式の完全なリストについては、[フィルター検索](./filtered-search) を参照してください。
 
-## すべてをまとめる\{#put-it-all-together}
+## すべてを組み合わせる\{#put-it-all-together}
 
-ここまでで、スキーマに定義されていないキーを柔軟に保存・インデックスするために動的フィールドを使用する方法を学びました。動的フィールドのキーが一度挿入されれば、特別な構文は不要で、フィルター式内で他のフィールドと同様に使用できます。
+ここまでで、動的フィールドを使用してスキーマに定義されていないキーを柔軟に保存し、インデックスを作成する方法を学びました。動的フィールドキーが挿入されると、特別な構文を必要とせず、フィルター式内の他のフィールドと同様に使用できます。
 
-実際のアプリケーションでこのワークフローを完了するには、以下の手順も必要です。
+実際のアプリケーションでワークフローを完了するには、次のことも行う必要があります。
 
-- **ベクトルフィールドにインデックスを作成する**（各コレクションで必須）  
+- **ベクトルフィールドにインデックスを作成する**（各コレクションに必須）
 
-    [Index ベクトルフィールドs](./index-vector-fields) を参照
+    [ベクトルフィールドのインデックス作成](./index-vector-fields) を参照してください。
 
 - **コレクションをロードする**
 
-    [Load & Release](./load-release-collections) を参照
+    [ロードとリリース](./load-release-collections) を参照してください。
 
-- **JSONパスフィルターを使用して検索またはクエリを実行する**  
+- **JSONパスフィルターを使用して検索またはクエリを実行する**
 
-    [Filtered Search](./filtered-search) および [JSON Operators](./json-filtering-operators) を参照
+    [フィルター検索](./filtered-search) および [JSON演算子](./json-filtering-operators) を参照してください。
 
 ## FAQ\{#faq}
 
-### スキーマ内でフィールドを明示的に定義すべきタイミングは？動的フィールドキーを使うべきではないのはいつ？\{#when-should-i-define-a-field-explicitly-in-the-schema-instead-of-using-a-dynamic-field-key}
+### 動的フィールドキーを使用する代わりに、スキーマでフィールドを明示的に定義する必要があるのはいつですか？\{#when-should-i-define-a-field-explicitly-in-the-schema-instead-of-using-a-dynamic-field-key}
 
-動的フィールドキーではなく、スキーマ内でフィールドを明示的に定義すべきケースは以下の通りです。
+以下の場合、動的フィールドキーではなく、スキーマでフィールドを明示的に定義する必要があります。
 
-- **そのフィールドが頻繁に `output_fields` に含まれる場合**: `output_fields` 経由で効率的に取得できることが保証されているのは、明示的に定義されたフィールドのみです。動的フィールドキーは高頻度での取得に最適化されておらず、パフォーマンスオーバーヘッドが発生する可能性があります。
+- **フィールドが `output_fields` に頻繁に含まれる場合**：明示的に定義されたフィールドのみが、`output_fields` を通じて効率的に取得できることが保証されます。動的フィールドキーは高頻度の取得に最適化されておらず、パフォーマンスのオーバーヘッドが生じる可能性があります。
 
-- **そのフィールドが頻繁にアクセスまたはフィルターされる場合**: 動的フィールドキーにインデックスを作成すれば、固定スキーマフィールドと同程度のフィルタリング性能が得られますが、明示的に定義されたフィールドの方が構造が明確で保守性が高くなります。
+- **フィールドに頻繁にアクセスまたはフィルターが適用される場合**：動的フィールドキーのインデックス作成により、固定スキーマフィールドと同様のフィルタリングパフォーマンスが得られる可能性がありますが、明示的に定義されたフィールドの方が構造が明確で、保守性が高くなります。
 
-- **フィールドの動作を完全に制御したい場合**: 明示的なフィールドでは、スキーマレベルでの制約、バリデーション、明確な型指定が可能であり、データの整合性と一貫性を管理するのに役立ちます。
+- **フィールドの動作を完全に制御する必要がある場合**：明示的フィールドはスキーマレベルの制約、検証、および明確な型指定をサポートしており、データの整合性と一貫性の管理に役立ちます。
 
-- **インデックスの不整合を避けたい場合**: 動的フィールドキー内のデータは、型や構造において不整合が生じやすい傾向があります。固定スキーマを使用することでデータ品質を確保しやすくなり、特にインデックスやキャストを利用する予定がある場合は重要です。
+- **インデックスの不整合を避けたい場合**：動的フィールドキーのデータは、型や構造の不整合が発生しやすいです。固定スキーマを使用すると、特にインデックスやキャストを使用する予定がある場合、データ品質を確保するのに役立ちます。
+
+動的フィールドキーを既存のコレクションの明示的なスカラーフィールドにすべきと判断した場合は、[コレクションスキーマの変更](./add-fields-to-an-existing-collection) を参照してください。既存のコレクションレベルの動的フィールド設定は、コレクションプロパティを通じて管理されます。詳細については、[コレクションの変更](./modify-collections) を参照してください。
 
 ### 同じ動的フィールドキーに対して、異なるデータ型で複数のインデックスを作成できますか？\{#can-i-create-multiple-indexes-on-the-same-dynamic-field-key-with-different-data-types}
 
-いいえ、**1つのJSONパスにつき1つのインデックスしか作成できません**。たとえ動的フィールドキーに複数の型の値（例：一部が文字列、一部が数値）が混在していたとしても、そのパスのインデックス作成時には単一の `json_cast_type` を選択する必要があります。現時点では、同じキーに対して異なる型で複数のインデックスを作成することはサポートされていません。
+いいえ、**JSONパスごとに1つのインデックス**のみ作成できます。動的フィールドキーに混在する型の値（文字列と数値など）が含まれている場合でも、そのパスにインデックスを作成する際には、単一の `json_cast_type` を選択する必要があります。同じキーに対して異なる型で複数のインデックスを作成することは、現時点ではサポートされていません。
 
-### 動的フィールドキーのインデックス作成時にデータのキャストに失敗した場合はどうなりますか？\{#when-indexing-a-dynamic-field-key-what-if-the-data-casting-fails}
+### 動的フィールドキーのインデックス作成時に、データのキャストが失敗した場合はどうなりますか？\{#when-indexing-a-dynamic-field-key-what-if-the-data-casting-fails}
 
-動的フィールドキーに対してインデックスを作成しており、データのキャストに失敗した場合（例：`double` 型へのキャストが想定されていた値が `"abc"` のような非数値文字列だった場合）、該当する値はインデックス作成中に**静かにスキップされます**。これらの値はインデックスに含まれないため、インデックスに依存するフィルターに基づく検索やクエリの結果にも**表示されません**。
+動的フィールドキーにインデックスを作成し、データのキャストが失敗した場合（例：`double` にキャストされるべき値が `"abc"` のような非数値文字列である場合）、それらの特定の値は**インデックス作成中に警告なしでスキップ**されます。それらはインデックスに現れないため、インデックスに依存するフィルターベースの検索やクエリ結果には**返されません**。
 
-これにはいくつか重要な影響があります。
+これにはいくつかの重要な影響があります。
 
-- **フルスキャンへのフォールバックなし**: 多くのエンティティが正常にインデックスされた場合、フィルタリングクエリは完全にインデックスに依存します。キャストに失敗したエンティティは、フィルター条件に論理的に一致していても結果セットから除外されます。
+- **フルスキャンへのフォールバックなし**：エンティティの大部分が正常にインデックス化されている場合、フィルタリングクエリは完全にインデックスに依存します。キャストに失敗したエンティティは、論理的にはフィルター条件に一致していても、結果セットから除外されます。
 
-- **検索精度のリスク**: データ品質が一貫していない大規模なデータセット（特に動的フィールドキー内）では、この動作により予期しない検索漏れが発生する可能性があります。インデックス作成前に、データのフォーマットが一貫しており有効であることを確認することが極めて重要です。
+- **検索精度のリスク**：データ品質が一貫していない大規模データセット（特に動的フィールドキー）では、この動作により予期しない結果の欠落が発生する可能性があります。インデックス作成前に、一貫性があり有効なデータ形式であることを確認することが重要です。
 
-- **キャスト関数の慎重な使用**: インデックス作成時に `json_cast_function` を使って文字列を数値に変換する場合、その文字列値が確実に変換可能であることを保証してください。`json_cast_type` と実際に変換された型との間に不一致があると、エラーが発生するか、エントリがスキップされます。
+- **キャスト関数の注意深い使用**：インデックス作成中に `json_cast_function` を使用して文字列を数値に変換する場合は、文字列値が確実に変換可能であることを確認してください。`json_cast_type` と実際の変換後の型が一致しないと、エラーやエントリのスキップが発生します。
 
-### クエリで使用するデータ型が、インデックス作成時のキャスト型と異なる場合はどうなりますか？\{#what-happens-if-my-query-uses-a-different-data-type-than-the-indexed-cast-type}
+### クエリでインデックス付きキャスト型とは異なるデータ型を使用するとどうなりますか？\{#what-happens-if-my-query-uses-a-different-data-type-than-the-indexed-cast-type}
 
-クエリで動的フィールドキーを**異なるデータ型**で比較する場合（例：インデックスが `double` 型にキャストされているにもかかわらず、文字列として比較するクエリを実行する場合）、システムは**インデックスを使用せず**、可能な場合にのみフルスキャンにフォールバックします。最高のパフォーマンスと精度を得るには、クエリのデータ型がインデックス作成時に指定した `json_cast_type` と一致していることを確認してください。
+クエリで動的フィールドキーを**インデックスで使用されたものとは異なるデータ型**で比較する場合（例：インデックスが `double` にキャストされているのに文字列比較でクエリする場合）、システムは**インデックスを使用せず**、可能であればフルスキャンにフォールバックする場合があります。最適なパフォーマンスと精度を得るには、クエリの型がインデックス作成時に使用された `json_cast_type` と一致していることを確認してください。

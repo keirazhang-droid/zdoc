@@ -1,21 +1,21 @@
 ---
-title: "クイックスタート to Serving Cluster | BYOC"
+title: "サービングクラスターのクイックスタート | BYOC"
 slug: /quick-start
 sidebar_key: quick-start
-sidebar_label: "クイックスタート to Serving Cluster"
+sidebar_label: "サービングクラスターのクイックスタート"
 beta: FALSE
 notebook: FALSE
-description: "serving cluster は、リアルタイムの本番環境向けサービングのためにコンピューティングとストレージを統合した自己完結型サーバーです。Extract-Transform-Load（ETL）パイプラインでデータをクリーニングした後、serving cluster にインポートすることで、大幅なパフォーマンス向上を実現できます。 | BYOC"
+description: "サービングクラスターは、リアルタイム本番サービングのためにコンピュートとストレージの両方を組み合わせた自己完結型サーバーです。抽出・変換・ロード（ETL）パイプラインでデータをクレンジングした後、そのデータをサービングクラスターにインポートすることで、大幅なパフォーマンス向上を実現できます。 | BYOC"
 type: origin
 token: B1XTwQgNRizAMTkZQvrclGSonyc
-sidebar_position: 10
+sidebar_position: 9
 keywords: 
   - zilliz
   - ベクトルデータベース
   - クイックスタート
-  - cloud
+  - クラウド
   - milvus
-  - real-time serving
+  - リアルタイムサービング
 
 ---
 
@@ -25,7 +25,7 @@ import TabItem from '@theme/TabItem';
 
 # クイックスタート：Serving Cluster
 
-Serving Cluster は、リアルタイムの本番環境でのサービングのために、コンピューティングとストレージの両方を統合した自己完結型のサーバーです。Extract-Transform-Load (ETL) パイプラインでデータをクリーニングした後、それを Serving Cluster にインポートして、大幅なパフォーマンス向上を実現できます。
+Serving cluster は、リアルタイムの本番環境でのサービングのために、コンピュートとストレージの両方を組み合わせた自己完結型のサーバーです。Extract-Transform-Load (ETL) パイプラインでデータをクリーニングした後、それを serving cluster にインポートして、大幅なパフォーマンス向上を実現できます。
 
 ## 開始前に\{#before-you-start}
 
@@ -45,7 +45,7 @@ Zilliz Cloud は、Bring-Your-Own-Cloud (BYOC) ソリューションを提供し
 
     <Admonition type="info" icon="📘" title="Notes">
 
-    <p>Zilliz BYOC は現在<strong>一般提供</strong>されています。アクセスおよび実装の詳細については、<a href="https://zilliz.com/contact-sales">Zilliz Cloud 営業担当</a>までお問い合わせください。</p>
+    Zilliz BYOC は現在 **一般提供** されています。アクセスと実装の詳細については、[Zilliz Cloud 営業担当](https://zilliz.com/contact-sales) までお問い合わせください。
 
     </Admonition>
 
@@ -61,11 +61,11 @@ Zilliz Cloud は、Bring-Your-Own-Cloud (BYOC) ソリューションを提供し
 
     - [Microsoft Azure への BYOC-I デプロイ](./deploy-byoc-i-azure)
 
-    お客様のクラウドプロバイダーが上記にない場合は、[Zilliz Cloud サポート](https://zilliz.com/contact-sales) にお問い合わせください。
+    お使いのクラウドプロバイダーが上記にない場合は、[Zilliz Cloud サポート](https://zilliz.com/contact-sales) までお問い合わせください。
 
 - BYOC クラスターへの接続方法を決定していること。詳細については、[クラスター接続の準備](./prepare-for-cluster-connection) を参照してください。
 
-以下の手順では、Serving Cluster を既に作成し、そのエンドポイントとアクセス認証情報を取得していることを前提としています。
+以下の手順では、serving cluster を既に作成し、そのエンドポイントとアクセス認証情報を取得済みであることを前提としています。
 
 ## ステップ 1: 接続の設定\{#step-1-set-up-connection}
 
@@ -78,10 +78,10 @@ Zilliz Cloud は、Bring-Your-Own-Cloud (BYOC) ソリューションを提供し
 from pymilvus import MilvusClient, DataType
 
 SERVING_CLUSTER_ENDPOINT = "https://{cluster-id}.{region}.vectordb.zillizcloud.com:19530"
-TOKEN = "YOUR_CLUSTER_TOKEN" 
+TOKEN = "YOUR_ZILLIZ_API_KEY" 
 # A valid token could be 
 # 
-# - A colon-joined cluster username and password, as in \`user:pass\`
+# - Use your Zilliz Cloud API key
 
 # 1. Set up a Milvus client
 client = MilvusClient(
@@ -94,13 +94,64 @@ client = MilvusClient(
 
 <TabItem value='java'>
 
+```java
+import io.milvus.v2.client.ConnectConfig;
+import io.milvus.v2.client.MilvusClientV2;
+
+ConnectConfig config = ConnectConfig.builder()
+    .uri(SERVING_CLUSTER_ENDPOINT)
+    .token(TOKEN)
+    .build();
+MilvusClientV2 client = new MilvusClientV2(config);
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+import (
+    "context"
+
+    "github.com/milvus-io/milvus/client/v2/milvusclient"
+)
+
+ctx := context.Background()
+cli, err := milvusclient.New(ctx, &milvusclient.ClientConfig{
+    Address: SERVING_CLUSTER_ENDPOINT,
+    APIKey:  TOKEN,
+})
+if err != nil {
+    panic(err)
+}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+import { MilvusClient } from '@zilliz/milvus2-sdk-node';
+
+const client = new MilvusClient({
+  address: SERVING_CLUSTER_ENDPOINT,
+  token: TOKEN,
+});
+
+await client.connectPromise;
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
 ```bash
 export CLOUD_PLATFORM_ENDPOINT="https://api.cloud.zilliz.com"
 export SERVING_CLUSTER_ENDPOINT="https://{cluster-id}.{region}.vectordb.zillizcloud.com:19530"
-export TOKEN="YOUR_CLUSTER_TOKEN"
+export TOKEN="YOUR_ZILLIZ_API_KEY"
 # A valid token could be 
 # 
-# - A colon-joined cluster username and password, as in \`user:pass\`
+# - Use your Zilliz Cloud API key
 ```
 
 </TabItem>
@@ -124,6 +175,39 @@ client = MilvusClient(
 client.create_database(
     db_name="my_database"
 )
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+import io.milvus.v2.service.database.request.CreateDatabaseReq;
+
+client.createDatabase(CreateDatabaseReq.builder()
+    .databaseName("my_database")
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+err = cli.CreateDatabase(ctx, milvusclient.NewCreateDatabaseOption("my_database"))
+if err != nil {
+    panic(err)
+}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+await client.createDatabase({
+  db_name: 'my_database',
+});
 ```
 
 </TabItem>
@@ -180,6 +264,61 @@ schema.add_field(
 
 <TabItem value='java'>
 
+```java
+import io.milvus.v2.common.DataType;
+import io.milvus.v2.service.collection.request.AddFieldReq;
+import io.milvus.v2.service.collection.request.CreateCollectionReq;
+
+CreateCollectionReq.CollectionSchema collectionSchema = CreateCollectionReq.CollectionSchema.builder()
+    .build();
+collectionSchema.addField(AddFieldReq.builder()
+    .fieldName("product_id")
+    .dataType(DataType.Int64)
+    .isPrimaryKey(true)
+    .build());
+collectionSchema.addField(AddFieldReq.builder()
+    .fieldName("product_name")
+    .dataType(DataType.VarChar)
+    .maxLength(512)
+    .build());
+collectionSchema.addField(AddFieldReq.builder()
+    .fieldName("embedding")
+    .dataType(DataType.FloatVector)
+    .dimension(768)
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+import "github.com/milvus-io/milvus/client/v2/entity"
+
+schema := entity.NewSchema().
+    WithField(entity.NewField().WithName("product_id").WithDataType(entity.FieldTypeInt64).WithIsPrimaryKey(true)).
+    WithField(entity.NewField().WithName("product_name").WithDataType(entity.FieldTypeVarChar).WithMaxLength(512)).
+    WithField(entity.NewField().WithName("embedding").WithDataType(entity.FieldTypeFloatVector).WithDim(768))
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+import { DataType } from '@zilliz/milvus2-sdk-node';
+
+const fields = [
+  { name: 'product_id', data_type: DataType.Int64, is_primary_key: true },
+  { name: 'product_name', data_type: DataType.VarChar, max_length: 512 },
+  { name: 'embedding', data_type: DataType.FloatVector, dim: 768 },
+];
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
 ```bash
 export schema='{
     "fields": [
@@ -224,6 +363,47 @@ client.create_collection(
     collection_name="prod_collection",
     schema=schema
 )
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+client.createCollection(CreateCollectionReq.builder()
+    .databaseName("my_database")
+    .collectionName("prod_collection")
+    .collectionSchema(collectionSchema)
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+err = cli.UseDatabase(ctx, milvusclient.NewUseDatabaseOption("my_database"))
+if err != nil {
+    panic(err)
+}
+
+err = cli.CreateCollection(ctx, milvusclient.NewCreateCollectionOption("prod_collection", schema))
+if err != nil {
+    panic(err)
+}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+await client.useDatabase({ db_name: 'my_database' });
+
+await client.createCollection({
+  collection_name: 'prod_collection',
+  fields,
+});
 ```
 
 </TabItem>
@@ -278,6 +458,62 @@ client.create_index(
 
 <TabItem value='java'>
 
+```java
+import io.milvus.v2.common.IndexParam;
+import io.milvus.v2.service.index.request.CreateIndexReq;
+
+List<IndexParam> indexParams = new ArrayList<>();
+indexParams.add(IndexParam.builder()
+    .fieldName("embedding")
+    .indexType(IndexParam.IndexType.AUTOINDEX)
+    .metricType(IndexParam.MetricType.COSINE)
+    .build());
+
+client.createIndex(CreateIndexReq.builder()
+    .databaseName("my_database")
+    .collectionName("prod_collection")
+    .indexParams(indexParams)
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+import "github.com/milvus-io/milvus/client/v2/index"
+
+task, err := cli.CreateIndex(ctx, milvusclient.NewCreateIndexOption(
+    "prod_collection",
+    "embedding",
+    index.NewAutoIndex(entity.COSINE),
+).WithIndexName("embedding"))
+if err != nil {
+    panic(err)
+}
+if err = task.Await(ctx); err != nil {
+    panic(err)
+}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+await client.createIndex({
+  collection_name: 'prod_collection',
+  field_name: 'embedding',
+  index_type: 'AUTOINDEX',
+  metric_type: 'COSINE',
+  index_name: 'embedding',
+});
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
 ```bash
 export indexParams='[
     {
@@ -325,6 +561,50 @@ client.load_collection(
 
 <TabItem value='java'>
 
+```java
+import io.milvus.v2.service.collection.request.LoadCollectionReq;
+
+client.loadCollection(LoadCollectionReq.builder()
+    .databaseName("my_database")
+    .collectionName("prod_collection")
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+err = cli.UseDatabase(ctx, milvusclient.NewUseDatabaseOption("my_database"))
+if err != nil {
+    panic(err)
+}
+
+loadTask, err := cli.LoadCollection(ctx, milvusclient.NewLoadCollectionOption("prod_collection"))
+if err != nil {
+    panic(err)
+}
+if err = loadTask.Await(ctx); err != nil {
+    panic(err)
+}
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+await client.useDatabase({ db_name: 'my_database' });
+
+await client.loadCollection({
+  collection_name: 'prod_collection',
+});
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
 ```bash
 curl --request POST \
 --url "${SERVING_CLUSTER_ENDPOINT}/v2/vectordb/collections/load" \
@@ -353,18 +633,22 @@ from pymilvus.bulk_writer import bulk_import
 
 # The path should be relative to the root 
 # of a zilliz cloud volume or an external storage
-STORAGE_PATH = "s3://your/data/path/in/external/storage"
-ACCESS_KEY = "YOUR_STORAGE_ACCESS_KEY"
+OBJECT_URLS = [[                                                                                                             
+    "https://s3.us-west-2.amazonaws.com/your-bucket/path/in/external/storage.json"                                           
+]]                                                                                                                           
+                                                                                                                               
+ACCESS_KEY = "YOUR_STORAGE_ACCESS_KEY"                                                                                       
 SECRET_KEY = "YOUR_STORAGE_SECRET_KEY"
 
 res = bulk_import(
     api_key="YOUR_ZILLIZ_API_KEY",
     url="https://api.cloud.zilliz.com",
     cluster_id="inxx-xxxxxxxxxxxxxxxxxxx",
+    db_name="my_database",
     collection_name="prod_collection",
-    object_url="s3://your/data/path/in/external/storage.json",
-    access_key="YOUR_STORAGE_ACCESS_KEY",
-    secret_key="YOUR_STORAGE_SECRET_KEY"
+    object_urls=OBJECT_URLS,
+    access_key=ACCESS_KEY,
+    secret_key=SECRET_KEY
 )
 
 # job-xxxxxxxxxxxxxxxxxxxxx
@@ -386,7 +670,7 @@ curl --request POST \
      -d '{
         "clusterId": "inxx-xxxxxxxxxxxxxxx",
         "collectionName": "prod_collection",
-        "objectUrl": "s3://your/data/path/in/external/storage.json",
+        "objectUrls": [["https://s3.{region}.amazonaws.com/{bucket}/path/in/external/storage.json"]],
         "accessKey": "YOUR_STORAGE_ACCESS_KEY",
         "secretKey": "YOUR_STORAGE_SECRET_KEY"
     }'
@@ -451,9 +735,61 @@ res = client.search(
     anns_field="embedding",
     data=[query_vector],
     limit=3,
-    output_fields=["product_name"],
-    search_params={"metric_type": "COSINE"}
+    output_fields=["product_name"]
 )
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```java
+import io.milvus.v2.service.vector.request.SearchReq;
+import io.milvus.v2.service.vector.request.data.FloatVec;
+
+List<Float> queryVector = Arrays.asList(0.35803764f, -0.6023496f, 0.18414013f, -0.26286206f, 0.90294385f);
+SearchResp searchResp = client.search(SearchReq.builder()
+    .databaseName("my_database")
+    .collectionName("prod_collection")
+    .annsField("embedding")
+    .data(Collections.singletonList(new FloatVec(queryVector)))
+    .limit(3)
+    .outputFields(Collections.singletonList("product_name"))
+    .build());
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```go
+queryVector := []float32{0.35803764, -0.6023496, 0.18414013, -0.26286206, 0.90294385}
+resultSets, err := cli.Search(ctx, milvusclient.NewSearchOption(
+    "prod_collection",
+    3,
+    []entity.Vector{entity.FloatVector(queryVector)},
+).WithANNSField("embedding").WithOutputFields("product_name"))
+if err != nil {
+    panic(err)
+}
+_ = resultSets
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```javascript
+const queryVector = [0.3580376395471989, -0.6023495712049978, 0.18414012509913835, -0.26286205330961354, 0.9029438446296592];
+
+const results = await client.search({
+  db_name: 'my_database',
+  collection_name: 'prod_collection',
+  anns_field: 'embedding',
+  data: [queryVector],
+  limit: 3,
+  output_fields: ['product_name'],
+});
 ```
 
 </TabItem>

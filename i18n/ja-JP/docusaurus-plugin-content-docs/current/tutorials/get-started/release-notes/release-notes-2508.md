@@ -1,18 +1,18 @@
 ---
-title: "2025年8月リリースノート | Cloud"
+title: "2025年8月 リリースノート | Cloud"
 slug: /release-notes-2508
 sidebar_key: release-notes-2508
 sidebar_label: "2025年8月"
 beta: FALSE
 notebook: FALSE
-description: "Zilliz Cloud の2025年8月のリリースノートです。"
+description: "2025年8月のリリースノート | Cloud"
 type: origin
 token: JNWZwEqkwiDmeSkVPBlc4hnanEe
-sidebar_position: 9
+sidebar_position: 10
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
+  - クラウド
   - リリースノート
 
 ---

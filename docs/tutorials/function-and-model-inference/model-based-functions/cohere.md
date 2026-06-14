@@ -222,6 +222,28 @@ schema.addField(AddFieldReq.builder()
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("document", milvus::DataType::VARCHAR).WithMaxLength(9000));
+schema->AddField(milvus::FieldSchema("dense", milvus::DataType::FLOAT_VECTOR).WithDimension(1024));
+
+```
+
+</TabItem>
 </Tabs>
 
 ### Define the text embedding function\{#define-the-text-embedding-function}
@@ -303,6 +325,22 @@ schema.addFunction(function);
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+milvus::FunctionPtr function = std::make_shared<milvus::Function>("cohere_func", milvus::FunctionType::TEXTEMBEDDING);
+function->AddInputFieldName("document");
+function->AddOutputFieldName("dense");
+function->AddParam("provider", "cohere");
+function->AddParam("model_name", "embed-english-v3.0");
+
+function->AddParam("integration_id", "YOUR_INTEGRATION_ID");
+
+collection_schema->AddFunction(function);
+```
+
+</TabItem>
 </Tabs>
 
 ### Configure the index\{#configure-the-index}
@@ -364,6 +402,17 @@ indexes.add(IndexParam.builder()
 ```
 
 </TabItem>
+
+<TabItem value='c++'>
+
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("dense", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+
+```
+
+</TabItem>
 </Tabs>
 
 ### Create the collection\{#create-the-collection}
@@ -419,6 +468,20 @@ client.createCollection(requestCreate);
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("demo")
+                                    .WithIndexes(std::move(indexes))
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -484,6 +547,27 @@ client.insert(InsertReq.builder()
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='c++'>
+
+```c++
+milvus::EntityRows data = {
+    {{"id", 1}, {"document", "Milvus simplifies semantic search through embeddings."}},
+    {{"id", 2}, {"document", "Vector embeddings convert text into searchable numeric data."}},
+    {{"id", 3}, {"document", "Semantic search helps users find relevant information quickly."}}
+};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("demo")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -557,5 +641,23 @@ for (List<SearchResp.SearchResult> results : searchResults) {
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='c++'>
+
+```c++
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("demo")
+                   .AddEmbeddedText("How does Milvus handle semantic search?")
+                   .WithLimit(1)
+                   .WithAnnsField("dense")
+                   .AddOutputField("document");
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+</Tabs>

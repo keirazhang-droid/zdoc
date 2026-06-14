@@ -139,8 +139,6 @@ Since the majority of the data is stored on S3, memory is no longer the primary 
 
 Before starting the operations, familiarize yourself with the following limits:
 
-- Only Milvus 2.6.x-compatible dedicated clusters of the performance-optimized or capacity-optimized type permit this setting.
-
 - You need to set this parameter on a vector field of the floating vector types, including **FLOAT_VECTOR**, **FLOAT16_VECTOR**, and **BFLOAT16_VECTOR**, when indexing a collection.
 
 - Once set, this parameter cannot be modified. However, you can drop the index and create another with the desired settings if necessary.

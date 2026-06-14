@@ -5,20 +5,20 @@ sidebar_key: cohere
 sidebar_label: "Cohere"
 beta: FALSE
 notebook: FALSE
-description: "このトピックでは、Milvus で Cohere 埋め込み関数を設定し使用する方法について説明します。 | Cloud"
+description: "このトピックでは、Milvus で Cohere 埋め込み関数を構成および使用する方法について説明します。 | Cloud"
 type: origin
 token: WVaVw8J7UiYZ52kaqVUcktqAnAf
 sidebar_position: 8
 keywords: 
   - zilliz
   - ベクトルデータベース
-  - cloud
-  - function
-  - model
-  - inference
-  - text
-  - embedding
-  - cohere
+  - クラウド
+  - 関数
+  - モデル
+  - 推論
+  - テキスト
+  - 埋め込み
+  - Cohere
 
 ---
 
@@ -28,102 +28,102 @@ import TabItem from '@theme/TabItem';
 
 # Cohere
 
-このトピックでは、Milvus で Cohere 埋め込み関数を設定および使用する方法について説明します。
+このトピックでは、MilvusでCohere埋め込み関数を設定および使用する方法について説明します。
 
 ## モデルの選択\{#model-choices}
 
-Milvus は Cohere が提供する埋め込みモデルをサポートしています。以下は現在利用可能な埋め込みモデルの一覧です（参考用）：
+MilvusはCohereが提供する埋め込みモデルをサポートしています。以下は、現在利用可能な埋め込みモデルのクイックリファレンスです。
 
 <table>
    <tr>
-     <th><p>Model Name</p></th>
-     <th><p>Dimensions</p></th>
-     <th><p>Max Tokens</p></th>
-     <th><p>Description</p></th>
+     <th><p>モデル名</p></th>
+     <th><p>次元数</p></th>
+     <th><p>最大トークン数</p></th>
+     <th><p>説明</p></th>
    </tr>
    <tr>
      <td><p>embed-english-v3.0</p></td>
      <td><p>1,024</p></td>
      <td><p>512</p></td>
-     <td><p>A model that allows for text to be classified or turned into embeddings. English only.</p></td>
+     <td><p>テキストを分類したり、埋め込みに変換したりできるモデル。英語のみ。</p></td>
    </tr>
    <tr>
      <td><p>embed-multilingual-v3.0</p></td>
      <td><p>1,024</p></td>
      <td><p>512</p></td>
-     <td><p>Provides multilingual classification and embedding support. <a href="https://docs.cohere.com/docs/supported-languages">See supported languages here</a>.</p></td>
+     <td><p>多言語の分類と埋め込みサポートを提供します。<a href="https://docs.cohere.com/docs/supported-languages">サポートされている言語はこちら</a>。</p></td>
    </tr>
    <tr>
      <td><p>embed-english-light-v3.0</p></td>
      <td><p>384</p></td>
      <td><p>512</p></td>
-     <td><p>A smaller, faster version of <code>embed-english-v3.0</code>. Almost as capable, but a lot faster. English only.</p></td>
+     <td><p>より小さく、より高速なバージョンの<code>embed-english-v3.0</code>。機能はほぼ同じですが、はるかに高速です。英語のみ。</p></td>
    </tr>
    <tr>
      <td><p>embed-multilingual-light-v3.0</p></td>
      <td><p>384</p></td>
      <td><p>512</p></td>
-     <td><p>A smaller, faster version of <code>embed-multilingual-v3.0</code>. Almost as capable, but a lot faster. Supports multiple languages.</p></td>
+     <td><p>より小さく、より高速なバージョンの<code>embed-multilingual-v3.0</code>。機能はほぼ同じですが、はるかに高速です。複数の言語をサポートしています。</p></td>
    </tr>
    <tr>
      <td><p>embed-english-v2.0</p></td>
      <td><p>4,096</p></td>
      <td><p>512</p></td>
-     <td><p>Older embeddings model that allows for text to be classified or turned into embeddings. English only.</p></td>
+     <td><p>古い埋め込みモデルで、テキストを分類したり埋め込みに変換したりできます。英語のみ。</p></td>
    </tr>
    <tr>
      <td><p>embed-english-light-v2.0</p></td>
      <td><p>1,024</p></td>
      <td><p>512</p></td>
-     <td><p>A smaller, faster version of embed-english-v2.0. Almost as capable, but a lot faster. English only.</p></td>
+     <td><p>embed-english-v2.0のより小さくより高速なバージョン。機能はほぼ同じですが、はるかに高速です。英語のみ。</p></td>
    </tr>
    <tr>
      <td><p>embed-multilingual-v2.0</p></td>
      <td><p>768</p></td>
      <td><p>256</p></td>
-     <td><p>Provides multilingual classification and embedding support. <a href="https://docs.cohere.com/docs/supported-languages">See supported languages here</a>.</p></td>
+     <td><p>多言語の分類と埋め込みサポートを提供します。<a href="https://docs.cohere.com/docs/supported-languages">サポートされている言語はこちら</a>。</p></td>
    </tr>
 </table>
 
-詳細については、[Cohere's Embed Models](https://docs.cohere.com/docs/cohere-embed) を参照してください。
+詳細については、[Cohereの埋め込みモデル](https://docs.cohere.com/docs/cohere-embed) を参照してください。
 
-## 事前準備\{#before-you-start}
+## 始める前に\{#before-you-start}
 
-テキスト埋め込み関数を使用する前に、以下の前提条件を満たしていることを確認してください。
+テキスト埋め込み関数を使用する前に、以下の前提条件が満たされていることを確認してください。
 
 - **埋め込みモデルを選択**
 
-    使用する埋め込みモデルを決定してください。この選択により、埋め込みの動作と出力形式が決まります。詳細については、[埋め込みモデルを選択](./cohere#model-choices) を参照してください。
+    使用する埋め込みモデルを決定します。この選択によって埋め込みの動作と出力形式が決まります。詳細については、[埋め込みモデルを選択](./cohere#model-choices) を参照してください。
 
-- **Cohere と連携し、統合IDを取得**
+- **Cohereと連携し、統合IDを取得**
 
-    Cohere が提供する埋め込みモデルを使用するには、事前に Cohere とのモデルプロバイダー連携を作成し、統合IDを取得する必要があります。詳細については、[モデルプロバイダーとの連携](./integrate-with-model-providers) を参照してください。
+    Cohereとのモデルプロバイダー連携を作成し、統合IDを取得する必要があります。詳細については、[モデルプロバイダーとの連携](./integrate-with-model-providers) を参照してください。
 
 - **互換性のあるコレクションスキーマを設計**
 
-    コレクションスキーマに以下のフィールドを含めるように計画してください：
+    コレクションスキーマに以下を含めるように計画します。
 
-    - 生の入力テキストを格納するテキストフィールド（`VARCHAR`）
+    - 生の入力テキスト用のテキストフィールド（`VARCHAR`）
 
-    - 選択した埋め込みモデルの出力と一致するデータ型および次元数を持つ密ベクトルフィールド
+    - 選択した埋め込みモデルにデータ型と次元が一致するdenseベクトルフィールド
 
-- **挿入時および検索時に生テキストを扱う準備をする**
+- **挿入時および検索時にrawテキストを扱う準備**
 
-    テキスト埋め込み関数を有効にすると、生テキストを直接挿入およびクエリできます。埋め込みはシステムによって自動的に生成されます。
+    テキスト埋め込み関数を有効にすると、生のテキストを直接挿入およびクエリできます。埋め込みはシステムによって自動的に生成されます。
 
-## ステップ 1: テキスト埋め込み関数付きのコレクションを作成\{#step-1-create-a-collection-with-a-text-embedding-function}
+## ステップ1: テキスト埋め込み関数を使用したコレクションの作成\{#step-1-create-a-collection-with-a-text-embedding-function}
 
 ### スキーマフィールドの定義\{#define-schema-fields}
 
-埋め込み関数を使用するには、特定のスキーマでコレクションを作成する必要があります。このスキーマには、少なくとも以下の3つの必須フィールドを含める必要があります：
+埋め込み関数を使用するには、特定のスキーマでコレクションを作成します。このスキーマには、少なくとも3つの必須フィールドを含める必要があります。
 
-- コレクション内の各エンティティを一意に識別する主キーとなるフィールド
+- コレクション内の各エンティティを一意に識別するプライマリフィールド。
 
-- 埋め込み対象の生データを格納する `VARCHAR` フィールド
+- 埋め込む生データを格納する`VARCHAR`フィールド。
 
-- テキスト埋め込み関数が `VARCHAR` フィールドに対して生成する密ベクトル埋め込みを格納するためのベクトルフィールド
+- テキスト埋め込み関数が`VARCHAR`フィールドに対して生成するdenseベクトル埋め込みを格納するために予約されたベクトルフィールド。
 
-次の例では、テキストデータを格納するスカラー フィールド `"document"` と、Function モジュールによって生成される埋め込みを格納するベクトル フィールド `"dense"` を持つスキーマを定義しています。ベクトルの次元数（`dim`）を、選択した埋め込みモデルの出力に合わせて設定することを忘れないでください。
+次の例では、テキストデータを格納するスカラーフィールド`"document"`と、Functionモジュールによって生成される埋め込みを格納するベクトルフィールド`"dense"`を持つスキーマを定義しています。選択した埋め込みモデルの出力に合わせてベクトルの次元（`dim`）を設定することを忘れないでください。
 
 <Tabs groupId="code" defaultValue='python' values={[{"label":"Python","value":"python"},{"label":"Java","value":"java"},{"label":"NodeJS","value":"javascript"},{"label":"Go","value":"go"},{"label":"cURL","value":"bash"}]}>
 <TabItem value='python'>
@@ -219,6 +219,28 @@ schema.addField(AddFieldReq.builder()
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+#include "milvus/MilvusClientV2.h"
+
+auto client = milvus::MilvusClientV2::Create();
+
+milvus::ConnectParam connect_param{"YOUR_CLUSTER_ENDPOINT", "YOUR_CLUSTER_TOKEN"};
+auto status = client->Connect(connect_param);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+
+milvus::CollectionSchemaPtr schema = std::make_shared<milvus::CollectionSchema>();
+schema->AddField({"id", milvus::DataType::INT64, "", true, false});
+schema->AddField(milvus::FieldSchema("document", milvus::DataType::VARCHAR).WithMaxLength(9000));
+schema->AddField(milvus::FieldSchema("dense", milvus::DataType::FLOAT_VECTOR).WithDimension(1024));
+
+```
+
+</TabItem>
 </Tabs>
 
 ### テキスト埋め込み関数の定義\{#define-the-text-embedding-function}
@@ -300,6 +322,22 @@ schema.addFunction(function);
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::FunctionPtr function = std::make_shared<milvus::Function>("cohere_func", milvus::FunctionType::TEXTEMBEDDING);
+function->AddInputFieldName("document");
+function->AddOutputFieldName("dense");
+function->AddParam("provider", "cohere");
+function->AddParam("model_name", "embed-english-v3.0");
+
+function->AddParam("integration_id", "YOUR_INTEGRATION_ID");
+
+collection_schema->AddFunction(function);
+```
+
+</TabItem>
 </Tabs>
 
 ### インデックスの設定\{#configure-the-index}
@@ -361,6 +399,17 @@ indexes.add(IndexParam.builder()
 ```
 
 </TabItem>
+
+<TabItem value='java'>
+
+```c++
+std::vector<milvus::IndexDesc> indexes = {
+    milvus::IndexDesc("dense", "", milvus::IndexType::AUTOINDEX, milvus::MetricType::COSINE)
+}
+
+```
+
+</TabItem>
 </Tabs>
 
 ### コレクションの作成\{#create-the-collection}
@@ -416,6 +465,20 @@ client.createCollection(requestCreate);
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+auto status = client->CreateCollection(milvus::CreateCollectionRequest()
+                                    .WithCollectionName("demo")
+                                    .WithIndexes(std::move(indexes))
+                                    .WithCollectionSchema(schema));
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -481,6 +544,27 @@ client.insert(InsertReq.builder()
 
 ```bash
 # restful
+```
+
+</TabItem>
+
+<TabItem value='java'>
+
+```c++
+milvus::EntityRows data = {
+    {{"id", 1}, {"document", "Milvus simplifies semantic search through embeddings."}},
+    {{"id", 2}, {"document", "Vector embeddings convert text into searchable numeric data."}},
+    {{"id", 3}, {"document", "Semantic search helps users find relevant information quickly."}}
+};
+
+milvus::InsertResponse response;
+auto status = client->Insert(milvus::InsertRequest()
+                                .WithCollectionName("demo")
+                                .WithRowsData(std::move(data))
+                                , response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
 ```
 
 </TabItem>
@@ -554,5 +638,23 @@ for (List<SearchResp.SearchResult> results : searchResults) {
 ```
 
 </TabItem>
-</Tabs>
 
+<TabItem value='java'>
+
+```c++
+auto request = milvus::SearchRequest()
+                   .WithCollectionName("demo")
+                   .AddEmbeddedText("How does Milvus handle semantic search?")
+                   .WithLimit(1)
+                   .WithAnnsField("dense")
+                   .AddOutputField("document");
+
+milvus::SearchResponse response;
+auto status = client->Search(request, response);
+if (!status.IsOk()) {
+    std::cout << status.Message() << std::endl;
+}
+```
+
+</TabItem>
+</Tabs>
