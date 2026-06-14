@@ -13,10 +13,10 @@ type: docx
 token: CAzpdAw3wo4ZqrxhjTLcEGBBn1S
 sidebar_position: 11
 keywords: 
-  - vector database open source
-  - open source vector db
-  - vector database example
-  - rag vector database
+  - hybrid search
+  - lexical search
+  - nearest neighbor search
+  - Agentic RAG
   - zilliz
   - zilliz cloud
   - cloud
@@ -37,7 +37,7 @@ This operation prepares index parameters to build indexes for a specific collect
 
 This method applies only to dedicated serving clusters and on-demand compute. 
 
-- For this operation in a collection of a serving cluster, please create **MilvusClient** with the cluster endpoint.
+- For this operation in a collection of a serving cluster, please create **[MilvusClient](./Client-MilvusClient)** with the cluster endpoint.
 
     - **Free & Serverless**
 
@@ -47,7 +47,7 @@ This method applies only to dedicated serving clusters and on-demand compute.
 
         `https://{cluster-id}.{region}.vectordb.zillizcloud.com:19530`
 
-- For this operation in a collection for on-demand compute, create **MilvusClient** with the project endpoints, and then create a session to attach to an on-demand cluster for searches.
+- For this operation in a collection for on-demand compute, create **[MilvusClient](./Client-MilvusClient)** with the project endpoints, and then create a session to attach to an on-demand cluster for searches.
 
     `https://{project-id}.{region}.api.zillizcloud.com`
 

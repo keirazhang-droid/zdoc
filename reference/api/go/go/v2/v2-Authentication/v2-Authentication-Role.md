@@ -13,10 +13,10 @@ type: docx
 token: MUdZdTFeDoEtcwxBCOycaHyanr7
 sidebar_position: 24
 keywords: 
-  - information retrieval
-  - dimension reduction
-  - hnsw algorithm
-  - vector similarity search
+  - vector database example
+  - rag vector database
+  - what is vector db
+  - what are vector databases
   - zilliz
   - zilliz cloud
   - cloud

@@ -13,10 +13,10 @@ type: docx
 token: FzEydqTwRoajhnxZOftcKxKpndg
 sidebar_position: 25
 keywords: 
-  - llm eval
-  - Sparse vs Dense
-  - Dense vector
-  - Hierarchical Navigable Small Worlds
+  - NLP
+  - Neural Network
+  - Deep Learning
+  - Knowledge base
   - zilliz
   - zilliz cloud
   - cloud

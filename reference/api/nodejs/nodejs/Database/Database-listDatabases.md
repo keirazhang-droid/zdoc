@@ -13,10 +13,10 @@ type: docx
 token: DZMUdKbtfoT1HbxaXEDcgFkJnsh
 sidebar_position: 5
 keywords: 
-  - DiskANN
-  - Sparse vector
-  - Vector Dimension
-  - ANN Search
+  - Pinecone vs Milvus
+  - Chroma vs Milvus
+  - Annoy vector search
+  - milvus
   - zilliz
   - zilliz cloud
   - cloud
@@ -53,32 +53,30 @@ await milvusClient.listDatabases({
 
     Setting this to **None** indicates that this operation timeouts when any response arrives or any error occurs.
 
-**RETURNS** *Promise&lt;ListDatabasesResponse&gt;*
+**RETURNS** *Promise |&lt;ListDatabaseResponse&gt;*
 
-This method returns a promise that resolves to a **ListDatabasesResponse** object.
+This method returns a promise that resolves to a **ListDatabaseResponse** object.
 
-```typescript
+```javascript
 {
     db_names: string[],
-    db_ids: string[],
-    created_timestamp: string[],
-    status:  ResStatus
+    status: {
+        code: number,
+        error_code: string | number,
+        reason: string
+    }
 }
 ```
 
 **PARAMETERS:**
 
 - **db_names** (*string[]*) -
-A list of database names defined in the current Milvus instance.
 
-- **db_ids** (*string[]*) -
-The internal database identifiers, in the same order as **db_names**.
+    A list of database names.
 
-- **created_timestamp** (*string[]*) -
-The creation timestamps of the databases, in the same order as **db_names**.
+- **status** (**ResStatus**) -
 
-- **ResStatus**
-A **ResStatus** object.
+    The operation status.
 
     - **code** (*number*) -
 
@@ -86,9 +84,9 @@ A **ResStatus** object.
 
     - **error_code** (*string* | *number*) -
 
-        An error code that indicates an occurred error. It remains **Success** if this operation succeeds.
+        An error code that indicates an occurred error. It remains **Success** if this operation succeeds. 
 
-    - **reason** (*string*) -
+    - **reason** (*string*) - 
 
         The reason that indicates the reason for the reported error. It remains an empty string if this operation succeeds.
 

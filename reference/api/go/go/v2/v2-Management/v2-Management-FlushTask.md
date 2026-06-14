@@ -13,10 +13,10 @@ type: docx
 token: BPXDdgDPzoaDTixPJLncvFZ0nig
 sidebar_position: 10
 keywords: 
-  - Vector Dimension
-  - ANN Search
-  - What are vector embeddings
-  - vector database tutorial
+  - AI Hallucination
+  - AI Agent
+  - semantic search
+  - Anomaly Detection
   - zilliz
   - zilliz cloud
   - cloud

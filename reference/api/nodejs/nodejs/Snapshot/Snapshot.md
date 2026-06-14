@@ -12,10 +12,10 @@ token: IxaefGzWtlPFlTd617bcYS4cn4d
 sidebar_position: 10
 sidebar_label: "Snapshot"
 keywords: 
-  - Chroma vs Milvus
-  - Annoy vector search
-  - milvus
-  - Zilliz
+  - rag vector database
+  - what is vector db
+  - what are vector databases
+  - vector databases comparison
   - zilliz
   - zilliz cloud
   - cloud

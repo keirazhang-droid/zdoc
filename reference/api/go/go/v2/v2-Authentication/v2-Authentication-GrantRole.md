@@ -13,10 +13,10 @@ type: docx
 token: OPfXdP02ZoeDIUxhBUOcU3vBngb
 sidebar_position: 13
 keywords: 
-  - Vector Dimension
-  - ANN Search
-  - What are vector embeddings
-  - vector database tutorial
+  - private llms
+  - nn search
+  - llm eval
+  - Sparse vs Dense
   - zilliz
   - zilliz cloud
   - cloud

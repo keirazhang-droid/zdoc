@@ -13,10 +13,10 @@ type: docx
 token: NMsddLaMUoGUxexlFIScnY0Knpg
 sidebar_position: 4
 keywords: 
-  - knn
-  - Image Search
-  - LLMs
-  - Machine Learning
+  - how do vector databases work
+  - vector db comparison
+  - openai vector db
+  - natural language processing database
   - zilliz
   - zilliz cloud
   - cloud

@@ -13,10 +13,10 @@ type: docx
 token: ERQodkjAzotUQ3xKvA8c6jmLn3e
 sidebar_position: 1
 keywords: 
-  - Pinecone vector database
-  - Audio search
-  - what is semantic search
-  - Embedding model
+  - nn search
+  - llm eval
+  - Sparse vs Dense
+  - Dense vector
   - zilliz
   - zilliz cloud
   - cloud

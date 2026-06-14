@@ -9,13 +9,13 @@ deprecate_since: false
 description: "Embedding models for you to embed unstrucctured data into vector embeddings. | Python"
 type: folder
 token: A6atfZDQxl1INud6VYGcX54zngf
-sidebar_position: 2
+sidebar_position: 4
 sidebar_label: "EmbeddingModels"
 keywords: 
-  - natural language processing
-  - AI chatbots
-  - cosine distance
-  - what is a vector database
+  - information retrieval
+  - dimension reduction
+  - hnsw algorithm
+  - vector similarity search
   - zilliz
   - zilliz cloud
   - cloud

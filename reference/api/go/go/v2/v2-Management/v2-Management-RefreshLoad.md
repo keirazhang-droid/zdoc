@@ -13,10 +13,10 @@ type: docx
 token: VtZWdaMz6o9iYrxcEaMcsnJin0e
 sidebar_position: 23
 keywords: 
-  - milvus lite
-  - milvus benchmark
-  - managed milvus
-  - Serverless vector database
+  - Managed vector database
+  - Pinecone vector database
+  - Audio search
+  - what is semantic search
   - zilliz
   - zilliz cloud
   - cloud

@@ -13,10 +13,10 @@ type: docx
 token: GZ2jdLkKAojfofxm9BTcvwVCn4b
 sidebar_position: 1
 keywords: 
-  - Zilliz database
-  - Unstructured Data
-  - vector database
-  - IVF
+  - Managed vector database
+  - Pinecone vector database
+  - Audio search
+  - what is semantic search
   - zilliz
   - zilliz cloud
   - cloud
@@ -34,14 +34,6 @@ import Admonition from '@theme/Admonition';
 This operation creates a new cluster.
 
 ## Description\{#description}
-
-Zilliz Cloud provides various serving cluster deployment options to accommodate the distinct business needs. 
-
-- **Free**: provides a starting point for learning and personal projects with limitations on storage, vCU consumption, and the number of collections.
-
-- **Serverless**: provides a shared environment that automatically scales to match your workload - no need to provision resources. This option delivers excellent cost efficiency and elasticity for unpredictable or spiky traffic.
-
-- **Dedicated**: provides isolated, reserved environments for production workloads that demand consistent and predictable performance. This option is ideal for sustained high-throughput and latency-sensitive applications.
 
 Regarding dedicated clusters, Zilliz Cloud offers the following cluster types: **Performance-optimized, Capacity-optimized**, and **Tiered-storage.**
 

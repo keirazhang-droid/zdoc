@@ -12,10 +12,10 @@ token: QJJjfOjoGlLqVmdEtiJcriX2nWh
 sidebar_position: 8
 sidebar_label: "Vector"
 keywords: 
-  - llm hallucinations
-  - hybrid search
-  - lexical search
-  - nearest neighbor search
+  - vector similarity search
+  - approximate nearest neighbor search
+  - DiskANN
+  - Sparse vector
   - zilliz
   - zilliz cloud
   - cloud

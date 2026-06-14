@@ -12,10 +12,10 @@ token: VQMkfU9xUl3ywPdBTJRcoP5Vnkb
 sidebar_position: 2
 sidebar_label: "Billing"
 keywords: 
-  - hybrid search
-  - lexical search
-  - nearest neighbor search
-  - Agentic RAG
+  - Multimodal search
+  - vector search algorithms
+  - Question answering system
+  - llm-as-a-judge
   - zilliz
   - zilliz cloud
   - cloud

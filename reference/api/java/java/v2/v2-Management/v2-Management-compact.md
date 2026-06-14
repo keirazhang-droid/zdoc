@@ -41,38 +41,28 @@ public CompactResp compact(CompactReq request)
 
 ```java
 compact(CompactReq.builder()
-    .databaseName(String databaseName)
-    .collectionName(String collectionName)
-    .isClustering(Boolean isClustering)
+    .collectionName(String collection)
     .build()
-);
+)
 ```
 
 **BUILDER METHODS:**
 
-- `databaseName(String databaseName)` -
-
-    The name of the database. Defaults to the current database if not specified.
-
-- `collectionName(String collectionName)` -
+- `collectionName(String collection)`
 
     The name of the target collection.
 
-- `isClustering(Boolean isClustering)` -
-
-    Whether to perform clustering compaction. Defaults to `Boolean.FALSE`.
-
-**RETURNS:**
+**RETURN TYPE:**
 
 *CompactResp*
 
+**RETURNS:**
+
 A **CompactResp** object contains a compaction ID.
 
-**EXCEPTIONS:**
+- **compactionID** (*Long*)
 
-- **MilvusClientException**
-
-    This exception will be raised when any error occurs during this operation.
+    The ID of the current compact operation.
 
 ## Example\{#example}
 
@@ -96,3 +86,4 @@ client.compact(CompactReq.builder()
     .build();
 );
 ```
+

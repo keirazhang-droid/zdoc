@@ -13,10 +13,10 @@ type: docx
 token: BDNBdbEOioqnlKxRd3DcY7wRncg
 sidebar_position: 22
 keywords: 
-  - Video deduplication
-  - Video similarity search
-  - Vector retrieval
-  - Audio similarity search
+  - Sparse vs Dense
+  - Dense vector
+  - Hierarchical Navigable Small Worlds
+  - Dense embedding
   - zilliz
   - zilliz cloud
   - cloud

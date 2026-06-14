@@ -12,10 +12,10 @@ token: VqTofXsTzlF4nbdugKMcbg0onWd
 sidebar_position: 5
 sidebar_label: "Job"
 keywords: 
-  - Elastic vector database
-  - Pinecone vs Milvus
-  - Chroma vs Milvus
-  - Annoy vector search
+  - AI chatbots
+  - cosine distance
+  - what is a vector database
+  - vectordb
   - zilliz
   - zilliz cloud
   - cloud

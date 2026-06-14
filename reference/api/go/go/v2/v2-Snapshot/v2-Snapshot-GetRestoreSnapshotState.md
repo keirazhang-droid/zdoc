@@ -13,10 +13,10 @@ type: docx
 token: SxMgdp3ThoMYHaxkKtKc9EWvnZd
 sidebar_position: 4
 keywords: 
-  - Video search
-  - AI Hallucination
-  - AI Agent
-  - semantic search
+  - managed milvus
+  - Serverless vector database
+  - milvus open source
+  - how does milvus work
   - zilliz
   - zilliz cloud
   - cloud

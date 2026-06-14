@@ -13,10 +13,10 @@ type: docx
 token: LLYvdMBa6osxRQx90sHcm02Kn2b
 sidebar_position: 11
 keywords: 
-  - Managed vector database
-  - Pinecone vector database
-  - Audio search
-  - what is semantic search
+  - Zilliz
+  - milvus vector database
+  - milvus db
+  - milvus vector db
   - zilliz
   - zilliz cloud
   - cloud

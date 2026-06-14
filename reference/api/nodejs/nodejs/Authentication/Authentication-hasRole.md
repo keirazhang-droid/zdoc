@@ -13,10 +13,10 @@ type: docx
 token: Beq1d1hDUoTzIsxJ6WTcVtlpnah
 sidebar_position: 29
 keywords: 
-  - Machine Learning
-  - RAG
-  - NLP
-  - Neural Network
+  - Video search
+  - AI Hallucination
+  - AI Agent
+  - semantic search
   - zilliz
   - zilliz cloud
   - cloud

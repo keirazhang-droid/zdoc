@@ -13,10 +13,10 @@ type: docx
 token: HSYzdg59FoBzeIxymrLc0EbBnyd
 sidebar_position: 5
 keywords: 
-  - Pinecone vs Milvus
   - Chroma vs Milvus
   - Annoy vector search
   - milvus
+  - Zilliz
   - zilliz
   - zilliz cloud
   - cloud

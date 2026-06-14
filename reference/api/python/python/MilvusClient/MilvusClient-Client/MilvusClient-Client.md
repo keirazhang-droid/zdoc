@@ -12,10 +12,10 @@ token: M9bMfXz3llm0ebdks4Hc3KdMnCd
 sidebar_position: 2
 sidebar_label: "Client"
 keywords: 
-  - Video deduplication
-  - Video similarity search
-  - Vector retrieval
-  - Audio similarity search
+  - RAG
+  - NLP
+  - Neural Network
+  - Deep Learning
   - zilliz
   - zilliz cloud
   - cloud

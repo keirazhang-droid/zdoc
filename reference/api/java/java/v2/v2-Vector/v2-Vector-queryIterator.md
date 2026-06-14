@@ -13,10 +13,10 @@ type: docx
 token: A0I6dpXMsofjaVxE0RLcOW3nnWe
 sidebar_position: 6
 keywords: 
-  - natural language processing database
-  - cheap vector database
-  - Managed vector database
-  - Pinecone vector database
+  - what is vector db
+  - what are vector databases
+  - vector databases comparison
+  - Faiss
   - zilliz
   - zilliz cloud
   - cloud
@@ -41,86 +41,91 @@ public QueryIterator queryIterator(QueryIteratorReq request)
 
 ```java
 queryIterator(QueryIteratorReq.builder()
-    .databaseName(String databaseName)
-    .collectionName(String collectionName)
-    .partitionNames(List<String> partitionNames)
-    .outputFields(List<String> outputFields)
-    .expr(String expr)
-    .consistencyLevel(ConsistencyLevel consistencyLevel)
-    .offset(long offset)
-    .limit(long limit)
-    .ignoreGrowing(boolean ignoreGrowing)
-    .timezone(String timezone)
-    .batchSize(long batchSize)
-    .reduceStopForBest(boolean reduceStopForBest)
-    .filterTemplateValues(Map<String, Object> filterTemplateValues)
-    .build()
-);
+        .collectionName(String collectionName)
+        .outputFields(List<String> outputFields)
+        .expr(String expr)
+        .batchSize(long size)
+        .consistencyLevel(ConsistencyLevel consistencyLevel)
+        .offset(long offset)
+        .limit(long limit)
+        .build());
 ```
 
 **BUILDER METHODS:**
 
-- `databaseName(String databaseName)` -
+- `collectionName(String collectionName)`
 
-    The name of the database. Defaults to the current database if not specified.
+    The name of an existing collection.
 
-- `collectionName(String collectionName)` -
+- `outputFields(List<String> outputFields)`
 
-    The name of the target collection.
+    A list of field names to include in each entity in return.
 
-- `partitionNames(List<String> partitionNames)` -
+    The value defaults to **None**. If left unspecified, all fields in the collection are selected as the output fields.
 
-    A list of partition names to target.
+- `expr(String expr)`
 
-- `outputFields(List<String> outputFields)` -
+    A scalar filtering condition to filter matching entities. 
 
-    A list of field names to include in the output.
+    You can set this parameter to an empty string to skip scalar filtering. To build a scalar filtering condition, refer to [Boolean Expression Rules](https://milvus.io/docs/boolean.md). 
 
-- `expr(String expr)` -
+- `batchSize(long size)`
 
-    A boolean expression to filter results.
+A value to define the number of entities returned per batch.
 
-- `consistencyLevel(ConsistencyLevel consistencyLevel)` -
+- `consistencyLevel([ConsistencyLevel](./v2-Collections-ConsistencyLevel) consistencyLevel)`
 
-    The consistency level for the operation.
+    The consistency level of the target collection.
 
-- `offset(long offset)` -
+    The value defaults to the one specified when you create the current collection, with options of **Strong** (**0**), **Bounded** (**1**), **Session** (**2**), and **Eventually** (**3**).
 
-    The number of results to skip before returning.
+    <Admonition type="info" icon="📘" title="What is the consistency level?">
 
-- `limit(long limit)` -
+    Consistency in a distributed database specifically refers to the property that ensures every node or replica has the same view of data when writing or reading data at a given time.
 
-    The maximum number of results to return.
+    Zilliz Cloud provides three consistency levels: **Strong**, **Bounded Staleness**, and **Eventually**, with **Bounded Staleness** set as the default.
 
-- `ignoreGrowing(boolean ignoreGrowing)` -
+    You can easily tune the consistency level when conducting a vector similarity search or query to make it best suit your application.
 
-    Whether to ignore growing segments during the operation.
+    </Admonition>
 
-- `timezone(String timezone)` -
+- `offset(long offset)`
 
-    The timezone string for time-related filters.
+    The number of records to skip in the query result. 
 
-- `batchSize(long batchSize)` -
+    You can use this parameter in combination with `limit` to enable pagination.
 
-    The batch size for iterator operations.
+    The sum of this value and `limit` should be less than 16,384. 
 
-- `reduceStopForBest(boolean reduceStopForBest)` -
+- `limit(long limit)`
 
-    Whether to stop iteration when the best result is found.
+    The number of records to return in the query result.
 
-- `filterTemplateValues(Map<String, Object> filterTemplateValues)` -
+    You can use this parameter in combination with `offset` to enable pagination.
 
-    A map of template variable values for parameterized filters.
+    The sum of this value and `offset` should be less than 16,384. 
+
+**RETURN TYPE:**
+
+*QueryIterator*
 
 **RETURNS:**
 
-*QueryIterator*
+A *QueryIterator* object to iterate data.
 
-*QueryIterator*
+**METHODS:**
+
+- List&lt;QueryResultsWrapper.RowRecord&gt; next()
+
+Return a batch of results.
+
+- close()
+
+Release the cache results.
 
 **EXCEPTIONS:**
 
-- **MilvusClientException**
+- **MilvusClientExceptions**
 
     This exception will be raised when any error occurs during this operation.
 
@@ -129,35 +134,41 @@ queryIterator(QueryIteratorReq.builder()
 ```java
 import io.milvus.orm.iterator.QueryIterator;
 import io.milvus.response.QueryResultsWrapper;
-import io.milvus.v2.service.vector.request.QueryIteratorReq;
+import io.milvus.v2.client.ConnectConfig;
+import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.common.ConsistencyLevel;
+import io.milvus.v2.service.vector.request.QueryIteratorReq;
 
-import java.util.Arrays;
-import java.util.List;
+// 1. Set up a client
+ConnectConfig connectConfig = ConnectConfig.builder()
+        .uri("YOUR_CLUSTER_ENDPOINT")
+        .token("YOUR_CLUSTER_TOKEN")
+        .build();
+        
+MilvusClientV2 client = new MilvusClientV2(connectConfig);
 
-// Create a query iterator to retrieve results in batches
+// 2. Iterator data
 QueryIterator queryIterator = client.queryIterator(QueryIteratorReq.builder()
-        .collectionName("my_collection")
-        .expr("userID < 3000")
-        .outputFields(Arrays.asList("userID", "userAge"))
-        .batchSize(100)
-        .offset(0)
-        .limit(10000)
+        .collectionName("test")
+        .expr("id < 300")
+        .outputFields(Lists.newArrayList("id", "vector"))
+        .batchSize(50L)
+        .offset(5)
+        .limit(400)
         .consistencyLevel(ConsistencyLevel.BOUNDED)
         .build());
 
-// Iterate through all results
-int counter = 0;
 while (true) {
     List<QueryResultsWrapper.RowRecord> res = queryIterator.next();
     if (res.isEmpty()) {
+        System.out.println("query iteration finished, close");
         queryIterator.close();
         break;
     }
+
     for (QueryResultsWrapper.RowRecord record : res) {
         System.out.println(record);
-        counter++;
     }
 }
-System.out.printf("%d query results returned%n", counter);
 ```
+

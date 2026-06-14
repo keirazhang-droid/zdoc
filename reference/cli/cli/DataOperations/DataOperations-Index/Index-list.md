@@ -13,10 +13,10 @@ type: docx
 token: Kw0KdCb7yom9alxtZRTcV3m7nCb
 sidebar_position: 4
 keywords: 
-  - vector database
-  - IVF
-  - knn
-  - Image Search
+  - Natural language search
+  - Similarity Search
+  - multimodal RAG
+  - llm hallucinations
   - zilliz
   - zilliz cloud
   - cloud

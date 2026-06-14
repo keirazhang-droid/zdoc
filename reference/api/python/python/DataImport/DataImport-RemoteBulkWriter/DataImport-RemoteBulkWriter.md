@@ -13,10 +13,10 @@ type: docx
 token: BDP4dew9to9tQoxNEMPcBR5xnZb
 sidebar_position: 4
 keywords: 
-  - milvus open source
-  - how does milvus work
-  - Zilliz vector database
-  - Zilliz database
+  - Image Search
+  - LLMs
+  - Machine Learning
+  - RAG
   - zilliz
   - zilliz cloud
   - cloud
@@ -43,7 +43,7 @@ Constructs a **RemoteBulkWriter** object with a set of parameters, such as **sch
 
 <Admonition type="info" icon="📘" title="Notes">
 
-A **RemoteBulkWriter** object intends to rewrite your raw data in a format that Zilliz Cloud understands into an AWS-S3-compatible bucket.
+A **RemoteBulkWriter** object intends to rewrite your raw data in a format that Zilliz Cloud understands into an AWS-S3-compatible or a Microsoft Azure Blob Storage bucket.
 
 </Admonition>
 
@@ -94,32 +94,11 @@ writer = RemoteBulkWriter(
 
     </Admonition>
 
-- **file_type** (*[BulkFileType](./DataImport-BulkFileType)*) -
+- **file_type** (*BulkFileType*) -
 
     The type of the output file.
 
     The value defaults to **BulkFileType.PARQUET**. 
-
-    Possible options are **BulkFileType.JSON**, **BulkFileType.PARQUET**, **BulkFileType.CSV**.
-
-- **config** (*dict*)
-
-    A dictionary specifying optional configurations for processing CSV files. This parameter is available only when **file_type** is set to **BulkFileType.CSV**. Example configuration:
-
-    ```python
-    config={
-        "sep": "\t",
-        "nullkey": "NULL"
-    }
-    ```
-
-    - **sep** (*string*)
-
-        The delimiter of CSV file. The value must be a string of length 1, which defaults to `","`. The following strings are not allowed: `"\0"`, `"\n"`, `"\r"`, `"""`.
-
-    - **nullkey** (*string*)
-
-        Special string representing null value. The value defaults to empty string: `""`.
 
 **RETURN TYPE:**
 

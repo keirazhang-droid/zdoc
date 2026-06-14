@@ -13,10 +13,10 @@ type: docx
 token: JgY9doHQjoNBfMxVnpfcZeHongb
 sidebar_position: 5
 keywords: 
-  - vector database
-  - IVF
-  - knn
-  - Image Search
+  - approximate nearest neighbor search
+  - DiskANN
+  - Sparse vector
+  - Vector Dimension
   - zilliz
   - zilliz cloud
   - cloud

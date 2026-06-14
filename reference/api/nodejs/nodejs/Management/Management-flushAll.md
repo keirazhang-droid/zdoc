@@ -13,10 +13,10 @@ type: docx
 token: Zyi9dGUnQodt7MxIq17cyN54nOd
 sidebar_position: 22
 keywords: 
-  - vector search algorithms
-  - Question answering system
-  - llm-as-a-judge
-  - hybrid vector search
+  - hybrid search
+  - lexical search
+  - nearest neighbor search
+  - Agentic RAG
   - zilliz
   - zilliz cloud
   - cloud

@@ -12,10 +12,10 @@ token: RMdtf53TElufWpdluDgc5veVnqc
 sidebar_position: 7
 sidebar_label: "Project"
 keywords: 
-  - cosine distance
-  - what is a vector database
-  - vectordb
-  - multimodal vector database retrieval
+  - AI Hallucination
+  - AI Agent
+  - semantic search
+  - Anomaly Detection
   - zilliz
   - zilliz cloud
   - cloud

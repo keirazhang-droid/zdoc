@@ -13,10 +13,10 @@ type: docx
 token: G4wZdxKupoYTu6xc2M5c6sATn8d
 sidebar_position: 6
 keywords: 
-  - hybrid vector search
-  - Video deduplication
-  - Video similarity search
-  - Vector retrieval
+  - hnsw algorithm
+  - vector similarity search
+  - approximate nearest neighbor search
+  - DiskANN
   - zilliz
   - zilliz cloud
   - cloud

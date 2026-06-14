@@ -13,10 +13,10 @@ type: docx
 token: KXgNdgTrWoglBsxXTjvcIwnpnqh
 sidebar_position: 3
 keywords: 
-  - Image Search
-  - LLMs
-  - Machine Learning
-  - RAG
+  - milvus vector db
+  - Zilliz Cloud
+  - what is milvus
+  - milvus database
   - zilliz
   - zilliz cloud
   - cloud

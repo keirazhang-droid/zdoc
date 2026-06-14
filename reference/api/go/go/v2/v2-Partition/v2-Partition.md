@@ -12,10 +12,10 @@ token: EsbCfRCYllSGzXdrs2zcrQWcnHg
 sidebar_position: 7
 sidebar_label: "Partition"
 keywords: 
-  - Zilliz
-  - milvus vector database
-  - milvus db
-  - milvus vector db
+  - vector search algorithms
+  - Question answering system
+  - llm-as-a-judge
+  - hybrid vector search
   - zilliz
   - zilliz cloud
   - cloud

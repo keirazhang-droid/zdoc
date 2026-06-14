@@ -13,10 +13,10 @@ type: docx
 token: CCWrdPlSao0pOTx9oIgcA64Nnjd
 sidebar_position: 10
 keywords: 
-  - Deep Learning
-  - Knowledge base
-  - natural language processing
-  - AI chatbots
+  - Hierarchical Navigable Small Worlds
+  - Dense embedding
+  - Faiss vector database
+  - Chroma vector database
   - zilliz
   - zilliz cloud
   - cloud

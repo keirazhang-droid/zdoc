@@ -13,10 +13,10 @@ type: docx
 token: FZuddXocNopEufxRFGdcbvkRnnb
 sidebar_position: 6
 keywords: 
-  - milvus db
-  - milvus vector db
-  - Zilliz Cloud
-  - what is milvus
+  - What is unstructured data
+  - Vector embeddings
+  - Vector store
+  - open source vector database
   - zilliz
   - zilliz cloud
   - cloud
@@ -37,7 +37,7 @@ This operation lists all existing databases.
 
 This method applies only to dedicated serving clusters and on-demand compute. 
 
-- For a database in dedicated serving clusters, please create **MilvusClient** with the cluster endpoint.
+- For a database in a dedicated serving clusters, create **[MilvusClient](./Client-MilvusClient)** with the cluster endpoint.
 
     - **Free & Serverless**
 
@@ -47,7 +47,7 @@ This method applies only to dedicated serving clusters and on-demand compute.
 
         `https://{cluster-id}.{region}.vectordb.zillizcloud.com:19530`
 
-- For a database for on-demand compute, create **MilvusClient** with the project endpoints.
+- For a database for on-demand compute, create **[MilvusClient](./Client-MilvusClient)** with the project endpoints.
 
     `https://{project-id}.{region}.api.zillizcloud.com`
 

@@ -13,10 +13,10 @@ type: docx
 token: YXtHdG865oGg7IxwoZRcIJkQn8e
 sidebar_position: 6
 keywords: 
-  - vectordb
-  - multimodal vector database retrieval
-  - Retrieval Augmented Generation
-  - Large language model
+  - natural language processing
+  - AI chatbots
+  - cosine distance
+  - what is a vector database
   - zilliz
   - zilliz cloud
   - cloud

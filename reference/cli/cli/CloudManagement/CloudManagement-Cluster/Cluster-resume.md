@@ -13,10 +13,10 @@ type: docx
 token: EfaUd8o9LoguWnx6jndcyTJfnzd
 sidebar_position: 9
 keywords: 
-  - what is vector db
-  - what are vector databases
-  - vector databases comparison
-  - Faiss
+  - Vector store
+  - open source vector database
+  - Vector index
+  - vector database open source
   - zilliz
   - zilliz cloud
   - cloud

@@ -13,10 +13,10 @@ type: docx
 token: I7fKd8mPNoKYEAxmKpxcgaH8nsb
 sidebar_position: 1
 keywords: 
-  - Zilliz vector database
-  - Zilliz database
-  - Unstructured Data
-  - vector database
+  - milvus database
+  - milvus lite
+  - milvus benchmark
+  - managed milvus
   - zilliz
   - zilliz cloud
   - cloud

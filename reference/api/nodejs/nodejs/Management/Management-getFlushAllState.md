@@ -13,10 +13,10 @@ type: docx
 token: WgfTdXbMmoFhO9xBpencxLRRnbb
 sidebar_position: 25
 keywords: 
-  - knn
-  - Image Search
-  - LLMs
-  - Machine Learning
+  - Vectorization
+  - k nearest neighbor algorithm
+  - ANNS
+  - Vector search
   - zilliz
   - zilliz cloud
   - cloud
@@ -66,36 +66,15 @@ An optional duration of time in milliseconds to allow for the RPC. If it is set 
 - **client_request_id** (*string*) -
 A trace ID for request tracking. Optional.
 
-**RETURNS** *Promise&lt;GetFlushAllStateResponse&gt;*
+**RETURNS:**
 
-This method returns a promise that resolves to a **GetFlushAllStateResponse** object.
+*Promise\<GetFlushAllStateResponse\>*
 
-```typescript
-{
-    flushed: boolean,
-    status:  ResStatus
-}
-```
+**EXCEPTIONS:**
 
-**PARAMETERS:**
+- **MilvusError**
 
-- **flushed** (*boolean*) -
-Whether the flush-all operation identified by the supplied timestamps has fully completed. It is **true** when every channel reaches the requested flush timestamp, otherwise **false**.
-
-- **ResStatus**
-A **ResStatus** object.
-
-    - **code** (*number*) -
-
-        A code that indicates the operation result. It remains **0** if this operation succeeds.
-
-    - **error_code** (*string* | *number*) -
-
-        An error code that indicates an occurred error. It remains **Success** if this operation succeeds.
-
-    - **reason** (*string*) -
-
-        The reason that indicates the reason for the reported error. It remains an empty string if this operation succeeds.
+    This exception will be raised when any error occurs during this operation.
 
 ## Example\{#example}
 

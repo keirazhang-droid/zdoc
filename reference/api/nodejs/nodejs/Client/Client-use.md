@@ -11,12 +11,12 @@ notebook: false
 description: "This operation sets the active database for the gRPC client. After calling this method, all subsequent operations will target the specified database. | Node.js"
 type: docx
 token: Dc3JdXF5dogLOLxqUPGclM6jn6f
-sidebar_position: 7
+sidebar_position: 9
 keywords: 
-  - AI Agent
-  - semantic search
-  - Anomaly Detection
-  - sentence transformers
+  - how does milvus work
+  - Zilliz vector database
+  - Zilliz database
+  - Unstructured Data
   - zilliz
   - zilliz cloud
   - cloud

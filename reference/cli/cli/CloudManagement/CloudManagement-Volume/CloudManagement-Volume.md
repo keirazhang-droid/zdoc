@@ -12,10 +12,10 @@ token: YJ0WfaSiClY9p5d6Jykcba2anbc
 sidebar_position: 8
 sidebar_label: "Volume"
 keywords: 
-  - Chroma vector database
-  - nlp search
-  - hallucinations llm
-  - Multimodal search
+  - Vector retrieval
+  - Audio similarity search
+  - Elastic vector database
+  - Pinecone vs Milvus
   - zilliz
   - zilliz cloud
   - cloud

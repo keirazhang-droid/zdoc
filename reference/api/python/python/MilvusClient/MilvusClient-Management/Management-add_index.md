@@ -13,10 +13,10 @@ type: docx
 token: SM7ld0ZsEoYLqaxVMZxcSH82n9f
 sidebar_position: 1
 keywords: 
-  - what is semantic search
-  - Embedding model
-  - image similarity search
-  - Context Window
+  - knn
+  - Image Search
+  - LLMs
+  - Machine Learning
   - zilliz
   - zilliz cloud
   - cloud
@@ -32,26 +32,6 @@ import Admonition from '@theme/Admonition';
 # add_index()
 
 This operation adds index parameters for a specific field in a collection.
-
-<Admonition type="info" icon="📘" title="Notes">
-
-This method applies only to dedicated serving clusters and on-demand compute. 
-
-- For this operation in a collection of a serving cluster, please create **MilvusClient** with the cluster endpoint.
-
-    - **Free & Serverless**
-
-        `https://{cluster-id}.serverless.{region}.vectordb.zillizcloud.com`
-
-    - **Dedicated**
-
-        `https://{cluster-id}.{region}.vectordb.zillizcloud.com:19530`
-
-- For this operation in a collection for on-demand compute, create **MilvusClient** with the project endpoints, and then create a session to attach to an on-demand cluster for searches.
-
-    `https://{project-id}.{region}.api.zillizcloud.com`
-
-</Admonition>
 
 ## Request syntax\{#request-syntax}
 

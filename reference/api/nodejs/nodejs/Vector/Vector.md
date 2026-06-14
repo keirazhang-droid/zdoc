@@ -12,10 +12,10 @@ token: HgpMfqiBwlO0sudMbiVcYpHHn5f
 sidebar_position: 7
 sidebar_label: "Vector"
 keywords: 
-  - Vector Dimension
-  - ANN Search
-  - What are vector embeddings
-  - vector database tutorial
+  - milvus lite
+  - milvus benchmark
+  - managed milvus
+  - Serverless vector database
   - zilliz
   - zilliz cloud
   - cloud

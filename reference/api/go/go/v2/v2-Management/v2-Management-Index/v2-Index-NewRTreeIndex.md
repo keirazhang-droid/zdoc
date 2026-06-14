@@ -13,10 +13,10 @@ type: docx
 token: I053djRjsob1JJxKXvUcGelbn2d
 sidebar_position: 21
 keywords: 
-  - knn algorithm
-  - HNSW
-  - What is unstructured data
-  - Vector embeddings
+  - Vector retrieval
+  - Audio similarity search
+  - Elastic vector database
+  - Pinecone vs Milvus
   - zilliz
   - zilliz cloud
   - cloud

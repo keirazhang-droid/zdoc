@@ -13,10 +13,10 @@ type: docx
 token: AKpldMJPTo6MfuxxrpicBKRInCh
 sidebar_position: 27
 keywords: 
-  - Audio search
-  - what is semantic search
-  - Embedding model
-  - image similarity search
+  - ANNS
+  - Vector search
+  - knn algorithm
+  - HNSW
   - zilliz
   - zilliz cloud
   - cloud

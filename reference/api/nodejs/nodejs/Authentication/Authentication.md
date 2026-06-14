@@ -12,10 +12,10 @@ token: KWn3ff3dRlg3zndqerbcW0QXn1c
 sidebar_position: 1
 sidebar_label: "Authentication"
 keywords: 
-  - Serverless vector database
-  - milvus open source
-  - how does milvus work
-  - Zilliz vector database
+  - DiskANN
+  - Sparse vector
+  - Vector Dimension
+  - ANN Search
   - zilliz
   - zilliz cloud
   - cloud

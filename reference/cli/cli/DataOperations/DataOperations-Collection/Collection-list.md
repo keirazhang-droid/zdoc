@@ -13,10 +13,10 @@ type: docx
 token: N10RdNXeNoseZNxkxBtcLGa1nKf
 sidebar_position: 9
 keywords: 
+  - LLMs
+  - Machine Learning
   - RAG
   - NLP
-  - Neural Network
-  - Deep Learning
   - zilliz
   - zilliz cloud
   - cloud

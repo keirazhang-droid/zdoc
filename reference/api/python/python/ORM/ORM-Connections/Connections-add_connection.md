@@ -13,10 +13,10 @@ type: docx
 token: C37ldNLbFog6ThxA23ScMldnnmb
 sidebar_position: 1
 keywords: 
+  - what is vector db
   - what are vector databases
   - vector databases comparison
   - Faiss
-  - Video search
   - zilliz
   - zilliz cloud
   - cloud
@@ -108,8 +108,6 @@ add_connection(
     - A pair of username and password to access the cluster, joined by a colon (**:**).
 
         You can use the cluster credentials specified when the cluster has been created on the Zilliz Cloud console, or those of any existing cluster users.
-
-    For details, refer to [On Zilliz Cloud Console](/docs/on-zilliz-cloud-console) for more information.
 
 </Admonition>
 

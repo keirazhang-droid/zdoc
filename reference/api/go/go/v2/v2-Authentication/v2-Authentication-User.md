@@ -13,10 +13,10 @@ type: docx
 token: FCnndgcaworiHGxozvocjrZonIj
 sidebar_position: 26
 keywords: 
-  - Anomaly Detection
-  - sentence transformers
-  - Recommender systems
-  - information retrieval
+  - milvus open source
+  - how does milvus work
+  - Zilliz vector database
+  - Zilliz database
   - zilliz
   - zilliz cloud
   - cloud

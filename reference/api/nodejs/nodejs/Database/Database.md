@@ -12,10 +12,10 @@ token: F0ZXfs6XSlspHxdg7DwcYb84nMf
 sidebar_position: 4
 sidebar_label: "Database"
 keywords: 
-  - Annoy vector search
-  - milvus
-  - Zilliz
-  - milvus vector database
+  - Unstructured Data
+  - vector database
+  - IVF
+  - knn
   - zilliz
   - zilliz cloud
   - cloud

@@ -9,13 +9,13 @@ deprecate_since: false
 description: "Reranking models for a sophisticated evaluation and refinement on retrieved results. | Python"
 type: folder
 token: Ph7xfldrplFoihdiSAkciCuenyh
-sidebar_position: 5
+sidebar_position: 6
 sidebar_label: "Rerankers"
 keywords: 
-  - Video deduplication
-  - Video similarity search
-  - Vector retrieval
-  - Audio similarity search
+  - lexical search
+  - nearest neighbor search
+  - Agentic RAG
+  - rag llm architecture
   - zilliz
   - zilliz cloud
   - cloud

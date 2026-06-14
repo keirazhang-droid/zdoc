@@ -13,10 +13,10 @@ type: docx
 token: T6xNdPPtsotGiYxL1WActF3qnxb
 sidebar_position: 24
 keywords: 
-  - Large language model
-  - Vectorization
-  - k nearest neighbor algorithm
-  - ANNS
+  - hallucinations llm
+  - Multimodal search
+  - vector search algorithms
+  - Question answering system
   - zilliz
   - zilliz cloud
   - cloud

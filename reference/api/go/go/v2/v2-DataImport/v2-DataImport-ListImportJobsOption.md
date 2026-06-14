@@ -13,10 +13,10 @@ type: docx
 token: KUFtdKbFpoTdtkxw4y3cYWhHnUe
 sidebar_position: 8
 keywords: 
-  - vector database
-  - IVF
-  - knn
-  - Image Search
+  - Agentic RAG
+  - rag llm architecture
+  - private llms
+  - nn search
   - zilliz
   - zilliz cloud
   - cloud

@@ -13,10 +13,10 @@ type: docx
 token: QcWcdXbgxooJO4xuwADc9YqAn8c
 sidebar_position: 6
 keywords: 
-  - Embedding model
-  - image similarity search
-  - Context Window
-  - Natural language search
+  - nn search
+  - llm eval
+  - Sparse vs Dense
+  - Dense vector
   - zilliz
   - zilliz cloud
   - cloud

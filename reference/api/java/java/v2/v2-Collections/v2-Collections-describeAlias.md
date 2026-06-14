@@ -13,10 +13,10 @@ type: docx
 token: BDqGdp4uqo3XRexslRNcts9knmd
 sidebar_position: 11
 keywords: 
-  - Multimodal search
-  - vector search algorithms
-  - Question answering system
-  - llm-as-a-judge
+  - AI Agent
+  - semantic search
+  - Anomaly Detection
+  - sentence transformers
   - zilliz
   - zilliz cloud
   - cloud
@@ -41,31 +41,30 @@ public DescribeAliasResp describeAlias(DescribeAliasReq request)
 
 ```java
 describeAlias(DescribeAliasReq.builder()
-    .databaseName(String databaseName)
     .alias(String alias)
     .build()
-);
+)
 ```
 
 **BUILDER METHODS:**
 
-- `databaseName(String databaseName)` -
+- `alias(String alias)`
 
-    The name of the database. Defaults to the current database if not specified.
+    The alias of a collection. 
 
-- `alias(String alias)` -
+    Before this operation, ensure that the alias exists. Otherwise, exceptions will occur.
 
-    The alias name.
-
-**RETURNS:**
+**RETURN TYPE:**
 
 *DescribeAliasResp*
+
+**RETURNS:**
 
 A **DescribeAliasResp** object containing the alias details.
 
 **EXCEPTIONS:**
 
-- **MilvusClientException**
+- **MilvusClientExceptions**
 
     This exception will be raised when any error occurs during this operation.
 
@@ -87,9 +86,8 @@ MilvusClientV2 client = new MilvusClientV2(connectConfig);
 
 // 2. Describe alias
 DescribeAliasReq describeAliasReq = DescribeAliasReq.builder()
-        .databaseName("my_database")
-        .collectionName("my_collection")
         .alias("test_alias")
         .build();
 DescribeAliasResp describeAliasResp = client.describeAlias(describeAliasReq);
 ```
+

@@ -13,10 +13,10 @@ type: docx
 token: L6dIdJaeGoNfmcxAXC2cW82znke
 sidebar_position: 2
 keywords: 
-  - image similarity search
-  - Context Window
-  - Natural language search
-  - Similarity Search
+  - Vector store
+  - open source vector database
+  - Vector index
+  - vector database open source
   - zilliz
   - zilliz cloud
   - cloud

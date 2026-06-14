@@ -13,10 +13,10 @@ type: docx
 token: Bx6FdwVlUoqZjVxZwSFcnUr2nDe
 sidebar_position: 7
 keywords: 
-  - DiskANN
-  - Sparse vector
-  - Vector Dimension
-  - ANN Search
+  - Multimodal search
+  - vector search algorithms
+  - Question answering system
+  - llm-as-a-judge
   - zilliz
   - zilliz cloud
   - cloud

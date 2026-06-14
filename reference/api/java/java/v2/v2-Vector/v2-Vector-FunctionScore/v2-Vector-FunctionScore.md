@@ -13,10 +13,10 @@ type: docx
 token: Au6Wda1HUonyXOx5Pfzc0Cpjnab
 sidebar_position: 2
 keywords: 
-  - Faiss
-  - Video search
-  - AI Hallucination
-  - AI Agent
+  - milvus
+  - Zilliz
+  - milvus vector database
+  - milvus db
   - zilliz
   - zilliz cloud
   - cloud

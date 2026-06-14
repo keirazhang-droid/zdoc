@@ -12,10 +12,10 @@ token: SDTtfq1P5lBVV7d45b0cYrljnup
 sidebar_position: 4
 sidebar_label: "Import"
 keywords: 
-  - Chroma vs Milvus
-  - Annoy vector search
-  - milvus
-  - Zilliz
+  - what is vector db
+  - what are vector databases
+  - vector databases comparison
+  - Faiss
   - zilliz
   - zilliz cloud
   - cloud

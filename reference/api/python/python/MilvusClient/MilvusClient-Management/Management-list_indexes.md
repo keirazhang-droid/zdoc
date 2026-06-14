@@ -13,10 +13,10 @@ type: docx
 token: ZqmudJWyFonUKGxAxXncYrLZn2e
 sidebar_position: 9
 keywords: 
-  - Serverless vector database
-  - milvus open source
-  - how does milvus work
-  - Zilliz vector database
+  - nlp search
+  - hallucinations llm
+  - Multimodal search
+  - vector search algorithms
   - zilliz
   - zilliz cloud
   - cloud
@@ -37,7 +37,7 @@ This operation lists all indexes of a specific collection.
 
 This method applies only to dedicated serving clusters and on-demand compute. 
 
-- For this operation in a collection of a serving cluster, please create **MilvusClient** with the cluster endpoint.
+- For this operation in a collection of a serving cluster, please create **[MilvusClient](./Client-MilvusClient)** with the cluster endpoint.
 
     - **Free & Serverless**
 
@@ -47,7 +47,7 @@ This method applies only to dedicated serving clusters and on-demand compute.
 
         `https://{cluster-id}.{region}.vectordb.zillizcloud.com:19530`
 
-- For this operation in a collection for on-demand compute, create **MilvusClient** with the project endpoints, and then create a session to attach to an on-demand cluster for searches.
+- For this operation in a collection for on-demand compute, create **[MilvusClient](./Client-MilvusClient)** with the project endpoints, and then create a session to attach to an on-demand cluster for searches.
 
     `https://{project-id}.{region}.api.zillizcloud.com`
 

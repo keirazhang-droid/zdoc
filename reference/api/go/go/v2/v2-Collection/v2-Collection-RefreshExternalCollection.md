@@ -13,10 +13,10 @@ type: docx
 token: Mw42dp2VZoN4gFxdiSYcxDB8n0g
 sidebar_position: 27
 keywords: 
-  - nlp search
-  - hallucinations llm
-  - Multimodal search
-  - vector search algorithms
+  - open source vector db
+  - vector database example
+  - rag vector database
+  - what is vector db
   - zilliz
   - zilliz cloud
   - cloud

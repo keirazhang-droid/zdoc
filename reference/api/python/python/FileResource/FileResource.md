@@ -9,13 +9,13 @@ deprecate_since: false
 description: "Methods related to external file resources management. | Python"
 type: folder
 token: PWyVfD7HUl1x3ydji7RcraKin1g
-sidebar_position: 7
+sidebar_position: 2
 sidebar_label: "FileResource"
 keywords: 
-  - private llms
-  - nn search
-  - llm eval
-  - Sparse vs Dense
+  - vector db comparison
+  - openai vector db
+  - natural language processing database
+  - cheap vector database
   - zilliz
   - zilliz cloud
   - cloud

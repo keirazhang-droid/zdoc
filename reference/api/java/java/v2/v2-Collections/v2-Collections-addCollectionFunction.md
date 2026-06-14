@@ -13,10 +13,10 @@ type: docx
 token: AIRDdrhZloIQCrxCfc8cvxe4nmh
 sidebar_position: 30
 keywords: 
-  - private llms
-  - nn search
-  - llm eval
-  - Sparse vs Dense
+  - multimodal vector database retrieval
+  - Retrieval Augmented Generation
+  - Large language model
+  - Vectorization
   - zilliz
   - zilliz cloud
   - cloud

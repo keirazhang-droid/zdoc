@@ -12,10 +12,10 @@ token: EflgfwlI7lX3Dgd6xrbcFXhunzh
 sidebar_position: 4
 sidebar_label: "Index"
 keywords: 
-  - Machine Learning
-  - RAG
-  - NLP
-  - Neural Network
+  - llm-as-a-judge
+  - hybrid vector search
+  - Video deduplication
+  - Video similarity search
   - zilliz
   - zilliz cloud
   - cloud

@@ -13,10 +13,10 @@ type: docx
 token: LbIpdBlKsotqHFxgRxmcGsk0n5g
 sidebar_position: 3
 keywords: 
-  - DiskANN
-  - Sparse vector
-  - Vector Dimension
-  - ANN Search
+  - AI chatbots
+  - cosine distance
+  - what is a vector database
+  - vectordb
   - zilliz
   - zilliz cloud
   - cloud

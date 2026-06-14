@@ -13,10 +13,10 @@ type: docx
 token: VSRhdmsCvodJ7pxwGgqcuvZ3n7g
 sidebar_position: 5
 keywords: 
-  - Recommender systems
-  - information retrieval
-  - dimension reduction
-  - hnsw algorithm
+  - Vector store
+  - open source vector database
+  - Vector index
+  - vector database open source
   - zilliz
   - zilliz cloud
   - cloud

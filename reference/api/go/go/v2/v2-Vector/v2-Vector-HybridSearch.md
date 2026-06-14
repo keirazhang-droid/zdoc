@@ -8,15 +8,15 @@ last_modified: false
 deprecate_since: false
 beta: false
 notebook: false
-description: "This operation performs a hybrid search that combines results from multiple ANN requests, each targeting a different vector field or index type. Use a reranker to merge and reorder the results. | Go | v2"
+description: "This operation performs a multi-vector search across multiple vector fields and merges results using a reranking strategy. | Go | v2"
 type: docx
 token: VneHdph9ZoSf9wxQdKBc0046nBT
 sidebar_position: 5
 keywords: 
-  - Elastic vector database
-  - Pinecone vs Milvus
-  - Chroma vs Milvus
-  - Annoy vector search
+  - Unstructured Data
+  - vector database
+  - IVF
+  - knn
   - zilliz
   - zilliz cloud
   - cloud
@@ -31,7 +31,7 @@ import Admonition from '@theme/Admonition';
 
 # HybridSearch()
 
-This operation performs a hybrid search that combines results from multiple ANN requests, each targeting a different vector field or index type. Use a reranker to merge and reorder the results.
+This operation performs a multi-vector search across multiple vector fields and merges results using a reranking strategy.
 
 ```go
 func (c *Client) HybridSearch(ctx context.Context, option HybridSearchOption, callOptions ...grpc.CallOption) ([]ResultSet, error)
@@ -42,90 +42,73 @@ func (c *Client) HybridSearch(ctx context.Context, option HybridSearchOption, ca
 ```go
 option := milvusclient.NewHybridSearchOption(collectionName, limit, annRequests).
     WithConsistencyLevel(cl).
+    WithPartitons(partitions).
     WithPartitions(partitions).
     WithOutputFields(outputFields).
     WithReranker(reranker).
     WithFunctionRerankers(functionReranker).
     WithOffset(offset)
 
-resultSets, err := cli.HybridSearch(ctx, option)
+result, err := client.HybridSearch(ctx, option)
 ```
 
 **PARAMETERS:**
 
-- **option** (*HybridSearchOption*) -
+- **collectionName** (*string*)
 
-    The hybrid search options.
+    The name of the target collection.
 
-**BUILDER METHODS:**
+- **limit** (*int*)
 
-- `NewHybridSearchOption(collectionName string, limit int, annRequests ...*AnnRequest)`
-This creates a hybrid search option with one or more ANN requests.
+    The maximum number of results to return.
 
-- `NewAnnRequest(fieldName string, limit int, vector entity.Vector)`
-This creates an ANN request for a specific vector field.
+- **annRequests** (*...*AnnRequest*)
 
-- `WithIDs(ids column.Column)`
-This filters the ANN request to search only the specified primary key IDs.
+    The ann requests.
 
-- `WithFilter(expr string)`
-This applies a boolean expression filter to the ANN request.
+**OPTION METHODS:**
 
-- `WithOffset(offset int)`
-This sets the number of results to skip for the ANN request.
+- `WithConsistencyLevel(cl [entity.ConsistencyLevel](./v2-Collection-ConsistencyLevel))`
 
-- `WithGroupByField(groupByField string)`
-This groups the ANN request results by the specified field.
+    Sets the consistency level for the operation (Strong, Bounded, Session, or Eventually).
 
-- `WithGroupSize(groupSize int)`
-This sets the number of results per group.
+- `WithPartitons(partitions ...string)`
 
-- `WithStrictGroupSize(strictGroupSize bool)`
-This enforces strict group size limits.
+    Deprecated: typo, use WithPartitions instead
 
-- `WithIgnoreGrowing(ignoreGrowing bool)`
-This ignores growing segments during the ANN request.
+- `WithPartitions(partitions ...string)`
 
-- `WithAnnParam(ap index.AnnParam)`
-This sets the ANN parameters for the request.
+    Limits the operation to the specified partitions.
 
-- `WithSearchParam(key, value string)`
-This sets a custom search parameter for the ANN request.
+- `WithOutputFields(outputFields ...string)`
 
-- `WithFunctionReranker(fr *entity.Function)`
-This applies a function reranker to the ANN request.
+    Specifies which fields to include in the returned results.
 
-- `WithConsistencyLevel(consistencyLevel entity.ConsistencyLevel)`
-This sets the consistency level for the hybrid search.
+- `WithReranker(reranker Reranker)`
 
-- `WithPartitions(partitionNames ...string)`
-This restricts the hybrid search to the specified partitions.
+    Sets the reranker for the operation.
 
-- `WithOutputFields(fieldNames ...string)`
-This specifies which fields to return in the result sets.
+- `WithFunctionRerankers(functionReranker *[entity.Function](./v2-Collection-Function))`
 
-- `WithReranker(reranker milvusclient.Reranker)`
-This sets a reranker to merge and reorder results from multiple ANN requests.
-
-- `WithFunctionRerankers(functionReranker ...*entity.Function)`
-This sets function-based rerankers for the hybrid search.
+    Sets the function rerankers for the operation.
 
 - `WithOffset(offset int)`
-This sets the number of results to skip before returning matches.
+
+    Sets the number of results to skip before returning matches.
 
 **RETURN TYPE:**
 
-*[]ResultSet, error*
+*[][ResultSet](./v2-Vector-ResultSet), error*
 
 **RETURNS:**
 
-The hybrid search results containing matched entities with scores and fields from all ANN requests. Returns an error if the operation fails.
+The search or query results containing matched entities with scores and fields. Returns an error if the operation fails.
 
 **EXCEPTIONS:**
 
 - **error**
 
-    Check err != nil for failure details.
+    Check `err != nil` for failure details.
 
 ## Example\{#example}
 
@@ -164,7 +147,7 @@ resultSets, err := cli.HybridSearch(ctx, milvusclient.NewHybridSearchOption(
 	milvusclient.NewAnnRequest("sparse_vector", 10, sparseVector),
 ).WithReranker(milvusclient.NewRRFReranker()))
 if err != nil {
-	log.Fatal("failed to perform hybrid search: ", err.Error())
+	log.Fatal("failed to perform basic ANN search collection: ", err.Error())
 }
 
 for _, resultSet := range resultSets {

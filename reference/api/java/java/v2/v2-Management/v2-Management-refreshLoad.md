@@ -13,10 +13,10 @@ type: docx
 token: TCw7d7brCovAUpxA5D8cjOIGn1b
 sidebar_position: 15
 keywords: 
-  - Audio similarity search
-  - Elastic vector database
-  - Pinecone vs Milvus
-  - Chroma vs Milvus
+  - natural language processing database
+  - cheap vector database
+  - Managed vector database
+  - Pinecone vector database
   - zilliz
   - zilliz cloud
   - cloud

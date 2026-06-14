@@ -13,10 +13,10 @@ type: docx
 token: PP2kdYCHnoZQ96xJqWUcAW8enG9
 sidebar_position: 9
 keywords: 
-  - private llms
-  - nn search
-  - llm eval
-  - Sparse vs Dense
+  - dimension reduction
+  - hnsw algorithm
+  - vector similarity search
+  - approximate nearest neighbor search
   - zilliz
   - zilliz cloud
   - cloud
@@ -114,6 +114,10 @@ err := client.CreateCollection(ctx, option)
 - `WithNumPartitions(numPartitions int64)`
 
     Sets the number of partitions for the collection.
+
+## Validation\{#validation}
+
+CreateCollection validates the supplied schema before sending the request. In v2.6.5, struct-array field validation is applied automatically and invalid struct sub-field definitions return an error before the request is sent.
 
 **RETURN TYPE:**
 

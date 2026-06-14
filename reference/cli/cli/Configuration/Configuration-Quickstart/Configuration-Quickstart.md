@@ -12,10 +12,10 @@ token: CLbTfXENAlL9T5dPoG8cmgGPnxP
 sidebar_position: 8
 sidebar_label: "Quickstart"
 keywords: 
-  - managed milvus
-  - Serverless vector database
-  - milvus open source
-  - how does milvus work
+  - Video deduplication
+  - Video similarity search
+  - Vector retrieval
+  - Audio similarity search
   - zilliz
   - zilliz cloud
   - cloud

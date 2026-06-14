@@ -13,10 +13,10 @@ type: docx
 token: MzJHdc3iSoGlKsx4D6TcoY5anOf
 sidebar_position: 1
 keywords: 
-  - Zilliz database
-  - Unstructured Data
-  - vector database
-  - IVF
+  - Video deduplication
+  - Video similarity search
+  - Vector retrieval
+  - Audio similarity search
   - zilliz
   - zilliz cloud
   - cloud
@@ -33,21 +33,36 @@ import Admonition from '@theme/Admonition';
 
 This operation shows the version of the installed Zilliz CLI.
 
+## Description\{#description}
+
+Shows the installed Zilliz CLI version. The example also shows how to request JSON output with the global output option.
+
 ## Synopsis\{#synopsis}
 
 ```bash
 zilliz version
-[--output <json | table | text>]
 ```
 
 ## Options\{#options}
 
-- **--output, -o** (*string*) -
-
-    Indicates the output format. Choices: `json`, `table`, `text`.
+This command has no command-specific options.
 
 ## Example\{#example}
 
 ```bash
 zilliz version
+
+# Example output
+# zilliz 1.4.2
+
+# The output format is a global CLI option. To get JSON output:
+zilliz version -o json
+
+# Example output
+# {
+#   "version": "1.4.2"
+# }
+
+# If a newer CLI is available, upgrade guidance is written to stderr:
+# Tips: A new version of zilliz (1.4.2) is available. Run \`zilliz upgrade\` to update.
 ```

@@ -13,10 +13,10 @@ type: docx
 token: XWSAdFkdDoaDPnxOtkEcuFETngL
 sidebar_position: 20
 keywords: 
-  - natural language processing
-  - AI chatbots
-  - cosine distance
-  - what is a vector database
+  - llm eval
+  - Sparse vs Dense
+  - Dense vector
+  - Hierarchical Navigable Small Worlds
   - zilliz
   - zilliz cloud
   - cloud

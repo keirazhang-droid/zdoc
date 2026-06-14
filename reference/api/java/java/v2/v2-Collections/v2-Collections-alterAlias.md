@@ -13,10 +13,10 @@ type: docx
 token: Fv8EdYIt4oThstxgpzqcm7C0nug
 sidebar_position: 1
 keywords: 
-  - DiskANN
-  - Sparse vector
-  - Vector Dimension
-  - ANN Search
+  - lexical search
+  - nearest neighbor search
+  - Agentic RAG
+  - rag llm architecture
   - zilliz
   - zilliz cloud
   - cloud
@@ -42,7 +42,6 @@ public void alterAlias(AlterAliasReq request)
 ```java
 alterAlias(AlterAliasReq.builder()
     .alias(String alias)
-    .databaseName(String databaseName)
     .collectionName(String collectionName)
     .build()
 )
@@ -75,10 +74,6 @@ alterAlias(AlterAliasReq.builder()
     - `collection_2`'s alias = ["bob"]
 
     </Admonition>
-
-- `databaseName(String databaseName)`
-
-    The name of the database to which the target collection belongs.
 
 - `collectionName(String collectionName)`
 

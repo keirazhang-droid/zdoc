@@ -13,10 +13,10 @@ type: docx
 token: CSaVdr3zao9zFpxaJBgcCTCYnPd
 sidebar_position: 2
 keywords: 
-  - Zilliz Cloud
-  - what is milvus
-  - milvus database
-  - milvus lite
+  - Managed vector database
+  - Pinecone vector database
+  - Audio search
+  - what is semantic search
   - zilliz
   - zilliz cloud
   - cloud
@@ -43,7 +43,6 @@ public void dropPartition(DropPartitionReq request)
 
 ```java
 dropPartition(DropPartitionReq.builder()
-    .databaseName(String databaseName)
     .collectionName(String collectionName)
     .partitionName(String partitionName)
     .build()
@@ -51,10 +50,6 @@ dropPartition(DropPartitionReq.builder()
 ```
 
 **BUILDER METHODS:**
-
-- `databaseName(String databaseName)`
-
-    The name of the database to which the target collection belongs.
 
 - `collectionName(String collectionName)`
 

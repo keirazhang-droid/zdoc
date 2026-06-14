@@ -13,10 +13,10 @@ type: docx
 token: AVEcd3SCwoRyiTxcNodcQAepnGf
 sidebar_position: 21
 keywords: 
-  - LLMs
-  - Machine Learning
-  - RAG
-  - NLP
+  - llm-as-a-judge
+  - hybrid vector search
+  - Video deduplication
+  - Video similarity search
   - zilliz
   - zilliz cloud
   - cloud

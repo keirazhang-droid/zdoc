@@ -13,10 +13,10 @@ type: docx
 token: DPcJdZceFoes0sxeRVKcKhaunq9
 sidebar_position: 15
 keywords: 
-  - hnsw algorithm
-  - vector similarity search
-  - approximate nearest neighbor search
-  - DiskANN
+  - Dense embedding
+  - Faiss vector database
+  - Chroma vector database
+  - nlp search
   - zilliz
   - zilliz cloud
   - cloud

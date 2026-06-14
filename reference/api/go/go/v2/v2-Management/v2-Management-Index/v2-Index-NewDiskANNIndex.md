@@ -13,10 +13,10 @@ type: docx
 token: HWG7dWY6XoKyapx5L5Mc69kLnld
 sidebar_position: 6
 keywords: 
-  - ANNS
-  - Vector search
-  - knn algorithm
-  - HNSW
+  - DiskANN
+  - Sparse vector
+  - Vector Dimension
+  - ANN Search
   - zilliz
   - zilliz cloud
   - cloud

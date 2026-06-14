@@ -9,13 +9,13 @@ deprecate_since: false
 description: "PyMilvus ORM modules, classes, and methods | Python | ORM"
 type: folder
 token: QYo4fSeVFlex8ZdeGZ4cAlmcnof
-sidebar_position: 4
+sidebar_position: 5
 sidebar_label: "ORM"
 keywords: 
-  - Chroma vector database
-  - nlp search
-  - hallucinations llm
-  - Multimodal search
+  - AI chatbots
+  - cosine distance
+  - what is a vector database
+  - vectordb
   - zilliz
   - zilliz cloud
   - cloud

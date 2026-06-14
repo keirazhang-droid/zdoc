@@ -13,10 +13,10 @@ type: docx
 token: DumcdeKcuoSJybxv0V5ckFrFnyg
 sidebar_position: 5
 keywords: 
-  - open source vector db
-  - vector database example
-  - rag vector database
-  - what is vector db
+  - Annoy vector search
+  - milvus
+  - Zilliz
+  - milvus vector database
   - zilliz
   - zilliz cloud
   - cloud

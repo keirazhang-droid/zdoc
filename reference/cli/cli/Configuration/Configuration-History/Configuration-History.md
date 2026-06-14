@@ -12,10 +12,10 @@ token: R8pjfCQvPlA4IEdzRUPcc8eAnxc
 sidebar_position: 7
 sidebar_label: "History"
 keywords: 
-  - Anomaly Detection
-  - sentence transformers
-  - Recommender systems
-  - information retrieval
+  - Image Search
+  - LLMs
+  - Machine Learning
+  - RAG
   - zilliz
   - zilliz cloud
   - cloud

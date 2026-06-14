@@ -12,10 +12,10 @@ token: G4vvf4YHtlwg02d1ZyXcsRCCnud
 sidebar_position: 10
 sidebar_label: "Snapshot"
 keywords: 
-  - Audio search
-  - what is semantic search
-  - Embedding model
-  - image similarity search
+  - Knowledge base
+  - natural language processing
+  - AI chatbots
+  - cosine distance
   - zilliz
   - zilliz cloud
   - cloud

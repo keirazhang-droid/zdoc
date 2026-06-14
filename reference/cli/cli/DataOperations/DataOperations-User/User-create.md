@@ -13,10 +13,10 @@ type: docx
 token: UJuOdGGu3okE0Sx1jARc45lMnGb
 sidebar_position: 1
 keywords: 
-  - ANNS
-  - Vector search
-  - knn algorithm
-  - HNSW
+  - Dense embedding
+  - Faiss vector database
+  - Chroma vector database
+  - nlp search
   - zilliz
   - zilliz cloud
   - cloud

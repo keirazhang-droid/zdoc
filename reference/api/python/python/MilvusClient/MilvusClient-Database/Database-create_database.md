@@ -13,10 +13,10 @@ type: docx
 token: S278drWUVoRZ5fx8XkfcWaZfnwh
 sidebar_position: 2
 keywords: 
-  - image similarity search
-  - Context Window
-  - Natural language search
-  - Similarity Search
+  - Elastic vector database
+  - Pinecone vs Milvus
+  - Chroma vs Milvus
+  - Annoy vector search
   - zilliz
   - zilliz cloud
   - cloud
@@ -37,7 +37,7 @@ This operation creates a database.
 
 This method applies only to dedicated serving clusters and on-demand compute. 
 
-- For a database in dedicated serving clusters, please create **MilvusClient** with the cluster endpoint.
+- For a database in a dedicated serving clusters, create **[MilvusClient](./Client-MilvusClient)** with the cluster endpoint.
 
     - **Free & Serverless**
 
@@ -47,7 +47,7 @@ This method applies only to dedicated serving clusters and on-demand compute.
 
         `https://{cluster-id}.{region}.vectordb.zillizcloud.com:19530`
 
-- For a database for on-demand compute, create **MilvusClient** with the project endpoints.
+- For a database for on-demand compute, create **[MilvusClient](./Client-MilvusClient)** with the project endpoints.
 
     `https://{project-id}.{region}.api.zillizcloud.com`
 
@@ -74,7 +74,7 @@ create_database(
 
 - **properties** (*dict* | *None*) -
 
-    <Admonition type="info" icon="📘" title="This does not apply to database for on-demand compute.">
+    <Admonition type="info" icon="📘" title="This does not apply to databases for on-demand compute.">
     
     </Admonition>
 

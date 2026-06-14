@@ -12,10 +12,10 @@ token: CcKQfofa1lkWPhdqzZ3cg3FAnDb
 sidebar_position: 3
 sidebar_label: "Database"
 keywords: 
-  - Image Search
-  - LLMs
-  - Machine Learning
-  - RAG
+  - Question answering system
+  - llm-as-a-judge
+  - hybrid vector search
+  - Video deduplication
   - zilliz
   - zilliz cloud
   - cloud

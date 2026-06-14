@@ -13,10 +13,10 @@ type: docx
 token: CGY6dYpcfoZr3cxbXT5cis6UnZf
 sidebar_position: 3
 keywords: 
-  - IVF
-  - knn
-  - Image Search
-  - LLMs
+  - semantic search
+  - Anomaly Detection
+  - sentence transformers
+  - Recommender systems
   - zilliz
   - zilliz cloud
   - cloud

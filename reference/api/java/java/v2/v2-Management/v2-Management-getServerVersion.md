@@ -13,10 +13,10 @@ type: docx
 token: FuDHdadxHoX9qSxe4aac4wzNnRh
 sidebar_position: 23
 keywords: 
-  - Sparse vector
-  - Vector Dimension
-  - ANN Search
-  - What are vector embeddings
+  - nn search
+  - llm eval
+  - Sparse vs Dense
+  - Dense vector
   - zilliz
   - zilliz cloud
   - cloud

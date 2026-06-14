@@ -12,10 +12,10 @@ token: EVpQfxDmQloZX4dVW63c5h9mnHd
 sidebar_position: 5
 sidebar_label: "Management"
 keywords: 
-  - natural language processing
-  - AI chatbots
-  - cosine distance
-  - what is a vector database
+  - vectordb
+  - multimodal vector database retrieval
+  - Retrieval Augmented Generation
+  - Large language model
   - zilliz
   - zilliz cloud
   - cloud

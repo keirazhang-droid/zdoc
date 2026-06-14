@@ -13,10 +13,10 @@ type: docx
 token: I4XDdrxCVoa9I1xaezEcc0qPnMe
 sidebar_position: 2
 keywords: 
-  - information retrieval
-  - dimension reduction
-  - hnsw algorithm
-  - vector similarity search
+  - Vector store
+  - open source vector database
+  - Vector index
+  - vector database open source
   - zilliz
   - zilliz cloud
   - cloud

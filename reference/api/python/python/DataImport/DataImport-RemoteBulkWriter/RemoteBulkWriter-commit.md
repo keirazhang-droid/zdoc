@@ -13,10 +13,10 @@ type: docx
 token: VccVd4MTgoPzCixDVtgcEoKWnPf
 sidebar_position: 3
 keywords: 
+  - rag vector database
   - what is vector db
   - what are vector databases
   - vector databases comparison
-  - Faiss
   - zilliz
   - zilliz cloud
   - cloud

@@ -13,10 +13,10 @@ type: docx
 token: GppedViHro8TJMxQCZ3cJRKRnHg
 sidebar_position: 16
 keywords: 
-  - Pinecone vs Milvus
-  - Chroma vs Milvus
-  - Annoy vector search
-  - milvus
+  - vector database tutorial
+  - how do vector databases work
+  - vector db comparison
+  - openai vector db
   - zilliz
   - zilliz cloud
   - cloud

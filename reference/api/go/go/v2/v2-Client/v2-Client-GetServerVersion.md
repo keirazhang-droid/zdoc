@@ -13,10 +13,10 @@ type: docx
 token: TUYsd2ko4oAlB4xa9nxc6rhRnpc
 sidebar_position: 3
 keywords: 
-  - Context Window
-  - Natural language search
-  - Similarity Search
-  - multimodal RAG
+  - managed milvus
+  - Serverless vector database
+  - milvus open source
+  - how does milvus work
   - zilliz
   - zilliz cloud
   - cloud

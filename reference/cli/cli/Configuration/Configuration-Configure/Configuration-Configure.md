@@ -12,10 +12,10 @@ token: LPAcfkgMhlSeEqdFJ7CcxeL3nCh
 sidebar_position: 4
 sidebar_label: "Configure"
 keywords: 
-  - Zilliz database
-  - Unstructured Data
-  - vector database
-  - IVF
+  - cosine distance
+  - what is a vector database
+  - vectordb
+  - multimodal vector database retrieval
   - zilliz
   - zilliz cloud
   - cloud

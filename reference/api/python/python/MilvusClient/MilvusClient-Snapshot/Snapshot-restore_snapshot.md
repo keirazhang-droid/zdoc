@@ -11,12 +11,12 @@ notebook: false
 description: "This operation restores a snapshot to a target collection. The restore runs asynchronously — use `getrestoresnapshotstate()` to monitor progress. | Python | MilvusClient"
 type: docx
 token: I2OZdk40IomugOx9MTqcooVcnEf
-sidebar_position: 7
+sidebar_position: 8
 keywords: 
-  - Machine Learning
-  - RAG
-  - NLP
-  - Neural Network
+  - Embedding model
+  - image similarity search
+  - Context Window
+  - Natural language search
   - zilliz
   - zilliz cloud
   - cloud

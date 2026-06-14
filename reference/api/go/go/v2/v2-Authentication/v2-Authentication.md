@@ -12,10 +12,10 @@ token: MINQfdgeRlnbDzd1ofucUJDsnuW
 sidebar_position: 1
 sidebar_label: "Authentication"
 keywords: 
-  - Elastic vector database
-  - Pinecone vs Milvus
-  - Chroma vs Milvus
-  - Annoy vector search
+  - multimodal vector database retrieval
+  - Retrieval Augmented Generation
+  - Large language model
+  - Vectorization
   - zilliz
   - zilliz cloud
   - cloud

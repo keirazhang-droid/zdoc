@@ -13,10 +13,10 @@ type: docx
 token: I5yTdfJXNoHDICxSwWXcNjwxnoc
 sidebar_position: 3
 keywords: 
-  - milvus
-  - Zilliz
-  - milvus vector database
-  - milvus db
+  - Vector Dimension
+  - ANN Search
+  - What are vector embeddings
+  - vector database tutorial
   - zilliz
   - zilliz cloud
   - cloud

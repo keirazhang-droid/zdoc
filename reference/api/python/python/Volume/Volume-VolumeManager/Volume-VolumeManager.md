@@ -10,13 +10,13 @@ beta: false
 notebook: false
 description: "A `VolumeManager` instance maintains a connection to Zilliz Cloud's Volume service. Before creating, listing, or deleting volumes, you need to initiate a `VolumeManager` instance. | Python"
 type: docx
-token: XdZ6dFzA3oUu4dxWh7Kcz4dhnQg
+token: G5c6dxWkno5FRAxeDMycR6AVntf
 sidebar_position: 5
 keywords: 
-  - cosine distance
-  - what is a vector database
-  - vectordb
-  - multimodal vector database retrieval
+  - Faiss vector database
+  - Chroma vector database
+  - nlp search
+  - hallucinations llm
   - zilliz
   - zilliz cloud
   - cloud

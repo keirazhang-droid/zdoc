@@ -12,10 +12,10 @@ token: P8hMfnsOjlir3rdvsKDcEQG8nCc
 sidebar_position: 2
 sidebar_label: "Client"
 keywords: 
-  - rag vector database
-  - what is vector db
-  - what are vector databases
-  - vector databases comparison
+  - milvus open source
+  - how does milvus work
+  - Zilliz vector database
+  - Zilliz database
   - zilliz
   - zilliz cloud
   - cloud

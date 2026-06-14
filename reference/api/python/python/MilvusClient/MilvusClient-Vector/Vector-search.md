@@ -13,10 +13,10 @@ type: docx
 token: DvaZdhYnyoo7lOxNIBwc5eKEn7d
 sidebar_position: 6
 keywords: 
-  - NLP
-  - Neural Network
-  - Deep Learning
-  - Knowledge base
+  - Vector Dimension
+  - ANN Search
+  - What are vector embeddings
+  - vector database tutorial
   - zilliz
   - zilliz cloud
   - cloud
@@ -37,7 +37,7 @@ This operation conducts a vector similarity search with an optional scalar filte
 
 This method applies only to dedicated serving clusters and on-demand compute. 
 
-- For this operation in a collection of a serving cluster, please create **MilvusClient** with the cluster endpoint.
+- For this operation in a collection of a serving cluster, please create **[MilvusClient](./Client-MilvusClient)** with the cluster endpoint.
 
     - **Free & Serverless**
 
@@ -47,7 +47,7 @@ This method applies only to dedicated serving clusters and on-demand compute.
 
         `https://{cluster-id}.{region}.vectordb.zillizcloud.com:19530`
 
-- For this operation in a collection for on-demand compute, create **MilvusClient** with the project endpoints, and then create a session to attach to an on-demand cluster for searches.
+- For this operation in a collection for on-demand compute, create **[MilvusClient](./Client-MilvusClient)** with the project endpoints, and then create a session to attach to an on-demand cluster for searches.
 
     `https://{project-id}.{region}.api.zillizcloud.com`
 
@@ -145,19 +145,13 @@ search(
 
     The parameter settings specific to this operation.
 
-    - **metric_type** (*str*) -
-
-        The metric type applied to this operation. This should be the same as the one used when you index the vector field specified above. 
-
-        Possible values are **L2**, **IP**, and **COSINE**.
-
     - **radius** (float) -
 
-        Determines the threshold of least similarity. When setting `metric_type` to `L2`, ensure that this value is greater than that of **range_filter**. Otherwise, this value should be lower than that of **range_filter**. 
+        Determines the threshold of least similarity. When the collection's metric type is set to L2, ensure this value is greater than **range_filter**. Otherwise, this value should be lower than that of **range_filter**. 
 
     - **range_filter**  (float) -  
 
-        Refines the search to vectors within a specific similarity range. When setting `metric_type` to `IP` or `COSINE`, ensure that this value is greater than that of **radius**. Otherwise, this value should be lower than that of **radius**.
+        Refines the search to vectors within a specific similarity range. When the collection's metric type is set to `IP` or `COSINE`, ensure that this value is greater than that of **radius**. Otherwise, this value should be lower than that of **radius**.
 
     - **level** (*int*)
 
@@ -183,11 +177,11 @@ search(
 
         - **radius** (float) -
 
-            Determines the threshold of least similarity. When setting `metric_type` to `L2`, ensure that this value is greater than that of **range_filter**. Otherwise, this value should be lower than that of **range_filter**. 
+            Determines the threshold of least similarity. When the collection's metric type is set to `L2`, ensure that this value is greater than that of **range_filter**. Otherwise, this value should be lower than that of **range_filter**. 
 
         - **range_filter**  (float) -  
 
-            Refines the search to vectors within a specific similarity range. When setting `metric_type` to `IP` or `COSINE`, ensure that this value is greater than that of **radius**. Otherwise, this value should be lower than that of **radius**.
+            Refines the search to vectors within a specific similarity range. When the collection's metric type is set to `IP` or `COSINE`, ensure that this value is greater than that of **radius**. Otherwise, this value should be lower than that of **radius**.
 
         - **level** (*int*)
 
@@ -354,7 +348,6 @@ client.insert(
 
 # 4. Conduct a search
 search_params = {
-    "metric_type": "IP",
     "params": {}
 }
 

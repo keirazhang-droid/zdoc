@@ -12,10 +12,10 @@ token: MwIofv5z3ljhiBdoZA4cEPdZnGg
 sidebar_position: 1
 sidebar_label: "Alias"
 keywords: 
-  - Zilliz database
-  - Unstructured Data
-  - vector database
-  - IVF
+  - how do vector databases work
+  - vector db comparison
+  - openai vector db
+  - natural language processing database
   - zilliz
   - zilliz cloud
   - cloud

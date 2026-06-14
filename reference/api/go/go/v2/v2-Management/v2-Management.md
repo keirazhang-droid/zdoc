@@ -12,10 +12,10 @@ token: Gc1lf2ABblRExId5rTucKTp6n2q
 sidebar_position: 6
 sidebar_label: "Management"
 keywords: 
-  - Hierarchical Navigable Small Worlds
-  - Dense embedding
-  - Faiss vector database
-  - Chroma vector database
+  - AI Agent
+  - semantic search
+  - Anomaly Detection
+  - sentence transformers
   - zilliz
   - zilliz cloud
   - cloud

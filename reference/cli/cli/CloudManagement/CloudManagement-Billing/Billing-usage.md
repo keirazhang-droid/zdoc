@@ -13,10 +13,10 @@ type: docx
 token: FpDzdA1nSo6sOHxYxAhcTPCLn5d
 sidebar_position: 4
 keywords: 
-  - knn
-  - Image Search
-  - LLMs
-  - Machine Learning
+  - how does milvus work
+  - Zilliz vector database
+  - Zilliz database
+  - Unstructured Data
   - zilliz
   - zilliz cloud
   - cloud

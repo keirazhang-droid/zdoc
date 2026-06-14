@@ -12,10 +12,10 @@ token: CRpLfHplvlPKBDdxyCqcPFqWncd
 sidebar_position: 1
 sidebar_label: "Cloud Management"
 keywords: 
-  - Audio similarity search
-  - Elastic vector database
-  - Pinecone vs Milvus
-  - Chroma vs Milvus
+  - milvus vector db
+  - Zilliz Cloud
+  - what is milvus
+  - milvus database
   - zilliz
   - zilliz cloud
   - cloud

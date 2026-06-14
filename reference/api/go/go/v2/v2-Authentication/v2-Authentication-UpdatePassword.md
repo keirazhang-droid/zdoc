@@ -13,10 +13,10 @@ type: docx
 token: GKDQd15KkoiLPSxs8UYcFUamnIg
 sidebar_position: 25
 keywords: 
-  - Chroma vector database
-  - nlp search
-  - hallucinations llm
-  - Multimodal search
+  - milvus vector db
+  - Zilliz Cloud
+  - what is milvus
+  - milvus database
   - zilliz
   - zilliz cloud
   - cloud

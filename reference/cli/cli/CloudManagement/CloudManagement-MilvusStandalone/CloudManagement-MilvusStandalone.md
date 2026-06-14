@@ -12,10 +12,10 @@ token: IU8kfKYCwlJHotdqhJ0cTaaknDJ
 sidebar_position: 6
 sidebar_label: "Milvus Standalone"
 keywords: 
-  - milvus
-  - Zilliz
-  - milvus vector database
-  - milvus db
+  - k nearest neighbor algorithm
+  - ANNS
+  - Vector search
+  - knn algorithm
   - zilliz
   - zilliz cloud
   - cloud

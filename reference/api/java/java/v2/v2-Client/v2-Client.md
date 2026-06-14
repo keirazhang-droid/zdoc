@@ -12,10 +12,10 @@ token: YyNNfpZsKlOCstdX7xRcXT4an6e
 sidebar_position: 2
 sidebar_label: "Client"
 keywords: 
-  - Knowledge base
-  - natural language processing
-  - AI chatbots
-  - cosine distance
+  - Vectorization
+  - k nearest neighbor algorithm
+  - ANNS
+  - Vector search
   - zilliz
   - zilliz cloud
   - cloud

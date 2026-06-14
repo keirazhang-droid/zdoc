@@ -13,10 +13,10 @@ type: docx
 token: EAs8dmRIuoMvW5xXLHdcDw2Gn0d
 sidebar_position: 6
 keywords: 
-  - DiskANN
-  - Sparse vector
-  - Vector Dimension
-  - ANN Search
+  - vector database
+  - IVF
+  - knn
+  - Image Search
   - zilliz
   - zilliz cloud
   - cloud

@@ -13,10 +13,10 @@ type: docx
 token: VSewdBpmioKEJ2xtGAHczoO5nWh
 sidebar_position: 1
 keywords: 
-  - rag llm architecture
-  - private llms
-  - nn search
-  - llm eval
+  - Dense embedding
+  - Faiss vector database
+  - Chroma vector database
+  - nlp search
   - zilliz
   - zilliz cloud
   - cloud

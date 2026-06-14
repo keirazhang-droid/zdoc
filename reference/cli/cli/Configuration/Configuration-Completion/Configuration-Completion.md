@@ -12,10 +12,10 @@ token: YMWHfEBNDlJSrddYr90cDBwenTc
 sidebar_position: 3
 sidebar_label: "Completion"
 keywords: 
-  - cheap vector database
-  - Managed vector database
-  - Pinecone vector database
-  - Audio search
+  - Context Window
+  - Natural language search
+  - Similarity Search
+  - multimodal RAG
   - zilliz
   - zilliz cloud
   - cloud

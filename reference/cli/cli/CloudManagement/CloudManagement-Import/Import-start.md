@@ -13,10 +13,10 @@ type: docx
 token: KXgLdSiiZoMou6xEvnQcdVe3n25
 sidebar_position: 2
 keywords: 
-  - Machine Learning
-  - RAG
-  - NLP
-  - Neural Network
+  - natural language processing
+  - AI chatbots
+  - cosine distance
+  - what is a vector database
   - zilliz
   - zilliz cloud
   - cloud

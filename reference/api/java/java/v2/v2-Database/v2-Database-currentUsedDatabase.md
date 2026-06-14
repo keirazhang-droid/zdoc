@@ -13,10 +13,10 @@ type: docx
 token: UCpTdpkNEoHDyjxxCqqcZLSXnAe
 sidebar_position: 8
 keywords: 
-  - cheap vector database
-  - Managed vector database
-  - Pinecone vector database
-  - Audio search
+  - multimodal RAG
+  - llm hallucinations
+  - hybrid search
+  - lexical search
   - zilliz
   - zilliz cloud
   - cloud
